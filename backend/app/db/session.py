@@ -1,0 +1,27 @@
+"""Database configuration and session management."""
+from contextlib import contextmanager
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, Session
+from app.core.config import settings
+
+engine = create_engine(settings.DATABASE_URL, pool_pre_ping=True)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+
+def get_db() -> Session:
+    """FastAPI dependency for database session."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+@contextmanager
+def get_db_context() -> Session:
+    """Context manager for database session (non-FastAPI usage)."""
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
