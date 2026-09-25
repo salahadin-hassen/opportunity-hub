@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from enum import StrEnum
+import uuid
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict
@@ -21,6 +22,7 @@ class RequirementResult(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
+    requirement_id: uuid.UUID | None = None
     outcome: RequirementOutcome
     reason_code: str
     expected: dict[str, Any]
