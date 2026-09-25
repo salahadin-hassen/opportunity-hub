@@ -4,12 +4,14 @@ from __future__ import annotations
 from typing import Any, Callable
 
 from app.services.matching.boolean_flag import evaluate_boolean_flag
+from app.services.matching.numeric_threshold import evaluate_numeric_threshold
 from app.services.matching.result import RequirementOutcome, RequirementResult
 
 Evaluator = Callable[[Any, Any], RequirementResult]
 
 EVALUATORS: dict[str, Evaluator] = {
     "boolean_flag": evaluate_boolean_flag,
+    "numeric_threshold": evaluate_numeric_threshold,
 }
 
 

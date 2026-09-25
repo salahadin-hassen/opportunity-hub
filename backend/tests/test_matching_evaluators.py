@@ -1,10 +1,12 @@
 """Unit tests for the first deterministic matching evaluator slice."""
 from types import SimpleNamespace
+from decimal import Decimal
 
 import pytest
 
 from app.services.matching import RequirementOutcome, RequirementResult, evaluate_requirement
 from app.services.matching.boolean_flag import evaluate_boolean_flag
+from app.services.matching.numeric_threshold import evaluate_numeric_threshold
 
 
 def make_profile(**overrides):
@@ -21,6 +23,20 @@ def make_requirement(**overrides):
     }
     values.update(overrides)
     return SimpleNamespace(**values)
+
+
+def make_numeric_requirement(**overrides):
+    values = {
+        "kind": "numeric_threshold",
+        "params": {"metric": "gpa", "operator": ">=", "value": 3.5},
+        "is_ambiguous": False,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
+
+
+def make_education(gpa=Decimal("3.7"), is_primary=True):
+    return SimpleNamespace(gpa=gpa, is_primary=is_primary)
 
 
 def test_boolean_flag_is_met():
@@ -71,7 +87,7 @@ def test_unsupported_boolean_metric_needs_review():
 
 
 def test_unsupported_requirement_kind_needs_review():
-    result = evaluate_requirement(make_profile(), make_requirement(kind="numeric_threshold"))
+    result = evaluate_requirement(make_profile(), make_requirement(kind="equality"))
 
     assert result.outcome == RequirementOutcome.NEEDS_REVIEW
     assert result.reason_code == "unsupported_requirement_kind"
@@ -95,3 +111,88 @@ def test_result_is_serializable_and_messages_are_deterministic():
         "actual": {"value": True},
         "message": "Profile satisfies the requirement.",
     }
+
+
+def test_numeric_threshold_gpa_is_met():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education()]), make_numeric_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+
+
+def test_numeric_threshold_gpa_is_below_threshold():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education(Decimal("3.2"))]), make_numeric_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_numeric_threshold_missing_gpa_is_unknown():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education(None)]), make_numeric_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+
+
+def test_numeric_threshold_ambiguous_requirement_needs_review():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education()]), make_numeric_requirement(is_ambiguous=True)
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+
+
+def test_numeric_threshold_unsupported_metric_needs_review():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education()]),
+        make_numeric_requirement(params={"metric": "degree_level", "operator": ">=", "value": 3.5}),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_numeric_metric"
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"metric": "gpa", "operator": ">="},
+        {"metric": "gpa", "operator": ">=", "value": "not-a-number"},
+    ],
+)
+def test_numeric_threshold_malformed_parameters_need_review(params):
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education()]), make_numeric_requirement(params=params)
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_numeric_threshold"
+
+
+def test_numeric_threshold_contains_expected_and_actual_evidence():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education(Decimal("3.7"))]), make_numeric_requirement()
+    )
+
+    assert result.expected == {"metric": "gpa", "operator": ">=", "value": 3.5}
+    assert result.actual == {"value": 3.7}
+
+
+def test_registry_dispatches_numeric_threshold_evaluator():
+    result = evaluate_requirement(
+        make_profile(education=[make_education()]), make_numeric_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "numeric_threshold_met"
+
+
+def test_numeric_threshold_reason_code_and_message_are_deterministic():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education()]), make_numeric_requirement()
+    )
+
+    assert result.reason_code == "numeric_threshold_met"
+    assert result.message == "Profile satisfies the numeric threshold requirement."
