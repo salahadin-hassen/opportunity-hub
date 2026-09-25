@@ -5,6 +5,7 @@ from typing import Any, Callable
 
 from app.services.matching.boolean_flag import evaluate_boolean_flag
 from app.services.matching.numeric_threshold import evaluate_numeric_threshold
+from app.services.matching.set_membership import evaluate_set_membership
 from app.services.matching.result import RequirementOutcome, RequirementResult
 
 Evaluator = Callable[[Any, Any], RequirementResult]
@@ -12,6 +13,7 @@ Evaluator = Callable[[Any, Any], RequirementResult]
 EVALUATORS: dict[str, Evaluator] = {
     "boolean_flag": evaluate_boolean_flag,
     "numeric_threshold": evaluate_numeric_threshold,
+    "set_membership": evaluate_set_membership,
 }
 
 
