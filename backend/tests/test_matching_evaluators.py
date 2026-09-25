@@ -1,5 +1,6 @@
 """Unit tests for the first deterministic matching evaluator slice."""
 from types import SimpleNamespace
+from datetime import date, datetime, timezone
 from decimal import Decimal
 import uuid
 
@@ -14,6 +15,7 @@ from app.services.matching import (
     evaluate_requirements,
 )
 from app.services.matching.boolean_flag import evaluate_boolean_flag
+from app.services.matching.date_gate import evaluate_date_gate
 from app.services.matching.equality import evaluate_equality
 from app.services.matching.numeric_threshold import evaluate_numeric_threshold
 from app.services.matching.set_membership import evaluate_set_membership
@@ -63,6 +65,16 @@ def make_equality_requirement(**overrides):
     values = {
         "kind": "equality",
         "params": {"metric": "degree_level", "operator": "==", "value": "bachelor"},
+        "is_ambiguous": False,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
+
+
+def make_date_gate_requirement(**overrides):
+    values = {
+        "kind": "date_gate",
+        "params": {"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"},
         "is_ambiguous": False,
     }
     values.update(overrides)
@@ -130,7 +142,7 @@ def test_unsupported_boolean_metric_needs_review():
 
 
 def test_unsupported_requirement_kind_needs_review():
-    result = evaluate_requirement(make_profile(), make_requirement(kind="date_gate"))
+    result = evaluate_requirement(make_profile(), make_requirement(kind="skill_set"))
 
     assert result.outcome == RequirementOutcome.NEEDS_REVIEW
     assert result.reason_code == "unsupported_requirement_kind"
@@ -761,5 +773,285 @@ def test_repeated_equality_evaluation_is_deterministic():
 
     first = evaluate_equality(profile, requirement)
     second = evaluate_equality(profile, requirement)
+
+    assert first.model_dump(mode="json") == second.model_dump(mode="json")
+
+
+def test_date_gate_birth_date_on_or_before_cutoff_is_met():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)), make_date_gate_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+
+
+def test_date_gate_birth_date_after_cutoff_is_not_met():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(2001, 3, 1)), make_date_gate_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_date_gate_birth_date_equal_to_cutoff_is_met():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(2000, 1, 1)), make_date_gate_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "date_gate_met"
+
+
+def test_date_gate_missing_profile_date_is_unknown():
+    result = evaluate_date_gate(SimpleNamespace(), make_date_gate_requirement())
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "profile_fact_unavailable"
+
+
+def test_date_gate_none_profile_date_is_unknown():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=None), make_date_gate_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "profile_fact_unavailable"
+
+
+def test_date_gate_ambiguous_requirement_needs_review():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(is_ambiguous=True),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "ambiguous_requirement"
+
+
+def test_date_gate_unsupported_metric_needs_review():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(
+            params={"metric": "graduation_date", "operator": "<=", "value": "2000-01-01"}
+        ),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_date_metric"
+
+
+@pytest.mark.parametrize("operator", ["<", ">=", ">", "==", "!="])
+def test_date_gate_unsupported_operator_needs_review(operator):
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(
+            params={"metric": "date_of_birth", "operator": operator, "value": "2000-01-01"}
+        ),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_date_operator"
+
+
+def test_date_gate_missing_expected_date_needs_review():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(params={"metric": "date_of_birth", "operator": "<="}),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_date_gate_value"
+
+
+@pytest.mark.parametrize(
+    "value",
+    [
+        None,
+        "not-a-date",
+        "01/01/2000",
+        "20000101",
+        "2000-01-01T00:00:00",
+        20000101,
+        ["2000-01-01"],
+        {"year": 2000},
+        datetime(2000, 1, 1),
+        datetime(2000, 1, 1, tzinfo=timezone.utc),
+    ],
+)
+def test_date_gate_malformed_expected_date_needs_review(value):
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(
+            params={"metric": "date_of_birth", "operator": "<=", "value": value}
+        ),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_date_gate_value"
+
+
+def test_date_gate_non_dict_params_need_review():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(params="date_of_birth<=2000-01-01"),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_date_gate_value"
+
+
+def test_date_gate_accepts_structured_date_value():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(
+            params={"metric": "date_of_birth", "operator": "<=", "value": date(2000, 1, 1)}
+        ),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.expected == {"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"}
+
+
+@pytest.mark.parametrize(
+    "birth_date",
+    [
+        datetime(1998, 5, 15),
+        datetime(1998, 5, 15, tzinfo=timezone.utc),
+    ],
+)
+def test_date_gate_datetime_profile_value_needs_review(birth_date):
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=birth_date), make_date_gate_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "incompatible_date_fact"
+
+
+def test_date_gate_non_date_profile_value_needs_review():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth="1998-05-15"), make_date_gate_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "incompatible_date_fact"
+
+
+def test_date_gate_contains_expected_evidence():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)), make_date_gate_requirement()
+    )
+
+    assert result.expected == {"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"}
+
+
+def test_date_gate_contains_actual_evidence():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)), make_date_gate_requirement()
+    )
+
+    assert result.actual == {"value": "1998-05-15"}
+
+
+def test_date_gate_missing_profile_fact_contains_none_evidence():
+    result = evaluate_date_gate(SimpleNamespace(), make_date_gate_requirement())
+
+    assert result.expected == {"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"}
+    assert result.actual == {"value": None}
+
+
+def test_registry_dispatches_date_gate_evaluator():
+    result = evaluate_requirement(
+        make_profile(date_of_birth=date(1998, 5, 15)), make_date_gate_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "date_gate_met"
+
+
+def test_date_gate_met_reason_code_and_message_are_deterministic():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)), make_date_gate_requirement()
+    )
+
+    assert result.model_dump(mode="json") == {
+        "requirement_id": None,
+        "outcome": "met",
+        "reason_code": "date_gate_met",
+        "expected": {"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"},
+        "actual": {"value": "1998-05-15"},
+        "message": "Profile satisfies the date gate requirement.",
+    }
+
+
+def test_date_gate_not_met_reason_code_and_message_are_deterministic():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(2001, 3, 1)), make_date_gate_requirement()
+    )
+
+    assert result.model_dump(mode="json") == {
+        "requirement_id": None,
+        "outcome": "not_met",
+        "reason_code": "date_gate_not_met",
+        "expected": {"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"},
+        "actual": {"value": "2001-03-01"},
+        "message": "Profile does not satisfy the date gate requirement.",
+    }
+
+
+def test_orchestrated_date_gate_result_contains_requirement_id():
+    requirement = make_orchestration_requirement(
+        kind="date_gate",
+        params={"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"},
+    )
+
+    result = evaluate_requirements(
+        make_profile(date_of_birth=date(1998, 5, 15)), [requirement]
+    )
+
+    assert result.requirement_results[0].requirement_id == requirement.id
+    assert result.requirement_results[0].reason_code == "date_gate_met"
+
+
+def test_date_gate_participates_in_opportunity_rollup():
+    result = evaluate_requirements(
+        make_profile(is_currently_enrolled=True, date_of_birth=date(1998, 5, 15)),
+        [
+            make_orchestration_requirement(),
+            make_orchestration_requirement(
+                order_index=1,
+                kind="date_gate",
+                params={"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.ELIGIBLE
+    assert [item.reason_code for item in result.requirement_results] == [
+        "boolean_flag_matches",
+        "date_gate_met",
+    ]
+
+
+def test_date_gate_not_met_mandatory_requirement_keeps_rollup_not_eligible():
+    result = evaluate_requirements(
+        make_profile(date_of_birth=date(2001, 3, 1)),
+        [
+            make_orchestration_requirement(
+                kind="date_gate",
+                params={"metric": "date_of_birth", "operator": "<=", "value": "2000-01-01"},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.NOT_ELIGIBLE
+
+
+def test_repeated_date_gate_evaluation_is_deterministic():
+    requirement = make_date_gate_requirement()
+    profile = make_profile(date_of_birth=date(1998, 5, 15))
+
+    first = evaluate_date_gate(profile, requirement)
+    second = evaluate_date_gate(profile, requirement)
 
     assert first.model_dump(mode="json") == second.model_dump(mode="json")
