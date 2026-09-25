@@ -14,6 +14,7 @@ from app.services.matching import (
     evaluate_requirements,
 )
 from app.services.matching.boolean_flag import evaluate_boolean_flag
+from app.services.matching.equality import evaluate_equality
 from app.services.matching.numeric_threshold import evaluate_numeric_threshold
 from app.services.matching.set_membership import evaluate_set_membership
 
@@ -52,6 +53,16 @@ def make_set_membership_requirement(**overrides):
     values = {
         "kind": "set_membership",
         "params": {"metric": "citizenship", "operator": "in", "allowed": ["Ethiopia"]},
+        "is_ambiguous": False,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
+
+
+def make_equality_requirement(**overrides):
+    values = {
+        "kind": "equality",
+        "params": {"metric": "degree_level", "operator": "==", "value": "bachelor"},
         "is_ambiguous": False,
     }
     values.update(overrides)
@@ -119,7 +130,7 @@ def test_unsupported_boolean_metric_needs_review():
 
 
 def test_unsupported_requirement_kind_needs_review():
-    result = evaluate_requirement(make_profile(), make_requirement(kind="equality"))
+    result = evaluate_requirement(make_profile(), make_requirement(kind="date_gate"))
 
     assert result.outcome == RequirementOutcome.NEEDS_REVIEW
     assert result.reason_code == "unsupported_requirement_kind"
@@ -513,5 +524,242 @@ def test_repeated_orchestration_preserves_requirement_ids_and_results():
 
     first = evaluate_requirements(make_profile(), [requirement])
     second = evaluate_requirements(make_profile(), [requirement])
+
+    assert first.model_dump(mode="json") == second.model_dump(mode="json")
+
+
+def test_equality_degree_level_is_met():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+
+
+def test_equality_degree_level_is_not_met():
+    result = evaluate_equality(
+        make_profile(degree_level="master"), make_equality_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_equality_is_exact_and_does_not_fold_case():
+    result = evaluate_equality(
+        make_profile(degree_level="BACHELOR"), make_equality_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_equality_missing_profile_value_is_unknown():
+    result = evaluate_equality(SimpleNamespace(), make_equality_requirement())
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "profile_fact_unavailable"
+
+
+def test_equality_none_profile_value_is_unknown():
+    result = evaluate_equality(
+        make_profile(degree_level=None), make_equality_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+
+
+def test_equality_ambiguous_requirement_needs_review():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement(is_ambiguous=True)
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "ambiguous_requirement"
+
+
+def test_equality_unsupported_metric_needs_review():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"),
+        make_equality_requirement(params={"metric": "field_of_study", "operator": "==", "value": "biology"}),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_equality_metric"
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"metric": "degree_level", "operator": "=="},
+        {"metric": "degree_level", "operator": "==", "value": None},
+        {"metric": "degree_level", "operator": "==", "value": ["bachelor"]},
+        {"metric": "degree_level", "operator": "==", "value": {"level": "bachelor"}},
+        {"metric": "degree_level", "operator": "==", "value": (1, 2)},
+    ],
+)
+def test_equality_missing_or_malformed_expected_value_needs_review(params):
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement(params=params)
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_equality_value"
+
+
+def test_equality_non_dict_params_need_review():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement(params="degree_level=bachelor")
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_equality_value"
+
+
+def test_equality_unsupported_operator_needs_review():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"),
+        make_equality_requirement(params={"metric": "degree_level", "operator": "!=", "value": "bachelor"}),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_equality_operator"
+
+
+def test_equality_contains_expected_evidence():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement()
+    )
+
+    assert result.expected == {"metric": "degree_level", "operator": "==", "value": "bachelor"}
+
+
+def test_equality_contains_actual_evidence():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement()
+    )
+
+    assert result.actual == {"value": "bachelor"}
+
+
+def test_equality_missing_profile_fact_contains_none_evidence():
+    result = evaluate_equality(SimpleNamespace(), make_equality_requirement())
+
+    assert result.expected == {"metric": "degree_level", "operator": "==", "value": "bachelor"}
+    assert result.actual == {"value": None}
+
+
+def test_registry_dispatches_equality_evaluator():
+    result = evaluate_requirement(
+        make_profile(degree_level="bachelor"), make_equality_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "equality_matches"
+
+
+def test_equality_reason_code_and_message_are_deterministic():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement()
+    )
+
+    assert result.reason_code == "equality_matches"
+    assert result.message == "Profile satisfies the equality requirement."
+
+
+def test_equality_result_serializes_to_stable_evidence():
+    result = evaluate_equality(
+        make_profile(degree_level="bachelor"), make_equality_requirement()
+    )
+
+    assert result.model_dump(mode="json") == {
+        "requirement_id": None,
+        "outcome": "met",
+        "reason_code": "equality_matches",
+        "expected": {"metric": "degree_level", "operator": "==", "value": "bachelor"},
+        "actual": {"value": "bachelor"},
+        "message": "Profile satisfies the equality requirement.",
+    }
+
+
+def test_equality_not_met_reason_code_and_message_are_deterministic():
+    result = evaluate_equality(
+        make_profile(degree_level="master"), make_equality_requirement()
+    )
+
+    assert result.model_dump(mode="json") == {
+        "requirement_id": None,
+        "outcome": "not_met",
+        "reason_code": "equality_does_not_match",
+        "expected": {"metric": "degree_level", "operator": "==", "value": "bachelor"},
+        "actual": {"value": "master"},
+        "message": "Profile does not satisfy the equality requirement.",
+    }
+
+
+def test_orchestrated_equality_result_contains_requirement_id():
+    requirement = make_orchestration_requirement(
+        kind="equality",
+        params={"metric": "degree_level", "operator": "==", "value": "bachelor"},
+    )
+
+    result = evaluate_requirements(make_profile(degree_level="bachelor"), [requirement])
+
+    assert result.requirement_results[0].requirement_id == requirement.id
+    assert result.requirement_results[0].reason_code == "equality_matches"
+
+
+def test_equality_met_requirement_keeps_rollup_eligible():
+    result = evaluate_requirements(
+        make_profile(degree_level="bachelor"),
+        [
+            make_orchestration_requirement(),
+            make_orchestration_requirement(
+                order_index=1,
+                kind="equality",
+                params={"metric": "degree_level", "operator": "==", "value": "bachelor"},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.ELIGIBLE
+    assert [item.reason_code for item in result.requirement_results] == [
+        "boolean_flag_matches",
+        "equality_matches",
+    ]
+
+
+def test_equality_not_met_mandatory_requirement_keeps_rollup_not_eligible():
+    result = evaluate_requirements(
+        make_profile(degree_level="master"),
+        [
+            make_orchestration_requirement(
+                kind="equality",
+                params={"metric": "degree_level", "operator": "==", "value": "bachelor"},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.NOT_ELIGIBLE
+
+
+def test_equality_unknown_requirement_keeps_rollup_potential_match():
+    result = evaluate_requirements(
+        SimpleNamespace(),
+        [
+            make_orchestration_requirement(
+                kind="equality",
+                params={"metric": "degree_level", "operator": "==", "value": "bachelor"},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.POTENTIAL_MATCH
+
+
+def test_repeated_equality_evaluation_is_deterministic():
+    requirement = make_equality_requirement()
+    profile = make_profile(degree_level="bachelor")
+
+    first = evaluate_equality(profile, requirement)
+    second = evaluate_equality(profile, requirement)
 
     assert first.model_dump(mode="json") == second.model_dump(mode="json")
