@@ -1,0 +1,19 @@
+# Python environments and caches
+venv/
+.venv/
+**/__pycache__/
+.pytest_cache/
+
+# Local configuration
+.env
+backend/.env
+.env.example
+backend/.env.example
+
+
+# Build and test artifacts
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.coverage
