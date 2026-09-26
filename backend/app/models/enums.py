@@ -100,6 +100,33 @@ class DegreeLevel(StrEnum):
     OTHER = "other"
 
 
+class MatchStatus(StrEnum):
+    """Overall verdict of one persisted Profile x Opportunity evaluation.
+
+    Values mirror ``app.services.matching.evaluate.OpportunityMatchStatus``
+    (kept in sync by a test); the model layer owns its own StrEnum so the
+    database vocabulary follows the VARCHAR + CHECK convention used here.
+    """
+
+    ELIGIBLE = "eligible"
+    POTENTIAL_MATCH = "potential_match"
+    NOT_ELIGIBLE = "not_eligible"
+    NEEDS_REVIEW = "needs_review"
+
+
+class MatchOutcome(StrEnum):
+    """Outcome of one persisted requirement evaluation inside a Match.
+
+    Values mirror ``app.services.matching.result.RequirementOutcome``
+    (kept in sync by a test).
+    """
+
+    MET = "met"
+    NOT_MET = "not_met"
+    UNKNOWN = "unknown"
+    NEEDS_REVIEW = "needs_review"
+
+
 def enum_check_constraint(table: str, column: str, enum_cls: type[StrEnum]) -> CheckConstraint:
     """Build a CHECK constraint limiting ``column`` to the enum's values.
 
@@ -119,5 +146,7 @@ __all__ = [
     "RequirementCategory",
     "SourceType",
     "DegreeLevel",
+    "MatchStatus",
+    "MatchOutcome",
     "enum_check_constraint",
 ]

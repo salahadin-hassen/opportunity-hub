@@ -14,6 +14,7 @@ from app.models.enums import DegreeLevel, enum_check_constraint
 
 if TYPE_CHECKING:
     from app.models.education import Education
+    from app.models.match import Match
     from app.models.profile_skill import ProfileSkill
     from app.models.skill import Skill
     from app.models.test_score import TestScore
@@ -50,6 +51,11 @@ class Profile(Base):
         secondary="profile_skills",
         back_populates="profiles",
         overlaps="profiles,profile,skill",
+    )
+    matches: Mapped[list[Match]] = relationship(
+        back_populates="profile",
+        cascade="all, delete-orphan",
+        passive_deletes=True,
     )
 
     __table_args__ = (

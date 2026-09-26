@@ -19,6 +19,7 @@ from app.models.enums import (
 )
 
 if TYPE_CHECKING:
+    from app.models.match import Match
     from app.models.requirement import Requirement
     from app.models.source import Source
 
@@ -70,6 +71,14 @@ class Opportunity(Base):
         cascade="all, delete-orphan",
         passive_deletes=True,
         order_by="Requirement.order_index",
+    )
+    # Deliberately not ``passive_deletes``: match evidence rows must be
+    # deleted through the ORM before this row triggers the database
+    # cascade that removes requirements, which
+    # ``match_requirements.requirement_id`` restricts.
+    matches: Mapped[list[Match]] = relationship(
+        back_populates="opportunity",
+        cascade="all, delete-orphan",
     )
     sources: Mapped[list[Source]] = relationship(
         back_populates="opportunity",
