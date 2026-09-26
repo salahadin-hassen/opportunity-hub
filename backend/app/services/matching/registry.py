@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Callable
 
+from app.services.matching.any_of import evaluate_any_of
 from app.services.matching.boolean_flag import evaluate_boolean_flag
 from app.services.matching.date_gate import evaluate_date_gate
 from app.services.matching.equality import evaluate_equality
@@ -20,6 +21,7 @@ EVALUATORS: dict[str, Evaluator] = {
     "equality": evaluate_equality,
     "date_gate": evaluate_date_gate,
     "skill_set": evaluate_skill_set,
+    "any_of": evaluate_any_of,
 }
 
 

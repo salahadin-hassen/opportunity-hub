@@ -12,7 +12,9 @@ from app.services.matching import (
     RequirementResult,
     evaluate_requirement,
     evaluate_requirements,
+    registry,
 )
+from app.services.matching.any_of import evaluate_any_of
 from app.services.matching.boolean_flag import evaluate_boolean_flag
 from app.services.matching.date_gate import evaluate_date_gate
 from app.services.matching.equality import evaluate_equality
@@ -99,6 +101,35 @@ def make_profile_with_skills(*keys):
     return make_profile(skills=[SimpleNamespace(key=key) for key in keys])
 
 
+ENROLLED_CHILD = {"kind": "boolean_flag", "params": {"metric": "is_currently_enrolled", "expected": True}}
+GPA_CHILD = {"kind": "numeric_threshold", "params": {"metric": "gpa", "operator": ">=", "value": 3.5}}
+CITIZEN_CHILD = {"kind": "set_membership", "params": {"metric": "citizenship", "operator": "in", "allowed": ["Ethiopia"]}}
+SKILL_CHILD = {"kind": "skill_set", "params": {"metric": "skills", "operator": "contains_any", "required": ["python"]}}
+UNPARSED_CHILD = {"kind": "unparsed", "params": {"reason": "free form requirement"}}
+
+
+def make_any_of_requirement(children=(), **overrides):
+    values = {
+        "kind": "any_of",
+        "params": {"any_of": list(children)},
+        "is_ambiguous": False,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
+
+
+def make_any_of_profile(**overrides):
+    """Profile where only the enrollment flag satisfies its alternative."""
+    values = {
+        "is_currently_enrolled": True,
+        "education": [make_education(Decimal("3.2"))],
+        "citizenships": ["Kenya"],
+        "skills": [SimpleNamespace(key="java")],
+    }
+    values.update(overrides)
+    return make_profile(**values)
+
+
 def make_orchestration_requirement(kind="boolean_flag", is_mandatory=True, order_index=0, **overrides):
     values = {
         "id": uuid.uuid4(),
@@ -160,7 +191,7 @@ def test_unsupported_boolean_metric_needs_review():
 
 
 def test_unsupported_requirement_kind_needs_review():
-    result = evaluate_requirement(make_profile(), make_requirement(kind="any_of"))
+    result = evaluate_requirement(make_profile(), make_requirement(kind="unparsed"))
 
     assert result.outcome == RequirementOutcome.NEEDS_REVIEW
     assert result.reason_code == "unsupported_requirement_kind"
@@ -1348,5 +1379,426 @@ def test_repeated_skill_set_evaluation_is_deterministic():
 
     first = evaluate_skill_set(profile, requirement)
     second = evaluate_skill_set(profile, requirement)
+
+    assert first.model_dump(mode="json") == second.model_dump(mode="json")
+
+
+def test_any_of_single_child_met_is_met():
+    result = evaluate_any_of(make_any_of_profile(), make_any_of_requirement([ENROLLED_CHILD]))
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "any_of_met"
+    assert result.message == "Profile satisfies at least one alternative."
+
+
+def test_any_of_first_child_met_is_met():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([ENROLLED_CHILD, GPA_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert [child["outcome"] for child in result.actual["children"]] == ["met", "not_met"]
+
+
+def test_any_of_last_child_met_is_met():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([GPA_CHILD, CITIZEN_CHILD, ENROLLED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert [child["outcome"] for child in result.actual["children"]] == [
+        "not_met",
+        "not_met",
+        "met",
+    ]
+
+
+def test_any_of_all_children_not_met_is_not_met():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([GPA_CHILD, CITIZEN_CHILD, SKILL_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+    assert result.reason_code == "any_of_not_met"
+    assert result.message == "Profile satisfies none of the alternatives."
+
+
+def test_any_of_none_met_with_unknown_is_unknown():
+    result = evaluate_any_of(
+        make_profile(is_currently_enrolled=False),
+        make_any_of_requirement([ENROLLED_CHILD, CITIZEN_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "any_of_unknown"
+    assert [child["outcome"] for child in result.actual["children"]] == ["not_met", "unknown"]
+
+
+def test_any_of_none_met_with_needs_review_is_needs_review():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([GPA_CHILD, CITIZEN_CHILD, UNPARSED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "any_of_needs_review"
+    assert result.message == "At least one alternative needs review."
+    assert [child["reason_code"] for child in result.actual["children"]] == [
+        "numeric_threshold_not_met",
+        "set_membership_does_not_match",
+        "unsupported_requirement_kind",
+    ]
+
+
+def test_any_of_met_with_unknown_is_met():
+    result = evaluate_any_of(
+        make_profile(is_currently_enrolled=True),
+        make_any_of_requirement([ENROLLED_CHILD, CITIZEN_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert [child["outcome"] for child in result.actual["children"]] == ["met", "unknown"]
+
+
+def test_any_of_met_with_needs_review_is_met():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([ENROLLED_CHILD, UNPARSED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "any_of_met"
+
+
+def test_any_of_not_met_unknown_and_needs_review_is_unknown():
+    result = evaluate_any_of(
+        make_profile(is_currently_enrolled=False),
+        make_any_of_requirement([ENROLLED_CHILD, CITIZEN_CHILD, UNPARSED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert [child["outcome"] for child in result.actual["children"]] == [
+        "not_met",
+        "unknown",
+        "needs_review",
+    ]
+
+
+def test_any_of_not_met_with_needs_review_is_needs_review():
+    result = evaluate_any_of(
+        make_profile(is_currently_enrolled=False),
+        make_any_of_requirement([ENROLLED_CHILD, UNPARSED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "any_of_needs_review"
+
+
+def test_any_of_unknown_with_needs_review_is_unknown():
+    result = evaluate_any_of(
+        SimpleNamespace(),
+        make_any_of_requirement([CITIZEN_CHILD, UNPARSED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "any_of_unknown"
+    assert [child["outcome"] for child in result.actual["children"]] == [
+        "unknown",
+        "needs_review",
+    ]
+
+
+def test_orchestrated_any_of_result_contains_requirement_id():
+    requirement = make_orchestration_requirement(
+        kind="any_of",
+        params={"any_of": [GPA_CHILD, ENROLLED_CHILD]},
+    )
+
+    result = evaluate_requirements(make_any_of_profile(), [requirement])
+
+    assert result.requirement_results[0].requirement_id == requirement.id
+    assert result.requirement_results[0].reason_code == "any_of_met"
+
+
+def test_any_of_child_results_are_preserved_without_ids():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([GPA_CHILD, ENROLLED_CHILD]),
+    )
+
+    children = result.actual["children"]
+    assert [child["kind"] for child in children] == ["numeric_threshold", "boolean_flag"]
+    assert [child["reason_code"] for child in children] == [
+        "numeric_threshold_not_met",
+        "boolean_flag_matches",
+    ]
+    assert all("requirement_id" not in child for child in children)
+
+
+def test_any_of_preserves_deterministic_child_ordering():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([CITIZEN_CHILD, ENROLLED_CHILD, GPA_CHILD, SKILL_CHILD]),
+    )
+
+    assert [child["kind"] for child in result.actual["children"]] == [
+        "set_membership",
+        "boolean_flag",
+        "numeric_threshold",
+        "skill_set",
+    ]
+    assert [child["outcome"] for child in result.actual["children"]] == [
+        "not_met",
+        "met",
+        "not_met",
+        "not_met",
+    ]
+
+
+def test_any_of_result_is_serializable_and_deterministic():
+    result = evaluate_any_of(make_any_of_profile(), make_any_of_requirement([ENROLLED_CHILD]))
+
+    assert isinstance(result, RequirementResult)
+    assert result.model_dump(mode="json") == {
+        "requirement_id": None,
+        "outcome": "met",
+        "reason_code": "any_of_met",
+        "expected": {"operator": "any_of", "children": [ENROLLED_CHILD]},
+        "actual": {
+            "children": [
+                {
+                    "kind": "boolean_flag",
+                    "outcome": "met",
+                    "reason_code": "boolean_flag_matches",
+                    "expected": {"metric": "is_currently_enrolled", "value": True},
+                    "actual": {"value": True},
+                    "message": "Profile satisfies the requirement.",
+                }
+            ],
+        },
+        "message": "Profile satisfies at least one alternative.",
+    }
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {},
+        {"any_of": []},
+        {"any_of": "boolean_flag"},
+        {"any_of": [42]},
+        {"any_of": [{"kind": "boolean_flag", "params": "not-a-dict"}]},
+    ],
+)
+def test_any_of_malformed_params_needs_review(params):
+    result = evaluate_any_of(make_any_of_profile(), make_any_of_requirement(params=params))
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_any_of"
+    assert result.actual == {}
+
+
+def test_any_of_non_dict_params_need_review():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement(params="boolean_flag or gpa"),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_any_of"
+
+
+def test_any_of_empty_children_needs_review():
+    result = evaluate_any_of(make_any_of_profile(), make_any_of_requirement())
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_any_of"
+    assert result.expected == {"operator": "any_of", "children": []}
+
+
+def test_any_of_child_with_missing_params_still_dispatches_to_needs_review():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([{"kind": "boolean_flag"}]),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "any_of_needs_review"
+    assert result.actual["children"][0]["reason_code"] == "unsupported_boolean_metric"
+
+
+def test_any_of_unsupported_child_kind_needs_review():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([GPA_CHILD, UNPARSED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.actual["children"][1]["kind"] == "unparsed"
+    assert result.actual["children"][1]["reason_code"] == "unsupported_requirement_kind"
+
+
+def test_any_of_ambiguous_requirement_needs_review():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([ENROLLED_CHILD], is_ambiguous=True),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "ambiguous_requirement"
+    assert result.expected == {}
+    assert result.actual == {}
+
+
+def test_any_of_ambiguous_child_is_preserved_as_needs_review():
+    ambiguous_child = {
+        "kind": "boolean_flag",
+        "params": {"metric": "is_currently_enrolled", "expected": True},
+        "is_ambiguous": True,
+    }
+
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([GPA_CHILD, ambiguous_child]),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "any_of_needs_review"
+    assert result.actual["children"][1]["reason_code"] == "ambiguous_requirement"
+
+
+def _nested_any_of_chain(levels):
+    node = ENROLLED_CHILD
+    for _ in range(levels):
+        node = {"kind": "any_of", "params": {"any_of": [node]}}
+    return node
+
+
+def test_any_of_nested_child_is_dispatched():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([_nested_any_of_chain(1)]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    nested = result.actual["children"][0]
+    assert nested["kind"] == "any_of"
+    assert nested["actual"]["children"][0]["reason_code"] == "boolean_flag_matches"
+
+
+def test_any_of_allows_nesting_up_to_the_depth_limit():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([_nested_any_of_chain(4)]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "any_of_met"
+
+
+def test_any_of_nesting_beyond_the_depth_limit_needs_review():
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([_nested_any_of_chain(5)]),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "any_of_needs_review"
+
+    deepest = result.model_dump(mode="json")
+    for _ in range(5):
+        deepest = deepest["actual"]["children"][0]
+    assert deepest["reason_code"] == "any_of_depth_exceeded"
+
+
+def test_any_of_children_are_evaluated_through_registry_dispatch(monkeypatch):
+    patched = RequirementResult(
+        outcome=RequirementOutcome.MET,
+        reason_code="patched_evaluator_met",
+        expected={},
+        actual={},
+        message="Registry-dispatched evaluator ran.",
+    )
+    monkeypatch.setitem(
+        registry.EVALUATORS, "boolean_flag", lambda profile, req: patched
+    )
+
+    result = evaluate_any_of(
+        make_any_of_profile(),
+        make_any_of_requirement([ENROLLED_CHILD, GPA_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.actual["children"][0]["reason_code"] == "patched_evaluator_met"
+    assert result.actual["children"][1]["reason_code"] == "numeric_threshold_not_met"
+
+
+def test_registry_dispatches_any_of_evaluator():
+    result = evaluate_requirement(
+        make_any_of_profile(),
+        make_any_of_requirement([GPA_CHILD, ENROLLED_CHILD]),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "any_of_met"
+
+
+def test_any_of_participates_in_opportunity_rollup():
+    result = evaluate_requirements(
+        make_any_of_profile(),
+        [
+            make_orchestration_requirement(),
+            make_orchestration_requirement(
+                order_index=1,
+                kind="any_of",
+                params={"any_of": [GPA_CHILD, ENROLLED_CHILD]},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.ELIGIBLE
+    assert [item.reason_code for item in result.requirement_results] == [
+        "boolean_flag_matches",
+        "any_of_met",
+    ]
+
+
+def test_any_of_not_met_mandatory_requirement_keeps_rollup_not_eligible():
+    result = evaluate_requirements(
+        make_any_of_profile(),
+        [
+            make_orchestration_requirement(
+                kind="any_of",
+                params={"any_of": [GPA_CHILD, CITIZEN_CHILD, SKILL_CHILD]},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.NOT_ELIGIBLE
+
+
+def test_any_of_unknown_requirement_keeps_rollup_potential_match():
+    result = evaluate_requirements(
+        SimpleNamespace(),
+        [
+            make_orchestration_requirement(
+                kind="any_of",
+                params={"any_of": [CITIZEN_CHILD, SKILL_CHILD]},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.POTENTIAL_MATCH
+
+
+def test_repeated_any_of_evaluation_is_deterministic():
+    requirement = make_any_of_requirement([GPA_CHILD, ENROLLED_CHILD, UNPARSED_CHILD])
+    profile = make_any_of_profile()
+
+    first = evaluate_any_of(profile, requirement)
+    second = evaluate_any_of(profile, requirement)
 
     assert first.model_dump(mode="json") == second.model_dump(mode="json")
