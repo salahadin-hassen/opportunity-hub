@@ -14,6 +14,8 @@ from app.models.enums import DegreeLevel, enum_check_constraint
 
 if TYPE_CHECKING:
     from app.models.education import Education
+    from app.models.profile_skill import ProfileSkill
+    from app.models.skill import Skill
     from app.models.test_score import TestScore
 
 
@@ -39,6 +41,16 @@ class Profile(Base):
 
     education: Mapped[list[Education]] = relationship(back_populates="profile", cascade="all, delete-orphan", passive_deletes=True, order_by="Education.created_at")
     test_scores: Mapped[list[TestScore]] = relationship(back_populates="profile", cascade="all, delete-orphan", passive_deletes=True, order_by="TestScore.test_date.desc()")
+    profile_skills: Mapped[list[ProfileSkill]] = relationship(
+        back_populates="profile",
+        order_by="ProfileSkill.created_at",
+        viewonly=True,
+    )
+    skills: Mapped[list[Skill]] = relationship(
+        secondary="profile_skills",
+        back_populates="profiles",
+        overlaps="profiles,profile,skill",
+    )
 
     __table_args__ = (
         enum_check_constraint("profiles", "degree_level", DegreeLevel),

@@ -18,6 +18,7 @@ from app.schemas.requirement import (
 from app.schemas.source import SourceCreate, SourceRead
 from app.schemas.education import EducationCreate, EducationRead
 from app.schemas.profile import ProfileCreate, ProfileRead
+from app.schemas.skill import SKILL_KEY_PATTERN, SkillCreate, SkillRead
 from app.schemas.test_score import TestScoreCreate, TestScoreRead
 
 __all__ = [
@@ -31,6 +32,9 @@ __all__ = [
     "TestScoreRead",
     "SourceCreate",
     "SourceRead",
+    "SkillCreate",
+    "SkillRead",
+    "SKILL_KEY_PATTERN",
     "RequirementCreate",
     "RequirementRead",
     "RequirementCondition",
