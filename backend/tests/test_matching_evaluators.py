@@ -1,11 +1,10 @@
 """Unit tests for the first deterministic matching evaluator slice."""
-from types import SimpleNamespace
+import uuid
 from datetime import date, datetime, timezone
 from decimal import Decimal
-import uuid
+from types import SimpleNamespace
 
 import pytest
-
 from app.services.matching import (
     MatchEvaluationResult,
     OpportunityMatchStatus,
@@ -19,6 +18,7 @@ from app.services.matching.date_gate import evaluate_date_gate
 from app.services.matching.equality import evaluate_equality
 from app.services.matching.numeric_threshold import evaluate_numeric_threshold
 from app.services.matching.set_membership import evaluate_set_membership
+from app.services.matching.skill_set import evaluate_skill_set
 
 
 def make_profile(**overrides):
@@ -79,6 +79,24 @@ def make_date_gate_requirement(**overrides):
     }
     values.update(overrides)
     return SimpleNamespace(**values)
+
+
+def make_skill_requirement(**overrides):
+    values = {
+        "kind": "skill_set",
+        "params": {
+            "metric": "skills",
+            "operator": "contains_any",
+            "required": ["python", "fastapi"],
+        },
+        "is_ambiguous": False,
+    }
+    values.update(overrides)
+    return SimpleNamespace(**values)
+
+
+def make_profile_with_skills(*keys):
+    return make_profile(skills=[SimpleNamespace(key=key) for key in keys])
 
 
 def make_orchestration_requirement(kind="boolean_flag", is_mandatory=True, order_index=0, **overrides):
@@ -142,7 +160,7 @@ def test_unsupported_boolean_metric_needs_review():
 
 
 def test_unsupported_requirement_kind_needs_review():
-    result = evaluate_requirement(make_profile(), make_requirement(kind="skill_set"))
+    result = evaluate_requirement(make_profile(), make_requirement(kind="any_of"))
 
     assert result.outcome == RequirementOutcome.NEEDS_REVIEW
     assert result.reason_code == "unsupported_requirement_kind"
@@ -1053,5 +1071,282 @@ def test_repeated_date_gate_evaluation_is_deterministic():
 
     first = evaluate_date_gate(profile, requirement)
     second = evaluate_date_gate(profile, requirement)
+
+    assert first.model_dump(mode="json") == second.model_dump(mode="json")
+
+
+def test_skill_set_contains_any_is_met():
+    result = evaluate_skill_set(
+        make_profile_with_skills("python", "sql"),
+        make_skill_requirement(params={"metric": "skills", "operator": "contains_any", "required": ["fastapi", "python"]}),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "skill_set_matches"
+
+
+def test_skill_set_contains_any_is_not_met():
+    result = evaluate_skill_set(
+        make_profile_with_skills("sql"),
+        make_skill_requirement(),
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+    assert result.reason_code == "skill_set_does_not_match"
+
+
+def test_skill_set_contains_all_is_met():
+    result = evaluate_skill_set(
+        make_profile_with_skills("python", "sql", "fastapi"),
+        make_skill_requirement(params={"metric": "skills", "operator": "contains_all", "required": ["python", "sql"]}),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+
+
+def test_skill_set_contains_all_is_not_met_when_only_partial_overlap():
+    result = evaluate_skill_set(
+        make_profile_with_skills("python"),
+        make_skill_requirement(params={"metric": "skills", "operator": "contains_all", "required": ["python", "sql"]}),
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_skill_set_missing_profile_skills_is_unknown():
+    result = evaluate_skill_set(SimpleNamespace(), make_skill_requirement())
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "profile_fact_unavailable"
+
+
+def test_skill_set_none_profile_skills_is_unknown():
+    result = evaluate_skill_set(make_profile(skills=None), make_skill_requirement())
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "profile_fact_unavailable"
+
+
+@pytest.mark.parametrize(
+    "skills",
+    ["python", 42, {"python": None}, [None], [42], [object()]],
+)
+def test_skill_set_malformed_profile_skills_is_unknown(skills):
+    result = evaluate_skill_set(make_profile(skills=skills), make_skill_requirement())
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "profile_fact_unavailable"
+
+
+@pytest.mark.parametrize("operator", ["contains_any", "contains_all"])
+def test_skill_set_empty_profile_skills_is_not_met(operator):
+    result = evaluate_skill_set(
+        make_profile(skills=[]),
+        make_skill_requirement(params={"metric": "skills", "operator": operator, "required": ["python"]}),
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_skill_set_ambiguous_requirement_needs_review():
+    result = evaluate_skill_set(
+        make_profile_with_skills("python"), make_skill_requirement(is_ambiguous=True)
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "ambiguous_requirement"
+
+
+def test_skill_set_unsupported_metric_needs_review():
+    result = evaluate_skill_set(
+        make_profile_with_skills("python"),
+        make_skill_requirement(params={"metric": "language", "operator": "contains_any", "required": ["English"]}),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_skill_set_metric"
+
+
+@pytest.mark.parametrize("operator", ["subset", "in", "contains_none", "contains_all_but_one"])
+def test_skill_set_unsupported_operator_needs_review(operator):
+    result = evaluate_skill_set(
+        make_profile_with_skills("python"),
+        make_skill_requirement(params={"metric": "skills", "operator": operator, "required": ["python"]}),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_skill_set_operator"
+
+
+@pytest.mark.parametrize(
+    "params",
+    [
+        {"metric": "skills", "operator": "contains_any"},
+        {"metric": "skills", "operator": "contains_any", "required": []},
+        {"metric": "skills", "operator": "contains_any", "required": [42]},
+        {"metric": "skills", "operator": "contains_all", "required": [""]},
+        {"metric": "skills", "operator": "contains_any", "required": "python"},
+    ],
+)
+def test_skill_set_malformed_required_needs_review(params):
+    result = evaluate_skill_set(make_profile_with_skills("python"), make_skill_requirement(params=params))
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_skill_set"
+
+
+def test_skill_set_non_dict_params_need_review():
+    result = evaluate_skill_set(
+        make_profile_with_skills("python"),
+        make_skill_requirement(params="skills contains python"),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "invalid_skill_set"
+
+
+@pytest.mark.parametrize(
+    ("profile_key", "required_key"),
+    [
+        ("Python", "python"),
+        ("python ", "python"),
+        ("python", "python "),
+    ],
+)
+def test_skill_set_key_comparison_is_exact(profile_key, required_key):
+    result = evaluate_skill_set(
+        make_profile_with_skills(profile_key),
+        make_skill_requirement(params={"metric": "skills", "operator": "contains_any", "required": [required_key]}),
+    )
+
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_skill_set_accepts_plain_canonical_key_strings():
+    result = evaluate_skill_set(
+        make_profile(skills=["python", "sql"]),
+        make_skill_requirement(params={"metric": "skills", "operator": "contains_any", "required": ["python"]}),
+    )
+
+    assert result.outcome == RequirementOutcome.MET
+
+
+def test_skill_set_contains_expected_and_actual_evidence():
+    result = evaluate_skill_set(make_profile_with_skills("python", "sql"), make_skill_requirement())
+
+    assert result.expected == {
+        "metric": "skills",
+        "operator": "contains_any",
+        "required": ["python", "fastapi"],
+    }
+    assert result.actual == {"values": ["python", "sql"]}
+
+
+def test_skill_set_unknown_contains_none_actual_evidence():
+    result = evaluate_skill_set(SimpleNamespace(), make_skill_requirement())
+
+    assert result.actual == {"values": None}
+
+
+def test_registry_dispatches_skill_set_evaluator():
+    result = evaluate_requirement(make_profile_with_skills("python"), make_skill_requirement())
+
+    assert result.outcome == RequirementOutcome.MET
+    assert result.reason_code == "skill_set_matches"
+
+
+def test_skill_set_result_is_serializable_and_messages_are_deterministic():
+    result = evaluate_skill_set(make_profile_with_skills("python"), make_skill_requirement())
+
+    assert isinstance(result, RequirementResult)
+    assert result.model_dump(mode="json") == {
+        "requirement_id": None,
+        "outcome": "met",
+        "reason_code": "skill_set_matches",
+        "expected": {
+            "metric": "skills",
+            "operator": "contains_any",
+            "required": ["python", "fastapi"],
+        },
+        "actual": {"values": ["python"]},
+        "message": "Profile satisfies the skill set requirement.",
+    }
+
+
+def test_skill_set_not_met_message_is_deterministic():
+    result = evaluate_skill_set(make_profile_with_skills("sql"), make_skill_requirement())
+
+    assert result.message == "Profile does not satisfy the skill set requirement."
+    assert result.outcome == RequirementOutcome.NOT_MET
+
+
+def test_orchestrated_skill_set_result_contains_requirement_id():
+    requirement = make_orchestration_requirement(
+        kind="skill_set",
+        params={"metric": "skills", "operator": "contains_all", "required": ["python", "sql"]},
+    )
+
+    result = evaluate_requirements(
+        make_profile_with_skills("python", "sql"), [requirement]
+    )
+
+    assert result.requirement_results[0].requirement_id == requirement.id
+    assert result.requirement_results[0].reason_code == "skill_set_matches"
+
+
+def test_skill_set_participates_in_opportunity_rollup():
+    result = evaluate_requirements(
+        make_profile_with_skills("python", "sql"),
+        [
+            make_orchestration_requirement(),
+            make_orchestration_requirement(
+                order_index=1,
+                kind="skill_set",
+                params={"metric": "skills", "operator": "contains_all", "required": ["python", "sql"]},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.ELIGIBLE
+    assert [item.reason_code for item in result.requirement_results] == [
+        "boolean_flag_matches",
+        "skill_set_matches",
+    ]
+
+
+def test_skill_set_unknown_requirement_keeps_rollup_potential_match():
+    result = evaluate_requirements(
+        make_profile(),
+        [
+            make_orchestration_requirement(
+                kind="skill_set",
+                params={"metric": "skills", "operator": "contains_any", "required": ["python"]},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.POTENTIAL_MATCH
+
+
+def test_skill_set_not_met_mandatory_requirement_keeps_rollup_not_eligible():
+    result = evaluate_requirements(
+        make_profile_with_skills("sql"),
+        [
+            make_orchestration_requirement(
+                kind="skill_set",
+                params={"metric": "skills", "operator": "contains_any", "required": ["python"]},
+            ),
+        ],
+    )
+
+    assert result.status == OpportunityMatchStatus.NOT_ELIGIBLE
+
+
+def test_repeated_skill_set_evaluation_is_deterministic():
+    requirement = make_skill_requirement()
+    profile = make_profile_with_skills("python", "sql")
+
+    first = evaluate_skill_set(profile, requirement)
+    second = evaluate_skill_set(profile, requirement)
 
     assert first.model_dump(mode="json") == second.model_dump(mode="json")
