@@ -5,7 +5,7 @@ import uuid
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 
 from app.models import (
     Match,
@@ -15,7 +15,12 @@ from app.models import (
     Opportunity,
     Profile,
 )
-from app.services.matching import ENGINE_VERSION, MatchEvaluationResult, RequirementResult
+from app.services.matching import (
+    ENGINE_VERSION,
+    MatchEvaluationResult,
+    RequirementResult,
+    evaluate_requirements,
+)
 
 
 class MatchPersistenceError(Exception):
@@ -111,3 +116,40 @@ def persist_match_evaluation(
 
     db.refresh(match)
     return match
+
+
+def evaluate_and_persist_match(
+    db: Session,
+    profile_id: uuid.UUID,
+    opportunity_id: uuid.UUID,
+) -> Match | None:
+    """Evaluate one Profile x Opportunity pair and persist its Match.
+
+    This is the service-level entry point that connects the pure matching
+    engine to real ORM objects: it loads everything the evaluators read
+    (education, skills, requirements) up front so evaluation itself never
+    issues SQL, then delegates verdict rollup to ``evaluate_requirements``
+    and all Match/MatchRequirement writing to :func:`persist_match_evaluation`.
+
+    Returns ``None`` when either parent is missing — the same not-found
+    convention as ``get_opportunity`` — and never commits: the caller owns
+    the transaction (``get_db`` commits, tests roll back).
+    """
+    profile = db.scalar(
+        select(Profile)
+        .where(Profile.id == profile_id)
+        .options(selectinload(Profile.education), selectinload(Profile.skills))
+    )
+    if profile is None:
+        return None
+
+    opportunity = db.scalar(
+        select(Opportunity)
+        .where(Opportunity.id == opportunity_id)
+        .options(selectinload(Opportunity.requirements))
+    )
+    if opportunity is None:
+        return None
+
+    evaluation = evaluate_requirements(profile, opportunity.requirements)
+    return persist_match_evaluation(db, profile, opportunity, evaluation)
