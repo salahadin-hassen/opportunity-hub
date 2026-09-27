@@ -118,6 +118,34 @@ def persist_match_evaluation(
     return match
 
 
+def _load_evaluable_profile(db: Session, profile_id: uuid.UUID) -> Profile | None:
+    """Load a profile with everything the evaluators read up front.
+
+    Education and skills are eager-loaded so evaluation itself never
+    issues SQL; the ownership decision always happens above this lookup.
+    """
+    return db.scalar(
+        select(Profile)
+        .where(Profile.id == profile_id)
+        .options(selectinload(Profile.education), selectinload(Profile.skills))
+    )
+
+
+def _load_opportunity(db: Session, opportunity_id: uuid.UUID) -> Opportunity | None:
+    """Load one opportunity with its requirements for evaluation."""
+    return db.scalar(
+        select(Opportunity)
+        .where(Opportunity.id == opportunity_id)
+        .options(selectinload(Opportunity.requirements))
+    )
+
+
+def _evaluate_and_persist(db: Session, profile: Profile, opportunity: Opportunity) -> Match:
+    """Run the pure evaluator on pre-loaded rows and persist the verdict."""
+    evaluation = evaluate_requirements(profile, opportunity.requirements)
+    return persist_match_evaluation(db, profile, opportunity, evaluation)
+
+
 def evaluate_and_persist_match(
     db: Session,
     profile_id: uuid.UUID,
@@ -135,27 +163,44 @@ def evaluate_and_persist_match(
     convention as ``get_opportunity`` — and never commits: the caller owns
     the transaction (``get_db`` commits, tests roll back).
     """
-    profile = db.scalar(
-        select(Profile)
-        .where(Profile.id == profile_id)
-        .options(selectinload(Profile.education), selectinload(Profile.skills))
-    )
+    profile = _load_evaluable_profile(db, profile_id)
     if profile is None:
         return None
 
-    opportunity = db.scalar(
-        select(Opportunity)
-        .where(Opportunity.id == opportunity_id)
-        .options(selectinload(Opportunity.requirements))
-    )
+    opportunity = _load_opportunity(db, opportunity_id)
     if opportunity is None:
         return None
 
-    evaluation = evaluate_requirements(profile, opportunity.requirements)
-    return persist_match_evaluation(db, profile, opportunity, evaluation)
+    return _evaluate_and_persist(db, profile, opportunity)
 
 
-def get_match(db: Session, profile_id: uuid.UUID, opportunity_id: uuid.UUID) -> Match | None:
+def evaluate_and_persist_match_for_user(
+    db: Session,
+    profile: Profile,
+    opportunity_id: uuid.UUID,
+) -> Match | None:
+    """Evaluate the authenticated user's owned Profile against an opportunity.
+
+    The Profile row comes from the JWT ownership chain (``get_my_profile``),
+    so this variant never accepts an arbitrary profile id; only the shared
+    opportunity is addressed by client input. Returns ``None`` when the
+    opportunity does not exist. Same engine, same persistence path — no
+    second matching logic.
+    """
+    owned_profile = _load_evaluable_profile(db, profile.id)
+    if owned_profile is None:
+        return None
+
+    opportunity = _load_opportunity(db, opportunity_id)
+    if opportunity is None:
+        return None
+
+    return _evaluate_and_persist(db, owned_profile, opportunity)
+
+
+def get_match(
+    db: Session, profile_id: uuid.UUID, opportunity_id: uuid.UUID
+) -> Match | None:
     """Load one persisted Match with everything a response needs.
 
     Eager-loads ``requirement_results`` and each row's ``requirement``
@@ -176,4 +221,44 @@ def get_match(db: Session, profile_id: uuid.UUID, opportunity_id: uuid.UUID) -> 
                 MatchRequirement.requirement
             )
         )
+    )
+
+
+def get_match_for_user(
+    db: Session, profile: Profile, opportunity_id: uuid.UUID
+) -> Match | None:
+    """Read one Match for the owned Profile only.
+
+    The ownership scope lives inside the query (``profile_id = owned
+    profile``), so another user's Match is indistinguishable from an
+    absent one: callers get ``None`` either way and never see a
+    cross-user row. Read-only — never evaluates, creates or updates.
+    """
+    return get_match(db, profile.id, opportunity_id)
+
+
+def list_matches_for_user(
+    db: Session, profile: Profile, limit: int, offset: int
+) -> list[Match]:
+    """List the owned Profile's Matches newest-first with bounded pagination.
+
+    The single query is scoped to the caller's profile and eager-loads the
+    full evidence chain (``requirement_results`` then ``requirement``) with
+    two ``selectinload`` queries total — serializing every row never issues
+    one query per requirement. Only ``matches`` columns are selected; no
+    Profile or User columns are loaded for the response.
+    """
+    return list(
+        db.scalars(
+            select(Match)
+            .where(Match.profile_id == profile.id)
+            .options(
+                selectinload(Match.requirement_results).selectinload(
+                    MatchRequirement.requirement
+                )
+            )
+            .order_by(Match.evaluated_at.desc(), Match.id.desc())
+            .limit(limit)
+            .offset(offset)
+        ).all()
     )
