@@ -16,6 +16,7 @@ from app.schemas.requirement import (
     UnparsedParams,
     validate_params_for_kind,
 )
+from app.schemas.auth import TokenResponse, UserCreate, UserLogin
 from app.schemas.source import SourceCreate, SourceRead
 from app.schemas.education import EducationCreate, EducationRead
 from app.schemas.profile import ProfileCreate, ProfileRead
@@ -31,6 +32,9 @@ __all__ = [
     "MatchRequirementRead",
     "RequirementSummary",
     "UserRead",
+    "UserCreate",
+    "UserLogin",
+    "TokenResponse",
     "ProfileCreate",
     "ProfileRead",
     "EducationCreate",

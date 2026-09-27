@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlalchemy import text
 
+from app.api.routers.auth import router as auth_router
 from app.api.routers.matches import router as matches_router
 from app.api.routers.opportunities import router as opportunities_router
 from app.api.routers.profiles import router as profiles_router
@@ -37,6 +38,7 @@ app = FastAPI(
     version="0.1.0",
     lifespan=lifespan,
 )
+app.include_router(auth_router)
 app.include_router(opportunities_router)
 app.include_router(matches_router)
 app.include_router(profiles_router)

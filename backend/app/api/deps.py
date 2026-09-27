@@ -21,8 +21,12 @@ INVALID_CREDENTIALS_DETAIL = "Could not validate credentials."
 PROFILE_FORBIDDEN_DETAIL = "You do not have access to this profile."
 
 
-def _unauthorized() -> HTTPException:
-    """The single 401 shape: generic detail, no token internals."""
+def unauthorized() -> HTTPException:
+    """The single 401 shape: generic detail, no token internals.
+
+    Shared by the bearer dependency and the login endpoint so every
+    authentication failure is byte-for-byte identical.
+    """
     return HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail=INVALID_CREDENTIALS_DETAIL,
@@ -41,13 +45,13 @@ def get_current_user(
     check failed or anything about the submitted token.
     """
     if credentials is None or credentials.scheme.lower() != "bearer":
-        raise _unauthorized()
+        raise unauthorized()
     user_id = decode_access_token(credentials.credentials)
     if user_id is None:
-        raise _unauthorized()
+        raise unauthorized()
     user = db.get(User, user_id)
     if user is None or not user.is_active:
-        raise _unauthorized()
+        raise unauthorized()
     return user
 
 
