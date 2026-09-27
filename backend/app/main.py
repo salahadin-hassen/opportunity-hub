@@ -1,13 +1,14 @@
 """FastAPI application entry point."""
-from contextlib import asynccontextmanager
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from sqlalchemy import text
+
+from app.api.routers.matches import router as matches_router
 from app.api.routers.opportunities import router as opportunities_router
 from app.core.config import settings
 from app.db.session import engine
-
 
 logging.basicConfig(level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO))
 logger = logging.getLogger(__name__)
@@ -36,6 +37,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(opportunities_router)
+app.include_router(matches_router)
 
 
 @app.get("/health", tags=["health"])

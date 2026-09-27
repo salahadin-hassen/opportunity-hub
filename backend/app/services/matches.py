@@ -153,3 +153,27 @@ def evaluate_and_persist_match(
 
     evaluation = evaluate_requirements(profile, opportunity.requirements)
     return persist_match_evaluation(db, profile, opportunity, evaluation)
+
+
+def get_match(db: Session, profile_id: uuid.UUID, opportunity_id: uuid.UUID) -> Match | None:
+    """Load one persisted Match with everything a response needs.
+
+    Eager-loads ``requirement_results`` and each row's ``requirement``
+    metadata so serializing the Match never issues one query per
+    requirement. Rows keep their persisted (domain) order; no re-sorting
+    happens here. Returns ``None`` when the pair has no Match yet — the
+    same not-found convention as ``get_opportunity`` — and never
+    evaluates, writes or commits.
+    """
+    return db.scalar(
+        select(Match)
+        .where(
+            Match.profile_id == profile_id,
+            Match.opportunity_id == opportunity_id,
+        )
+        .options(
+            selectinload(Match.requirement_results).selectinload(
+                MatchRequirement.requirement
+            )
+        )
+    )

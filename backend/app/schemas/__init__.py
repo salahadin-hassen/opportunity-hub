@@ -1,4 +1,5 @@
 """Pydantic schemas for Opportunity Hub (database slice 1)."""
+from app.schemas.match import MatchFacts, MatchRead, MatchRequirementRead, RequirementSummary
 from app.schemas.opportunity import OpportunityCreate, OpportunityRead
 from app.schemas.requirement import (
     AnyOfParams,
@@ -24,6 +25,10 @@ from app.schemas.test_score import TestScoreCreate, TestScoreRead
 __all__ = [
     "OpportunityCreate",
     "OpportunityRead",
+    "MatchFacts",
+    "MatchRead",
+    "MatchRequirementRead",
+    "RequirementSummary",
     "ProfileCreate",
     "ProfileRead",
     "EducationCreate",
