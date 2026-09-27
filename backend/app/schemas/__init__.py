@@ -20,7 +20,12 @@ from app.schemas.auth import TokenResponse, UserCreate, UserLogin
 from app.schemas.source import SourceCreate, SourceRead
 from app.schemas.education import EducationCreate, EducationRead, EducationUpdate
 from app.schemas.profile import ProfileCreate, ProfileRead, ProfileUpdate
-from app.schemas.skill import SKILL_KEY_PATTERN, SkillCreate, SkillRead
+from app.schemas.skill import (
+    SKILL_KEY_PATTERN,
+    ProfileSkillCreate,
+    SkillCreate,
+    SkillRead,
+)
 from app.schemas.test_score import TestScoreCreate, TestScoreRead, TestScoreUpdate
 from app.schemas.user import UserRead
 
@@ -46,6 +51,7 @@ __all__ = [
     "TestScoreUpdate",
     "SourceCreate",
     "SourceRead",
+    "ProfileSkillCreate",
     "SkillCreate",
     "SkillRead",
     "SKILL_KEY_PATTERN",

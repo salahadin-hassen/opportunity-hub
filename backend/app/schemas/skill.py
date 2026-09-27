@@ -33,4 +33,16 @@ class SkillRead(BaseModel):
     created_at: datetime
 
 
-__all__ = ["SkillCreate", "SkillRead", "SKILL_KEY_PATTERN"]
+class ProfileSkillCreate(BaseModel):
+    """Payload for attaching one existing canonical skill to a profile.
+
+    Only the skill identifier is accepted: the profile comes from
+    authentication, and no new skill vocabulary can be created here.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    skill_id: uuid.UUID
+
+
+__all__ = ["ProfileSkillCreate", "SkillCreate", "SkillRead", "SKILL_KEY_PATTERN"]
