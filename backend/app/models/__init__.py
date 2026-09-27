@@ -21,6 +21,7 @@ from app.models.requirement import Requirement
 from app.models.skill import Skill
 from app.models.source import Source
 from app.models.test_score import TestScore
+from app.models.user import User
 
 __all__ = [
     "Opportunity",
@@ -33,6 +34,7 @@ __all__ = [
     "TestScore",
     "Match",
     "MatchRequirement",
+    "User",
     "OpportunityType",
     "OpportunityStatus",
     "DeadlineType",

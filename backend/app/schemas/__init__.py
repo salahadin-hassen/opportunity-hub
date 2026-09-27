@@ -21,6 +21,7 @@ from app.schemas.education import EducationCreate, EducationRead
 from app.schemas.profile import ProfileCreate, ProfileRead
 from app.schemas.skill import SKILL_KEY_PATTERN, SkillCreate, SkillRead
 from app.schemas.test_score import TestScoreCreate, TestScoreRead
+from app.schemas.user import UserRead
 
 __all__ = [
     "OpportunityCreate",
@@ -29,6 +30,7 @@ __all__ = [
     "MatchRead",
     "MatchRequirementRead",
     "RequirementSummary",
+    "UserRead",
     "ProfileCreate",
     "ProfileRead",
     "EducationCreate",

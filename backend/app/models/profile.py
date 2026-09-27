@@ -5,7 +5,7 @@ import uuid
 from datetime import date, datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Date, DateTime, Index, String, Text, Uuid, func, text
+from sqlalchemy import Date, DateTime, ForeignKey, Index, String, Text, UniqueConstraint, Uuid, func, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -18,6 +18,7 @@ if TYPE_CHECKING:
     from app.models.profile_skill import ProfileSkill
     from app.models.skill import Skill
     from app.models.test_score import TestScore
+    from app.models.user import User
 
 
 class Profile(Base):
@@ -26,6 +27,11 @@ class Profile(Base):
     __tablename__ = "profiles"
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid(as_uuid=True),
+        ForeignKey("users.id", ondelete="RESTRICT"),
+        nullable=True,
+    )
     full_name: Mapped[str] = mapped_column(String(255), nullable=False)
     email: Mapped[str] = mapped_column(String(320), nullable=False, unique=True)
     date_of_birth: Mapped[date | None] = mapped_column(Date, nullable=True)
@@ -40,6 +46,7 @@ class Profile(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now())
 
+    user: Mapped[User | None] = relationship(back_populates="profile")
     education: Mapped[list[Education]] = relationship(back_populates="profile", cascade="all, delete-orphan", passive_deletes=True, order_by="Education.created_at")
     test_scores: Mapped[list[TestScore]] = relationship(back_populates="profile", cascade="all, delete-orphan", passive_deletes=True, order_by="TestScore.test_date.desc()")
     profile_skills: Mapped[list[ProfileSkill]] = relationship(
@@ -60,6 +67,7 @@ class Profile(Base):
 
     __table_args__ = (
         enum_check_constraint("profiles", "degree_level", DegreeLevel),
+        UniqueConstraint("user_id", name="uq_profiles_user_id"),
         Index("ix_profiles_country_of_residence", "country_of_residence"),
         Index("ix_profiles_degree_level", "degree_level"),
     )
