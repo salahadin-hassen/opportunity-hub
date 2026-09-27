@@ -57,4 +57,31 @@ class EducationRead(BaseModel):
     created_at: datetime
 
 
-__all__ = ["EducationCreate", "EducationRead", "SUPPORTED_GPA_SCALES"]
+class EducationUpdate(BaseModel):
+    """Partial update for one owned education record.
+
+    Non-nullable columns declare a ``None`` default they can never receive:
+    an omitted field keeps its stored value (it is not in
+    ``model_fields_set`` and therefore never applied), while an explicit
+    ``null`` on such a field fails validation with a 422 instead of reaching
+    the database. The cross-field GPA/scale and date-range rules span the
+    stored record plus the submitted fields, so they are re-checked against
+    the merged state in the service — this schema only validates what the
+    client actually sends.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    institution_name: str = Field(default=None, min_length=1, max_length=255)
+    degree_level: DegreeLevel = Field(default=None)
+    field_of_study: str = Field(default=None, min_length=1, max_length=255)
+    country: str | None = Field(default=None, min_length=2, max_length=2, pattern=r"^[A-Za-z]{2}$")
+    start_date: date | None = None
+    end_date: date | None = None
+    is_current: bool = Field(default=None)
+    gpa: float | None = Field(default=None, ge=0)
+    gpa_scale: float | None = None
+    is_primary: bool = Field(default=None)
+
+
+__all__ = ["EducationCreate", "EducationRead", "EducationUpdate", "SUPPORTED_GPA_SCALES"]

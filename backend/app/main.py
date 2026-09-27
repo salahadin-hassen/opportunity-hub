@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from app.api.routers.auth import router as auth_router
+from app.api.routers.education import router as education_router
 from app.api.routers.matches import router as matches_router
 from app.api.routers.opportunities import router as opportunities_router
 from app.api.routers.profiles import me_router, router as profiles_router
@@ -39,6 +40,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(auth_router)
+app.include_router(education_router)
 app.include_router(opportunities_router)
 app.include_router(matches_router)
 app.include_router(me_router)

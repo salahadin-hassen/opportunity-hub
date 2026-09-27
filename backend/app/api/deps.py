@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models import Profile, User
+from app.services.profiles import get_profile_for_user
 
 bearer_token = HTTPBearer(auto_error=False)
 
@@ -53,6 +54,23 @@ def get_current_user(
     if user is None or not user.is_active:
         raise unauthorized()
     return user
+
+
+def get_my_profile(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+) -> Profile:
+    """Resolve the authenticated user's own profile, or 404 when none exists yet.
+
+    Shared by the ``/me/profile`` child routes so the ownership chain
+    ``current_user -> owned Profile`` is expressed exactly once.
+    """
+    profile = get_profile_for_user(db, current_user.id)
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Profile not found."
+        )
+    return profile
 
 
 def get_owned_profile(
