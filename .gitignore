@@ -10,10 +10,30 @@ backend/.env
 .env.example
 backend/.env.example
 
-
 # Build and test artifacts
 *.py[cod]
 *.egg-info/
 dist/
+dist-ssr/
 build/
 .coverage
+
+# Frontend dependencies & logs
+node_modules/
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Environment variables
+.env.local
+.env.*.local
+
+# Editor / OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
