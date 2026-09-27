@@ -4,12 +4,11 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.orm import Session
-
 from app.db.session import get_db
 from app.main import app
 from app.schemas import OpportunityRead
+from httpx import ASGITransport, AsyncClient
+from sqlalchemy.orm import Session
 
 
 def opportunity_payload(slug: str | None = None) -> dict[str, object]:

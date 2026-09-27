@@ -1,8 +1,8 @@
 """Requirement orchestration and opportunity-level verdict rollup."""
 from __future__ import annotations
 
-from enum import StrEnum
 import uuid
+from enum import StrEnum
 from typing import Any, Iterable
 
 from pydantic import BaseModel, ConfigDict
