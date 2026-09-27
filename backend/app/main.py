@@ -10,6 +10,7 @@ from app.api.routers.education import router as education_router
 from app.api.routers.matches import router as matches_router
 from app.api.routers.opportunities import router as opportunities_router
 from app.api.routers.profiles import me_router, router as profiles_router
+from app.api.routers.test_scores import router as test_scores_router
 from app.core.config import settings
 from app.db.session import engine
 
@@ -45,6 +46,7 @@ app.include_router(opportunities_router)
 app.include_router(matches_router)
 app.include_router(me_router)
 app.include_router(profiles_router)
+app.include_router(test_scores_router)
 
 
 @app.get("/health", tags=["health"])
