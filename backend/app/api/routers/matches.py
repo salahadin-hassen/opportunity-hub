@@ -1,4 +1,10 @@
-"""Match HTTP endpoints: evaluate and retrieve one Profile x Opportunity verdict."""
+"""Match HTTP endpoints: evaluate and retrieve one Profile x Opportunity verdict.
+
+Development-only: these endpoints still address matches by arbitrary
+profile/opportunity UUIDs and carry no authentication or ownership checks.
+They are not production-safe and stay that way until the next protected API
+slice wires them to ``get_current_user`` / profile ownership.
+"""
 from __future__ import annotations
 
 import uuid

@@ -8,10 +8,13 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 class Settings(BaseSettings):
     """Application settings loaded from environment variables."""
+
     DATABASE_URL: str
     TEST_DATABASE_URL: str | None = None
     APP_ENV: str = "development"
     LOG_LEVEL: str = "INFO"
+    JWT_SECRET: str
+    JWT_ALGORITHM: str = "HS256"
 
     model_config = SettingsConfigDict(
         env_file=BACKEND_DIR / ".env",
