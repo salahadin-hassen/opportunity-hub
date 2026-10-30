@@ -1,4 +1,13 @@
-"""Evaluator for numeric thresholds backed by primary education GPA."""
+"""Evaluator for numeric thresholds backed by primary education GPA.
+
+GPA comparison strategy: a threshold is only meaningful on the grading scale
+it was published on, so a rule must declare ``params.scale`` and the
+profile's primary education must report its GPA on that same scale. Scales
+are never converted — a 3.5/4.0 and an 8.75/10 are not interchangeable
+across institutions — so a missing threshold scale or a scale mismatch is
+sent to human review rather than guessed. A missing GPA stays ``unknown``,
+which the profile owner can resolve by adding it.
+"""
 from __future__ import annotations
 
 from decimal import Decimal, InvalidOperation
@@ -40,7 +49,8 @@ def evaluate_numeric_threshold(profile: Any, requirement: Any) -> RequirementRes
     metric = params.get("metric")
     operator = params.get("operator")
     value = params.get("value")
-    expected = {"metric": metric, "operator": operator, "value": value}
+    scale = params.get("scale")
+    expected = {"metric": metric, "operator": operator, "value": value, "scale": scale}
 
     if metric != SUPPORTED_METRIC:
         return _needs_review(
@@ -76,13 +86,25 @@ def evaluate_numeric_threshold(profile: Any, requirement: Any) -> RequirementRes
             "Numeric threshold parameters need review.",
         )
 
+    threshold_scale = _decimal_or_none(scale)
+    if threshold_scale is None or threshold_scale <= 0:
+        return _needs_review(
+            "gpa_threshold_scale_unspecified",
+            expected,
+            "The GPA threshold does not state its grading scale, so it cannot be compared.",
+        )
+
     education_records = getattr(profile, "education", None)
     primary_education = next(
         (education for education in (education_records or []) if getattr(education, "is_primary", False)),
         None,
     )
     actual_gpa = getattr(primary_education, "gpa", None)
-    actual = {"value": float(actual_gpa) if actual_gpa is not None else None}
+    actual_scale = getattr(primary_education, "gpa_scale", None)
+    actual = {
+        "value": float(actual_gpa) if actual_gpa is not None else None,
+        "scale": float(actual_scale) if actual_scale is not None else None,
+    }
     if actual_gpa is None:
         return RequirementResult(
             outcome=RequirementOutcome.UNKNOWN,
@@ -90,6 +112,15 @@ def evaluate_numeric_threshold(profile: Any, requirement: Any) -> RequirementRes
             expected=expected,
             actual=actual,
             message="Profile does not contain a primary education GPA.",
+        )
+
+    if actual_scale is None or Decimal(str(actual_scale)) != threshold_scale:
+        return RequirementResult(
+            outcome=RequirementOutcome.NEEDS_REVIEW,
+            reason_code="gpa_scale_mismatch",
+            expected=expected,
+            actual=actual,
+            message="Profile GPA is on a different grading scale than the threshold.",
         )
 
     actual_decimal = Decimal(str(actual_gpa))
@@ -109,3 +140,14 @@ def evaluate_numeric_threshold(profile: Any, requirement: Any) -> RequirementRes
         actual=actual,
         message="Profile does not satisfy the numeric threshold requirement.",
     )
+
+
+def _decimal_or_none(value: Any) -> Decimal | None:
+    """Parse a finite numeric parameter, treating anything else as absent."""
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        parsed = Decimal(str(value))
+    except (InvalidOperation, ValueError):
+        return None
+    return parsed if parsed.is_finite() else None

@@ -6,21 +6,27 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
+from app.api.deps import require_admin_token
 from app.db.session import get_db
-from app.schemas import OpportunityCreate, OpportunityRead
+from app.schemas import OpportunityCreate, OpportunityDetailRead, OpportunityRead
 from app.services.opportunities import (
     OpportunitySlugConflictError,
     create_opportunity,
-    get_opportunity,
+    get_public_opportunity,
     list_opportunities,
 )
 
 router = APIRouter(prefix="/opportunities", tags=["opportunities"])
 
 
-@router.post("", response_model=OpportunityRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "",
+    response_model=OpportunityRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[Depends(require_admin_token)],
+)
 def create(payload: OpportunityCreate, db: Session = Depends(get_db)) -> OpportunityRead:
-    """Create an opportunity."""
+    """Create an opportunity (curators only, via ``X-Admin-Token``)."""
     try:
         return create_opportunity(db, payload)
     except OpportunitySlugConflictError as error:
@@ -36,14 +42,14 @@ def list_all(
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
 ) -> list[OpportunityRead]:
-    """List opportunities with simple offset pagination."""
+    """List published opportunities with simple offset pagination."""
     return list_opportunities(db, limit, offset)
 
 
-@router.get("/{opportunity_id}", response_model=OpportunityRead)
-def get_one(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> OpportunityRead:
-    """Return one opportunity by ID."""
-    opportunity = get_opportunity(db, opportunity_id)
+@router.get("/{opportunity_id}", response_model=OpportunityDetailRead)
+def get_one(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> OpportunityDetailRead:
+    """Return one public opportunity with its eligibility rules and sources."""
+    opportunity = get_public_opportunity(db, opportunity_id)
     if opportunity is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Opportunity not found.")
     return opportunity

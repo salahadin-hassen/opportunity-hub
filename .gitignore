@@ -17,3 +17,20 @@ backend/.env.example
 dist/
 build/
 .coverage
+# Local development state (isolated Postgres cluster, logs, backups)
+.devdb/
+.backups/
+
+# Frontend
+node_modules/
+frontend/dist/
+frontend/test-results/
+frontend/playwright-report/
+frontend/tsconfig.tsbuildinfo
+*.local
+
+# Local release rehearsal secrets and logs
+.release/
+
+# Local visual-QA screenshot rounds (large; the curated demo backup lives in docs/demo-backup/)
+docs/screenshots/

@@ -5,6 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import unauthorized
+from app.core.rate_limit import limit_auth_attempts
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.schemas import TokenResponse, UserCreate, UserLogin, UserRead
@@ -14,7 +15,7 @@ from app.services.users import (
     create_user,
 )
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["auth"], dependencies=[Depends(limit_auth_attempts)])
 
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)

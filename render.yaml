@@ -1,0 +1,61 @@
+# Render Blueprint for Opportunity Hub: a static frontend and a FastAPI web service.
+# The database is external (Neon Postgres, free and persistent): paste its connection
+# string as DATABASE_URL when Render asks. See docs/DEPLOYMENT.md before applying.
+#
+# If Render can't give a service its exact name (names are global on onrender.com),
+# it adds a suffix: update CORS_ORIGINS and VITE_API_BASE to the real URLs.
+services:
+  - type: web
+    name: opportunity-hub-api
+    runtime: python
+    plan: free
+    region: frankfurt
+    branch: feat/opportunity-hub-product
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install .
+    # Migrations run before the server starts, so the service only turns healthy on the current schema.
+    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://opportunity-hub.onrender.com
+      - key: AUTH_RATE_LIMIT_PER_MINUTE
+        value: "10"
+
+  - type: web
+    name: opportunity-hub
+    runtime: static
+    branch: feat/opportunity-hub-product
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: VITE_API_BASE
+        value: https://opportunity-hub-api.onrender.com
+    routes:
+      # Single-page app: every path that isn't a file serves index.html (direct links and refreshes).
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin

@@ -1,4 +1,4 @@
-"""Evaluator for exact membership in the profile citizenship collection."""
+"""Evaluator for exact (non-)membership in the profile citizenship collection."""
 from __future__ import annotations
 
 from typing import Any
@@ -6,7 +6,8 @@ from typing import Any
 from app.services.matching.result import RequirementOutcome, RequirementResult
 
 SUPPORTED_METRIC = "citizenship"
-SUPPORTED_OPERATOR = "in"
+#: ``in``: holds one required citizenship; ``not_in``: holds none of the excluded one.
+SUPPORTED_OPERATORS = ("in", "not_in")
 
 
 def _needs_review(reason_code: str, expected: dict[str, Any], message: str) -> RequirementResult:
@@ -20,7 +21,7 @@ def _needs_review(reason_code: str, expected: dict[str, Any], message: str) -> R
 
 
 def evaluate_set_membership(profile: Any, requirement: Any) -> RequirementResult:
-    """Evaluate exact membership of one required citizenship value."""
+    """Evaluate exact membership (or exclusion) of one citizenship value."""
     if getattr(requirement, "is_ambiguous", False):
         return _needs_review(
             "ambiguous_requirement",
@@ -40,7 +41,7 @@ def evaluate_set_membership(profile: Any, requirement: Any) -> RequirementResult
     operator = params.get("operator")
     allowed = params.get("allowed")
     required_value = allowed[0] if isinstance(allowed, list) and len(allowed) == 1 else None
-    expected = {"metric": metric, "value": required_value}
+    expected = {"metric": metric, "operator": operator, "value": required_value}
 
     if metric != SUPPORTED_METRIC:
         return _needs_review(
@@ -48,7 +49,7 @@ def evaluate_set_membership(profile: Any, requirement: Any) -> RequirementResult
             expected,
             f"Set membership metric '{metric}' is not supported.",
         )
-    if operator != SUPPORTED_OPERATOR:
+    if operator not in SUPPORTED_OPERATORS:
         return _needs_review(
             "unsupported_set_operator",
             expected,
@@ -80,7 +81,7 @@ def evaluate_set_membership(profile: Any, requirement: Any) -> RequirementResult
         )
 
     actual = {"values": list(citizenships)}
-    if required_value in citizenships:
+    if (required_value in citizenships) == (operator == "in"):
         return RequirementResult(
             outcome=RequirementOutcome.MET,
             reason_code="set_membership_matches",

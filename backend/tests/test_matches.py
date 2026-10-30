@@ -91,7 +91,7 @@ ANY_OF_REQUIREMENT_PAYLOADS = [
         "kind": "any_of",
         "params": {
             "any_of": [
-                {"kind": "numeric_threshold", "params": {"metric": "gpa", "operator": ">=", "value": 3.5}},
+                {"kind": "numeric_threshold", "params": {"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0}},
                 {"kind": "set_membership", "params": {"metric": "citizenship", "operator": "in", "allowed": ["Ethiopia"]}},
             ]
         },
@@ -277,8 +277,8 @@ def test_gpa_requirement_persists_real_evidence(db_session):
     row = rows_by_requirement(match)[requirements[GPA].id]
     assert row.outcome == "met"
     assert row.reason_code == "numeric_threshold_met"
-    assert row.expected == {"metric": "gpa", "operator": ">=", "value": 3.5}
-    assert row.actual == {"value": 3.75}
+    assert row.expected == {"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0}
+    assert row.actual == {"value": 3.75, "scale": 4.0}
     assert row.message == "Profile satisfies the numeric threshold requirement."
 
 
@@ -290,7 +290,7 @@ def test_citizenship_requirement_persists_real_evidence(db_session):
     row = rows_by_requirement(match)[requirements[CITIZENSHIP].id]
     assert row.outcome == "met"
     assert row.reason_code == "set_membership_matches"
-    assert row.expected == {"metric": "citizenship", "value": "Ethiopia"}
+    assert row.expected == {"metric": "citizenship", "operator": "in", "value": "Ethiopia"}
     assert row.actual == {"values": ["Ethiopia"]}
     assert row.message == "Profile satisfies the set membership requirement."
 
@@ -407,7 +407,7 @@ def test_potential_match_verdict_when_gpa_is_missing(db_session):
     row = rows_by_requirement(match)[requirements[GPA].id]
     assert row.outcome == "unknown"
     assert row.reason_code == "profile_fact_unavailable"
-    assert row.actual == {"value": None}
+    assert row.actual == {"value": None, "scale": None}
 
 
 def test_needs_review_verdict_for_unsupported_requirement(db_session):
@@ -451,13 +451,13 @@ def test_all_rows_preserve_ids_evidence_and_messages(db_session):
         ),
         requirements[GPA]: (
             "numeric_threshold_met",
-            {"metric": "gpa", "operator": ">=", "value": 3.5},
-            {"value": 3.75},
+            {"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0},
+            {"value": 3.75, "scale": 4.0},
             "Profile satisfies the numeric threshold requirement.",
         ),
         requirements[CITIZENSHIP]: (
             "set_membership_matches",
-            {"metric": "citizenship", "value": "Ethiopia"},
+            {"metric": "citizenship", "operator": "in", "value": "Ethiopia"},
             {"values": ["Ethiopia"]},
             "Profile satisfies the set membership requirement.",
         ),

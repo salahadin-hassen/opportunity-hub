@@ -29,6 +29,7 @@ from app.services.matches import (
     get_match_for_user,
     list_matches_for_user,
 )
+from app.services.opportunities import is_public
 
 router = APIRouter(prefix="/me", tags=["matches"])
 
@@ -36,13 +37,14 @@ router = APIRouter(prefix="/me", tags=["matches"])
 def _opportunity_or_match_not_found(db: Session, opportunity_id: uuid.UUID) -> HTTPException:
     """Build the read-only 404 for a Match lookup.
 
-    Opportunities are shared, so their existence is not a secret and the
-    existing ``Opportunity not found.`` convention applies. A Match that
-    belongs to someone else is reported exactly like one that does not
-    exist — the query is scoped to the caller's profile, so there is
-    nothing further to reveal.
+    Public opportunities are shared, so their existence is not a secret and
+    the existing ``Opportunity not found.`` convention applies; drafts and
+    archived rows are reported as missing. A Match that belongs to someone
+    else is reported exactly like one that does not exist — the query is
+    scoped to the caller's profile, so there is nothing further to reveal.
     """
-    if db.get(Opportunity, opportunity_id) is None:
+    opportunity = db.get(Opportunity, opportunity_id)
+    if opportunity is None or not is_public(opportunity):
         detail = "Opportunity not found."
     else:
         detail = "Match not found."
@@ -88,7 +90,7 @@ def get_one_for_me(
     user's Match is indistinguishable from a missing one (404).
     """
     match = get_match_for_user(db, profile, opportunity_id)
-    if match is None:
+    if match is None or not is_public(match.opportunity):
         raise _opportunity_or_match_not_found(db, opportunity_id)
     return match
 

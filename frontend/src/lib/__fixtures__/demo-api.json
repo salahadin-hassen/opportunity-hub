@@ -1,0 +1,1342 @@
+{
+ "opportunities": [
+  {
+   "id": "f7a70b1a-b86a-5b1d-bb58-47803708d2b1",
+   "slug": "nasa-ostem-internships-fall-2027",
+   "title": "NASA OSTEM Internships — Fall 2027",
+   "opportunity_type": "internship",
+   "description": "OSTEM Internships offer short‑term, hands‑on opportunities for students to work on real NASA projects. These experiences help to build technical and professional skills while learning from NASA mentors.",
+   "host_name": "NASA",
+   "official_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+   "deadline_at": "2027-05-25T06:59:00+03:00",
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "US"
+   ],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "aerospace",
+    "space",
+    "stem"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "c1f5932b-d450-5e43-9879-a10d65ecb760",
+   "slug": "cern-summer-student-programme",
+   "title": "CERN Summer Student Programme",
+   "opportunity_type": "internship",
+   "description": "Join CERN for an unforgettable summer! You’ll work on advanced scientific or technical projects, attend lectures by leading scientists, and immerse yourself in a vibrant international environment. You will gain hands-on experience that goes beyond the classroom, making this more than just a summer job—it’s a unique journey into the heart of scientific discovery.",
+   "host_name": "CERN",
+   "official_url": "https://careers.cern/programmes/summer-studentship/",
+   "deadline_at": null,
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "CH"
+   ],
+   "languages": [
+    "en",
+    "fr"
+   ],
+   "tags": [
+    "physics",
+    "engineering",
+    "computer science",
+    "summer"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "a30cd846-bfdd-5bde-bebb-88c02068764b",
+   "slug": "brooke-owens-fellowship-2027",
+   "title": "Brooke Owens Fellowship — Class of 2027",
+   "opportunity_type": "fellowship",
+   "description": "The Brooke Owens Fellowship is committed to expanding opportunities for women and gender minorities in aerospace.",
+   "host_name": "Brooke Owens Fellowship",
+   "official_url": "https://www.brookeowensfellowship.org/apply",
+   "deadline_at": null,
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "unknown",
+   "countries": [
+    "US"
+   ],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "aerospace",
+    "mentorship",
+    "undergraduate"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "98efffea-0bb2-55fb-b922-f33d84f64402",
+   "slug": "nasa-ostem-internships-summer-2027",
+   "title": "NASA OSTEM Internships — Summer 2027",
+   "opportunity_type": "internship",
+   "description": "OSTEM Internships offer short‑term, hands‑on opportunities for students to work on real NASA projects. These experiences help to build technical and professional skills while learning from NASA mentors.",
+   "host_name": "NASA",
+   "official_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+   "deadline_at": "2027-03-02T07:59:00+03:00",
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "US"
+   ],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "aerospace",
+    "space",
+    "stem"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "89977454-caaa-519b-b7eb-6256b19398c5",
+   "slug": "kaust-visiting-student-research-program",
+   "title": "KAUST Visiting Student Research Program (VSRP)",
+   "opportunity_type": "research_program",
+   "description": "The Visiting Student Research Program (VSRP) at KAUST offers internships for 3rd and 4th-year bachelor’s and master’s students in science, technology, engineering, and mathematics (STEM). With over 100 faculty-led projects, students can choose research topics that align with their interests for internships lasting 2 to 6 months.",
+   "host_name": "King Abdullah University of Science and Technology",
+   "official_url": "https://admissions.kaust.edu.sa/study/internships",
+   "deadline_at": null,
+   "deadline_type": "rolling",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "SA"
+   ],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "research",
+    "stem",
+    "stipend"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "78b00ebb-ee2d-5a4b-83cb-a3052d2180c4",
+   "slug": "google-summer-of-code",
+   "title": "Google Summer of Code",
+   "opportunity_type": "open_source_program",
+   "description": "To be eligible, contributors must be at least 18 years old, reside in a non-embargoed country, and have limited prior open source experience, while organizations must have an active open source project and at least two mentors.",
+   "host_name": "Google",
+   "official_url": "https://developers.google.com/open-source/gsoc/faq",
+   "deadline_at": null,
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "remote",
+   "countries": [],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "open source",
+    "software",
+    "stipend"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "4c5ad172-ca5c-5dad-b37a-e67f49b91fee",
+   "slug": "schwarzman-scholars-2028-2029",
+   "title": "Schwarzman Scholars — Class of 2028–2029",
+   "opportunity_type": "scholarship",
+   "description": "Schwarzman Scholars are selected from an international pool of distinguished candidates. Prospective Scholars are expected to demonstrate academic excellence, exceptional results in their field and outstanding leadership qualities. The U.S. and Global application for the class of 2028-2029 will be open from April 2027 to September 2027.",
+   "host_name": "Schwarzman Scholars",
+   "official_url": "https://www.schwarzmanscholars.org/admissions/eligibility/",
+   "deadline_at": null,
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "CN"
+   ],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "leadership",
+    "master's",
+    "fully funded"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "3f662f38-900b-50bf-a98d-5dd858d4b3f4",
+   "slug": "github-student-developer-pack",
+   "title": "GitHub Student Developer Pack",
+   "opportunity_type": "other",
+   "description": "Learn to ship software like a pro. There's no substitute for hands-on experience. But for most students, real world tools can be cost-prohibitive.",
+   "host_name": "GitHub Education",
+   "official_url": "https://education.github.com/pack",
+   "deadline_at": null,
+   "deadline_type": "none",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "remote",
+   "countries": [],
+   "languages": [],
+   "tags": [
+    "developer tools",
+    "software"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "3deb873c-4727-59f2-86e3-2fb3abe08fb4",
+   "slug": "gates-cambridge-scholarship",
+   "title": "Gates Cambridge Scholarship",
+   "opportunity_type": "scholarship",
+   "description": "You can apply for a Gates Cambridge Scholarship if you are: a citizen of any country outside the United Kingdom; applying to pursue one of the following courses at the University of Cambridge: PhD (full-time or part-time*), MLitt (full-time), one-year postgraduate course (full-time), with some exceptions.",
+   "host_name": "Gates Cambridge Trust",
+   "official_url": "https://www.gatescambridge.org/apply/eligibility/",
+   "deadline_at": null,
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "GB"
+   ],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "postgraduate",
+    "phd",
+    "fully funded"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "1e31b45c-10fd-5d12-bac6-e9d2079aad0b",
+   "slug": "chevening-scholarships",
+   "title": "Chevening Scholarships",
+   "opportunity_type": "scholarship",
+   "description": "Chevening Scholarships allow exceptional individuals to study for a one-year master’s degree at a UK university.",
+   "host_name": "Chevening",
+   "official_url": "https://www.chevening.org/resource-hub/guidance/eligibility/",
+   "deadline_at": null,
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "GB"
+   ],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "master's",
+    "fully funded",
+    "leadership"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "1da4e372-28c3-5a14-bb7c-281c056eab8f",
+   "slug": "amelia-earhart-fellowship-2027",
+   "title": "Amelia Earhart Fellowship 2027",
+   "opportunity_type": "fellowship",
+   "description": "Established in 1938 in honor of famed aviator and Zontian Amelia Earhart, the Amelia Earhart Fellowship supports women pursuing Ph.D./doctoral degrees in aerospace engineering and space sciences. Up to 30 Fellows will receive a US$12,000 Amelia Earhart Fellowship to support their advanced studies at any university or college offering accredited post-graduate courses and degrees in these fields.",
+   "host_name": "Zonta International",
+   "official_url": "https://www.zonta.org/Web/Programs/Education/Amelia_Earhart_Fellowship",
+   "deadline_at": "2026-11-16T02:59:00+03:00",
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "unknown",
+   "countries": [],
+   "languages": [
+    "en"
+   ],
+   "tags": [
+    "aerospace",
+    "space science",
+    "doctoral"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  },
+  {
+   "id": "1bcfc59d-3007-5cc3-9fb2-ae5ddab62f69",
+   "slug": "mitacs-globalink-research-internship-2027",
+   "title": "Mitacs Globalink Research Internship 2027",
+   "opportunity_type": "internship",
+   "description": "Mitacs Globalink Research Internship is a competitive initiative for international undergraduates from the following countries and regions: Austria, Brazil, Chile, China, Colombia, Finland, France, Germany, Hong Kong, India, Ireland, Jordan, Mexico, Pakistan, Peru, Singapore, South Korea, Taiwan, Thailand, Tunisia, Ukraine, United Kingdom and the United States.",
+   "host_name": "Mitacs",
+   "official_url": "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+   "deadline_at": null,
+   "deadline_type": "fixed",
+   "starts_at": null,
+   "ends_at": null,
+   "location_mode": "onsite",
+   "countries": [
+    "CA"
+   ],
+   "languages": [
+    "en",
+    "fr"
+   ],
+   "tags": [
+    "research",
+    "undergraduate",
+    "canada"
+   ],
+   "status": "published",
+   "created_at": "2026-10-30T17:30:29.793131+03:00",
+   "updated_at": "2026-10-30T17:30:29.793131+03:00",
+   "published_at": "2026-10-30T15:00:00+03:00"
+  }
+ ],
+ "matches": [
+  {
+   "id": "816cfe1e-3f03-4bcd-96d5-70bf68097f08",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "f7a70b1a-b86a-5b1d-bb58-47803708d2b1",
+   "status": "not_eligible",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.545088+03:00",
+   "facts": {
+    "total": 3,
+    "met": 1,
+    "not_met": 1,
+    "unknown": 1,
+    "needs_review": 0
+   },
+   "requirements": [
+    {
+     "id": "4e406b84-ef33-4148-869a-6f65c6bc80e6",
+     "requirement_id": "22142be6-e775-4334-b62c-f548d5bed64e",
+     "outcome": "not_met",
+     "reason_code": "set_membership_does_not_match",
+     "expected": {
+      "value": "US",
+      "metric": "citizenship"
+     },
+     "actual": {
+      "values": [
+       "ET"
+      ]
+     },
+     "message": "Profile does not satisfy the set membership requirement.",
+     "requirement": {
+      "label": "U.S. citizen",
+      "kind": "set_membership",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "777390ae-854c-47d1-b629-3358c33c89a4",
+      "source_quote": "Citizenship U.S. Citizen"
+     }
+    },
+    {
+     "id": "c6526456-04f4-41a3-8dfe-86abb9dbdd2d",
+     "requirement_id": "b68d4256-f0b4-4ecd-b8c1-87673eda81f3",
+     "outcome": "unknown",
+     "reason_code": "profile_fact_unavailable",
+     "expected": {
+      "value": 3.0,
+      "metric": "gpa",
+      "operator": ">="
+     },
+     "actual": {
+      "value": null
+     },
+     "message": "Profile does not contain a primary education GPA.",
+     "requirement": {
+      "label": "GPA of at least 3.0 on a 4.0 scale",
+      "kind": "numeric_threshold",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "777390ae-854c-47d1-b629-3358c33c89a4",
+      "source_quote": "GPA 3.0 on a 4.0 scale"
+     }
+    },
+    {
+     "id": "c6c2c0d5-f9de-432e-a951-46b850fb74de",
+     "requirement_id": "0696126c-f684-45d6-87ea-e8391daaf5ab",
+     "outcome": "met",
+     "reason_code": "boolean_flag_matches",
+     "expected": {
+      "value": true,
+      "metric": "is_currently_enrolled"
+     },
+     "actual": {
+      "value": true
+     },
+     "message": "Profile satisfies the requirement.",
+     "requirement": {
+      "label": "Enrolled in a certificate or degree-granting program",
+      "kind": "boolean_flag",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "777390ae-854c-47d1-b629-3358c33c89a4",
+      "source_quote": "Unless a recent high school graduate, applicants must be enrolled (full-time or part-time) in a certificate or degree-granting program that is accredited by a recognized accrediting organization of the U.S. Department of Education."
+     }
+    }
+   ]
+  },
+  {
+   "id": "e775b092-bbdd-4333-a778-003979f3b4a5",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "c1f5932b-d450-5e43-9879-a10d65ecb760",
+   "status": "eligible",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.577463+03:00",
+   "facts": {
+    "total": 2,
+    "met": 2,
+    "not_met": 0,
+    "unknown": 0,
+    "needs_review": 0
+   },
+   "requirements": [
+    {
+     "id": "fe7a269b-1bc9-410a-8ce3-3a5c501fc7ed",
+     "requirement_id": "b2330c1a-2f75-4034-a217-90ca79bc6e7d",
+     "outcome": "met",
+     "reason_code": "any_of_met",
+     "expected": {
+      "children": [
+       {
+        "kind": "equality",
+        "params": {
+         "value": "bachelor",
+         "metric": "degree_level",
+         "operator": "=="
+        }
+       },
+       {
+        "kind": "equality",
+        "params": {
+         "value": "master",
+         "metric": "degree_level",
+         "operator": "=="
+        }
+       }
+      ],
+      "operator": "any_of"
+     },
+     "actual": {
+      "children": [
+       {
+        "kind": "equality",
+        "actual": {
+         "value": "bachelor"
+        },
+        "message": "Profile satisfies the equality requirement.",
+        "outcome": "met",
+        "expected": {
+         "value": "bachelor",
+         "metric": "degree_level",
+         "operator": "=="
+        },
+        "reason_code": "equality_matches"
+       },
+       {
+        "kind": "equality",
+        "actual": {
+         "value": "bachelor"
+        },
+        "message": "Profile does not satisfy the equality requirement.",
+        "outcome": "not_met",
+        "expected": {
+         "value": "master",
+         "metric": "degree_level",
+         "operator": "=="
+        },
+        "reason_code": "equality_does_not_match"
+       }
+      ]
+     },
+     "message": "Profile satisfies at least one alternative.",
+     "requirement": {
+      "label": "Pursuing a Bachelor’s or Master’s degree (not a PhD)",
+      "kind": "any_of",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "0059ceae-f9df-4008-8809-2279c2904804",
+      "source_quote": "By the start of the summer, you are pursuing a Bachelor’s or Master’s degree (not a PhD) in Physics, Engineering, Computer Science or Mathematics and have completed at least 6 semesters of full-time university studies in one of these fields."
+     }
+    },
+    {
+     "id": "c6c5e769-a13c-4edb-b27d-884f08c8b7ce",
+     "requirement_id": "fc09a408-71c7-4bb6-b8b5-49ebbad15c9e",
+     "outcome": "met",
+     "reason_code": "boolean_flag_matches",
+     "expected": {
+      "value": true,
+      "metric": "is_currently_enrolled"
+     },
+     "actual": {
+      "value": true
+     },
+     "message": "Profile satisfies the requirement.",
+     "requirement": {
+      "label": "Enrolled as a full-time student",
+      "kind": "boolean_flag",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "0059ceae-f9df-4008-8809-2279c2904804",
+      "source_quote": "You remain enrolled as a full-time student at least until the start of the summer studentship."
+     }
+    }
+   ]
+  },
+  {
+   "id": "e3cecba2-ba10-4487-b1b1-f14bc1602f1e",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "a30cd846-bfdd-5bde-bebb-88c02068764b",
+   "status": "needs_review",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.609492+03:00",
+   "facts": {
+    "total": 3,
+    "met": 1,
+    "not_met": 0,
+    "unknown": 1,
+    "needs_review": 1
+   },
+   "requirements": [
+    {
+     "id": "979b63e6-afcb-411f-bbff-d278173da93c",
+     "requirement_id": "9f9d02a9-2e20-41d6-b359-f03ef4bd6bf3",
+     "outcome": "met",
+     "reason_code": "any_of_met",
+     "expected": {
+      "children": [
+       {
+        "kind": "equality",
+        "params": {
+         "value": "bachelor",
+         "metric": "degree_level",
+         "operator": "=="
+        }
+       },
+       {
+        "kind": "equality",
+        "params": {
+         "value": "associate",
+         "metric": "degree_level",
+         "operator": "=="
+        }
+       }
+      ],
+      "operator": "any_of"
+     },
+     "actual": {
+      "children": [
+       {
+        "kind": "equality",
+        "actual": {
+         "value": "bachelor"
+        },
+        "message": "Profile satisfies the equality requirement.",
+        "outcome": "met",
+        "expected": {
+         "value": "bachelor",
+         "metric": "degree_level",
+         "operator": "=="
+        },
+        "reason_code": "equality_matches"
+       },
+       {
+        "kind": "equality",
+        "actual": {
+         "value": "bachelor"
+        },
+        "message": "Profile does not satisfy the equality requirement.",
+        "outcome": "not_met",
+        "expected": {
+         "value": "associate",
+         "metric": "degree_level",
+         "operator": "=="
+        },
+        "reason_code": "equality_does_not_match"
+       }
+      ]
+     },
+     "message": "Profile satisfies at least one alternative.",
+     "requirement": {
+      "label": "Undergraduate working toward a bachelor’s or associate degree",
+      "kind": "any_of",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "8ea133bb-2b83-40f0-b5dc-8b82b62cbbf5",
+      "source_quote": "I am an undergraduate student who has completed at least one year of coursework toward a bachelor’s or associate degree."
+     }
+    },
+    {
+     "id": "b69c120a-4512-4e2d-a73f-6283b015db82",
+     "requirement_id": "2503a082-cab0-4f92-807b-83bf3df11ff6",
+     "outcome": "unknown",
+     "reason_code": "profile_fact_unavailable",
+     "expected": {
+      "value": "2008-10-30",
+      "metric": "date_of_birth",
+      "operator": "<="
+     },
+     "actual": {
+      "value": null
+     },
+     "message": "Profile does not contain a date of birth.",
+     "requirement": {
+      "label": "18 or older (checked as of 30 Oct 2026)",
+      "kind": "date_gate",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "8ea133bb-2b83-40f0-b5dc-8b82b62cbbf5",
+      "source_quote": "I am 18 years of age or older."
+     }
+    },
+    {
+     "id": "9a2dced9-e207-4168-9b83-802f78be0b81",
+     "requirement_id": "92f9633c-9af1-4262-8156-7f2dd1896e8f",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_requirement_kind",
+     "expected": {
+      "kind": "unparsed"
+     },
+     "actual": {},
+     "message": "Requirement kind 'unparsed' is not supported.",
+     "requirement": {
+      "label": "Identifies as a woman or gender minority",
+      "kind": "unparsed",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "8ea133bb-2b83-40f0-b5dc-8b82b62cbbf5",
+      "source_quote": "I identify as a woman or gender minority."
+     }
+    }
+   ]
+  },
+  {
+   "id": "79c138d7-1257-4252-a03b-c2229968a66f",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "98efffea-0bb2-55fb-b922-f33d84f64402",
+   "status": "not_eligible",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.638108+03:00",
+   "facts": {
+    "total": 3,
+    "met": 1,
+    "not_met": 1,
+    "unknown": 1,
+    "needs_review": 0
+   },
+   "requirements": [
+    {
+     "id": "3dd75853-d47b-405d-9dcf-736e37b3b1fd",
+     "requirement_id": "3baa67ab-366a-4ab1-9427-e74f3487cc4e",
+     "outcome": "not_met",
+     "reason_code": "set_membership_does_not_match",
+     "expected": {
+      "value": "US",
+      "metric": "citizenship"
+     },
+     "actual": {
+      "values": [
+       "ET"
+      ]
+     },
+     "message": "Profile does not satisfy the set membership requirement.",
+     "requirement": {
+      "label": "U.S. citizen",
+      "kind": "set_membership",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "db203e7b-9a33-457e-80e4-b4dd5b069b40",
+      "source_quote": "Citizenship U.S. Citizen"
+     }
+    },
+    {
+     "id": "34517f12-9b32-40ad-91d1-9ca739da4046",
+     "requirement_id": "84d5d556-794d-4e24-b2cb-ea47421a83df",
+     "outcome": "unknown",
+     "reason_code": "profile_fact_unavailable",
+     "expected": {
+      "value": 3.0,
+      "metric": "gpa",
+      "operator": ">="
+     },
+     "actual": {
+      "value": null
+     },
+     "message": "Profile does not contain a primary education GPA.",
+     "requirement": {
+      "label": "GPA of at least 3.0 on a 4.0 scale",
+      "kind": "numeric_threshold",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "db203e7b-9a33-457e-80e4-b4dd5b069b40",
+      "source_quote": "GPA 3.0 on a 4.0 scale"
+     }
+    },
+    {
+     "id": "6460dd57-08d4-4fe7-995a-3a75359753ba",
+     "requirement_id": "81f2e12a-426f-449c-b32b-9849db4b9d7f",
+     "outcome": "met",
+     "reason_code": "boolean_flag_matches",
+     "expected": {
+      "value": true,
+      "metric": "is_currently_enrolled"
+     },
+     "actual": {
+      "value": true
+     },
+     "message": "Profile satisfies the requirement.",
+     "requirement": {
+      "label": "Enrolled in a certificate or degree-granting program",
+      "kind": "boolean_flag",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "db203e7b-9a33-457e-80e4-b4dd5b069b40",
+      "source_quote": "Unless a recent high school graduate, applicants must be enrolled (full-time or part-time) in a certificate or degree-granting program that is accredited by a recognized accrediting organization of the U.S. Department of Education."
+     }
+    }
+   ]
+  },
+  {
+   "id": "9d05f332-a00f-4116-8906-5f0fbaa91981",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "89977454-caaa-519b-b7eb-6256b19398c5",
+   "status": "potential_match",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.668233+03:00",
+   "facts": {
+    "total": 2,
+    "met": 1,
+    "not_met": 0,
+    "unknown": 1,
+    "needs_review": 0
+   },
+   "requirements": [
+    {
+     "id": "4c50ed5a-4c69-45e7-a651-a7f1de82bd6a",
+     "requirement_id": "e315777a-4ad6-4639-96a1-9c2936382420",
+     "outcome": "met",
+     "reason_code": "any_of_met",
+     "expected": {
+      "children": [
+       {
+        "kind": "equality",
+        "params": {
+         "value": "bachelor",
+         "metric": "degree_level",
+         "operator": "=="
+        }
+       },
+       {
+        "kind": "equality",
+        "params": {
+         "value": "master",
+         "metric": "degree_level",
+         "operator": "=="
+        }
+       }
+      ],
+      "operator": "any_of"
+     },
+     "actual": {
+      "children": [
+       {
+        "kind": "equality",
+        "actual": {
+         "value": "bachelor"
+        },
+        "message": "Profile satisfies the equality requirement.",
+        "outcome": "met",
+        "expected": {
+         "value": "bachelor",
+         "metric": "degree_level",
+         "operator": "=="
+        },
+        "reason_code": "equality_matches"
+       },
+       {
+        "kind": "equality",
+        "actual": {
+         "value": "bachelor"
+        },
+        "message": "Profile does not satisfy the equality requirement.",
+        "outcome": "not_met",
+        "expected": {
+         "value": "master",
+         "metric": "degree_level",
+         "operator": "=="
+        },
+        "reason_code": "equality_does_not_match"
+       }
+      ]
+     },
+     "message": "Profile satisfies at least one alternative.",
+     "requirement": {
+      "label": "Bachelor’s or master’s student",
+      "kind": "any_of",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "ac8e268d-6411-4ea5-b426-1b7262a30b40",
+      "source_quote": "Undergraduate students in 3rd year or above and master’s students."
+     }
+    },
+    {
+     "id": "f9e29593-e5c0-42a2-8aad-0ccdd7359993",
+     "requirement_id": "111a3feb-b85e-4d7c-b1c6-d18d0a475ffe",
+     "outcome": "unknown",
+     "reason_code": "profile_fact_unavailable",
+     "expected": {
+      "value": 3.5,
+      "metric": "gpa",
+      "operator": ">="
+     },
+     "actual": {
+      "value": null
+     },
+     "message": "Profile does not contain a primary education GPA.",
+     "requirement": {
+      "label": "GPA of at least 3.5 on a 4.0 scale",
+      "kind": "numeric_threshold",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "ac8e268d-6411-4ea5-b426-1b7262a30b40",
+      "source_quote": "Minimum GPA: 3.5 on a 4-point scale (or equivalent)."
+     }
+    }
+   ]
+  },
+  {
+   "id": "5c16adb2-45d3-4e8d-a489-b370f3279cfd",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "78b00ebb-ee2d-5a4b-83cb-a3052d2180c4",
+   "status": "needs_review",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.695315+03:00",
+   "facts": {
+    "total": 1,
+    "met": 0,
+    "not_met": 0,
+    "unknown": 0,
+    "needs_review": 1
+   },
+   "requirements": [
+    {
+     "id": "69966925-237f-4896-9544-2a8567c086ed",
+     "requirement_id": "1b84f8d6-b161-4936-8bfb-c20f5aed8677",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_requirement_kind",
+     "expected": {
+      "kind": "unparsed"
+     },
+     "actual": {},
+     "message": "Requirement kind 'unparsed' is not supported.",
+     "requirement": {
+      "label": "18 or older at registration",
+      "kind": "unparsed",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "01317dd6-71aa-449e-a36e-b2a3c82fe9db",
+      "source_quote": "18+ years old at registration"
+     }
+    }
+   ]
+  },
+  {
+   "id": "fb536210-2c13-45b7-b568-58150d73e355",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "4c5ad172-ca5c-5dad-b37a-e67f49b91fee",
+   "status": "needs_review",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.720411+03:00",
+   "facts": {
+    "total": 2,
+    "met": 0,
+    "not_met": 0,
+    "unknown": 1,
+    "needs_review": 1
+   },
+   "requirements": [
+    {
+     "id": "99c7e173-48c7-4e7b-8a05-d6edf0cbf7d4",
+     "requirement_id": "f97bfd47-89a7-429f-b55c-fa4d69f6b556",
+     "outcome": "unknown",
+     "reason_code": "profile_fact_unavailable",
+     "expected": {
+      "value": "2010-08-01",
+      "metric": "date_of_birth",
+      "operator": "<="
+     },
+     "actual": {
+      "value": null
+     },
+     "message": "Profile does not contain a date of birth.",
+     "requirement": {
+      "label": "At least 18 on 1 Aug 2028",
+      "kind": "date_gate",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "ca1c3d04-7fa9-40da-b5e6-d0c0c4cb388b",
+      "source_quote": "Candidates must be at least 18 but not yet 29 years of age as of August 1 of their Schwarzman Scholars enrollment year (for the Class of 2028-2029, as of August 1, 2028)."
+     }
+    },
+    {
+     "id": "15ea1d0e-d861-4eb9-9a5b-8f1541e90efb",
+     "requirement_id": "670199e2-f15e-4925-975d-cfa4aecfb3ea",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_date_operator",
+     "expected": {
+      "value": "1999-08-01",
+      "metric": "date_of_birth",
+      "operator": ">"
+     },
+     "actual": {},
+     "message": "Date operator '>' is not supported.",
+     "requirement": {
+      "label": "Not yet 29 on 1 Aug 2028",
+      "kind": "date_gate",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "ca1c3d04-7fa9-40da-b5e6-d0c0c4cb388b",
+      "source_quote": "Candidates must be at least 18 but not yet 29 years of age as of August 1 of their Schwarzman Scholars enrollment year (for the Class of 2028-2029, as of August 1, 2028)."
+     }
+    }
+   ]
+  },
+  {
+   "id": "3477658f-bd60-4cba-80a6-1335db24923a",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "3f662f38-900b-50bf-a98d-5dd858d4b3f4",
+   "status": "potential_match",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.747102+03:00",
+   "facts": {
+    "total": 2,
+    "met": 1,
+    "not_met": 0,
+    "unknown": 1,
+    "needs_review": 0
+   },
+   "requirements": [
+    {
+     "id": "292818da-153c-49a9-b4ee-36b960d25e91",
+     "requirement_id": "1554772b-be38-40a9-9f8e-30b15967f764",
+     "outcome": "met",
+     "reason_code": "boolean_flag_matches",
+     "expected": {
+      "value": true,
+      "metric": "is_currently_enrolled"
+     },
+     "actual": {
+      "value": true
+     },
+     "message": "Profile satisfies the requirement.",
+     "requirement": {
+      "label": "Enrolled in a degree- or diploma-granting program",
+      "kind": "boolean_flag",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "e17a56d3-7eca-4c72-a3cd-d74a62942902",
+      "source_quote": "Are enrolled in a degree- or diploma-granting program, such as a high school, college, university, or homeschool."
+     }
+    },
+    {
+     "id": "53b8dfcf-40ad-45a5-b9e2-ed3a4d84dd8b",
+     "requirement_id": "4620ac58-df01-4a4d-8e2f-b06e05b005de",
+     "outcome": "unknown",
+     "reason_code": "profile_fact_unavailable",
+     "expected": {
+      "value": "2013-10-30",
+      "metric": "date_of_birth",
+      "operator": "<="
+     },
+     "actual": {
+      "value": null
+     },
+     "message": "Profile does not contain a date of birth.",
+     "requirement": {
+      "label": "At least 13 years old (checked as of 30 Oct 2026)",
+      "kind": "date_gate",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "e17a56d3-7eca-4c72-a3cd-d74a62942902",
+      "source_quote": "Are at least 13 years old."
+     }
+    }
+   ]
+  },
+  {
+   "id": "8ec51266-389c-436f-8687-b3ac7900a668",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "3deb873c-4727-59f2-86e3-2fb3abe08fb4",
+   "status": "needs_review",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.779311+03:00",
+   "facts": {
+    "total": 1,
+    "met": 0,
+    "not_met": 0,
+    "unknown": 0,
+    "needs_review": 1
+   },
+   "requirements": [
+    {
+     "id": "c5c1f2f4-f887-4e35-9a6b-a26e5fda5946",
+     "requirement_id": "22497a04-310a-4104-9be3-50cea292ed3a",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_set_operator",
+     "expected": {
+      "value": "GB",
+      "metric": "citizenship"
+     },
+     "actual": {},
+     "message": "Set membership operator 'not_in' is not supported.",
+     "requirement": {
+      "label": "Citizen of a country outside the United Kingdom",
+      "kind": "set_membership",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "db9748e7-fd59-4fd4-aae5-d2a6fedc1228",
+      "source_quote": "a citizen of any country outside the United Kingdom"
+     }
+    }
+   ]
+  },
+  {
+   "id": "ddc03f7f-2d7c-4ccc-b129-2083a2708a86",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "1e31b45c-10fd-5d12-bac6-e9d2079aad0b",
+   "status": "needs_review",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.804059+03:00",
+   "facts": {
+    "total": 2,
+    "met": 0,
+    "not_met": 0,
+    "unknown": 0,
+    "needs_review": 2
+   },
+   "requirements": [
+    {
+     "id": "83f2fd05-8663-460f-aa40-46b14b03b1f3",
+     "requirement_id": "df24086a-1b24-4e4f-b5d2-e9847303cb00",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_requirement_kind",
+     "expected": {
+      "kind": "unparsed"
+     },
+     "actual": {},
+     "message": "Requirement kind 'unparsed' is not supported.",
+     "requirement": {
+      "label": "Citizen of a Chevening-eligible country or territory",
+      "kind": "unparsed",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "d357d423-f367-4962-8f37-72d29e5db174",
+      "source_quote": "Be a citizen of a Chevening-eligible country or territory ."
+     }
+    },
+    {
+     "id": "086b1a9c-ccbc-48ec-a05f-582222663a74",
+     "requirement_id": "d098626e-d221-4db8-b6c4-d95e1203cb8b",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_requirement_kind",
+     "expected": {
+      "kind": "unparsed"
+     },
+     "actual": {},
+     "message": "Requirement kind 'unparsed' is not supported.",
+     "requirement": {
+      "label": "Two years’ work experience after your undergraduate degree",
+      "kind": "unparsed",
+      "category": "other",
+      "is_mandatory": true,
+      "source_id": "d357d423-f367-4962-8f37-72d29e5db174",
+      "source_quote": "Have at least two years’ work experience , acquired after completing your undergraduate degree, equivalent to 2,800 hours."
+     }
+    }
+   ]
+  },
+  {
+   "id": "a562825d-17a5-4eec-aa0e-216f43706296",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "1da4e372-28c3-5a14-bb7c-281c056eab8f",
+   "status": "not_eligible",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.833218+03:00",
+   "facts": {
+    "total": 2,
+    "met": 0,
+    "not_met": 1,
+    "unknown": 0,
+    "needs_review": 1
+   },
+   "requirements": [
+    {
+     "id": "7598c573-cf11-42cd-a64d-91aacc90087f",
+     "requirement_id": "aa420995-07df-4af3-ba84-59e7e7f44fb8",
+     "outcome": "not_met",
+     "reason_code": "equality_does_not_match",
+     "expected": {
+      "value": "doctorate",
+      "metric": "degree_level",
+      "operator": "=="
+     },
+     "actual": {
+      "value": "bachelor"
+     },
+     "message": "Profile does not satisfy the equality requirement.",
+     "requirement": {
+      "label": "Pursuing a Ph.D./doctoral degree",
+      "kind": "equality",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "a933b511-b3bf-4d0c-b912-a196dc23735f",
+      "source_quote": "Women of any nationality pursuing a Ph.D./doctoral degree who demonstrate a superior academic record conducting research applied to aerospace engineering or space sciences are eligible."
+     }
+    },
+    {
+     "id": "65ffcda7-d6fc-4872-95ac-636c80849f57",
+     "requirement_id": "ba57d2f0-31d4-49fb-90ee-0c36d5164562",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_requirement_kind",
+     "expected": {
+      "kind": "unparsed"
+     },
+     "actual": {},
+     "message": "Requirement kind 'unparsed' is not supported.",
+     "requirement": {
+      "label": "Open to women",
+      "kind": "unparsed",
+      "category": "demographic",
+      "is_mandatory": true,
+      "source_id": "a933b511-b3bf-4d0c-b912-a196dc23735f",
+      "source_quote": "Women of any nationality pursuing a Ph.D./doctoral degree who demonstrate a superior academic record conducting research applied to aerospace engineering or space sciences are eligible."
+     }
+    }
+   ]
+  },
+  {
+   "id": "6599244a-c78a-4931-89df-fb558ead683c",
+   "profile_id": "a44d936e-610c-4b18-b119-7aafaeddd61e",
+   "opportunity_id": "1bcfc59d-3007-5cc3-9fb2-ae5ddab62f69",
+   "status": "needs_review",
+   "engine_version": "1",
+   "evaluated_at": "2026-10-30T17:30:30.862134+03:00",
+   "facts": {
+    "total": 3,
+    "met": 2,
+    "not_met": 0,
+    "unknown": 0,
+    "needs_review": 1
+   },
+   "requirements": [
+    {
+     "id": "096ce630-01a0-449e-bf70-151806b7f59d",
+     "requirement_id": "1c02aec0-2532-4e6e-8452-48f5fec1b71f",
+     "outcome": "met",
+     "reason_code": "boolean_flag_matches",
+     "expected": {
+      "value": true,
+      "metric": "is_currently_enrolled"
+     },
+     "actual": {
+      "value": true
+     },
+     "message": "Profile satisfies the requirement.",
+     "requirement": {
+      "label": "Enrolled in a full-time program",
+      "kind": "boolean_flag",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "9bc2622c-32e4-4ab2-aa1f-85aabd0efbad",
+      "source_quote": "Be enrolled in a full-time undergraduate or combined undergraduate/master’s program at an eligible institution (see list of eligible institutions by country)"
+     }
+    },
+    {
+     "id": "bdff9306-6f49-4df0-bce9-3b5f34733399",
+     "requirement_id": "7e9387d2-0ae5-4d6a-9b55-932c5c6a5010",
+     "outcome": "met",
+     "reason_code": "equality_matches",
+     "expected": {
+      "value": "bachelor",
+      "metric": "degree_level",
+      "operator": "=="
+     },
+     "actual": {
+      "value": "bachelor"
+     },
+     "message": "Profile satisfies the equality requirement.",
+     "requirement": {
+      "label": "Undergraduate student",
+      "kind": "equality",
+      "category": "academic",
+      "is_mandatory": true,
+      "source_id": "9bc2622c-32e4-4ab2-aa1f-85aabd0efbad",
+      "source_quote": "Be enrolled in a full-time undergraduate or combined undergraduate/master’s program at an eligible institution (see list of eligible institutions by country)"
+     }
+    },
+    {
+     "id": "2e93630f-1bf6-4fd7-94ac-b439c743a078",
+     "requirement_id": "b58b3ddf-7341-4e47-bb79-9d6f1cd8fa6f",
+     "outcome": "needs_review",
+     "reason_code": "unsupported_requirement_kind",
+     "expected": {
+      "kind": "unparsed"
+     },
+     "actual": {},
+     "message": "Requirement kind 'unparsed' is not supported.",
+     "requirement": {
+      "label": "Studying at an eligible partner institution",
+      "kind": "unparsed",
+      "category": "logistics",
+      "is_mandatory": true,
+      "source_id": "9bc2622c-32e4-4ab2-aa1f-85aabd0efbad",
+      "source_quote": "Be enrolled in a full-time undergraduate or combined undergraduate/master’s program at an eligible institution (see list of eligible institutions by country)"
+     }
+    }
+   ]
+  }
+ ],
+ "kaustDetail": {
+  "id": "89977454-caaa-519b-b7eb-6256b19398c5",
+  "slug": "kaust-visiting-student-research-program",
+  "title": "KAUST Visiting Student Research Program (VSRP)",
+  "opportunity_type": "research_program",
+  "description": "The Visiting Student Research Program (VSRP) at KAUST offers internships for 3rd and 4th-year bachelor’s and master’s students in science, technology, engineering, and mathematics (STEM). With over 100 faculty-led projects, students can choose research topics that align with their interests for internships lasting 2 to 6 months.",
+  "host_name": "King Abdullah University of Science and Technology",
+  "official_url": "https://admissions.kaust.edu.sa/study/internships",
+  "deadline_at": null,
+  "deadline_type": "rolling",
+  "starts_at": null,
+  "ends_at": null,
+  "location_mode": "onsite",
+  "countries": [
+   "SA"
+  ],
+  "languages": [
+   "en"
+  ],
+  "tags": [
+   "research",
+   "stem",
+   "stipend"
+  ],
+  "status": "published",
+  "created_at": "2026-10-30T17:30:29.793131+03:00",
+  "updated_at": "2026-10-30T17:30:29.793131+03:00",
+  "published_at": "2026-10-30T15:00:00+03:00",
+  "requirements": [
+   {
+    "id": "e315777a-4ad6-4639-96a1-9c2936382420",
+    "order_index": 0,
+    "label": "Bachelor’s or master’s student",
+    "kind": "any_of",
+    "params": {
+     "any_of": [
+      {
+       "kind": "equality",
+       "params": {
+        "value": "bachelor",
+        "metric": "degree_level",
+        "operator": "=="
+       }
+      },
+      {
+       "kind": "equality",
+       "params": {
+        "value": "master",
+        "metric": "degree_level",
+        "operator": "=="
+       }
+      }
+     ]
+    },
+    "is_mandatory": true,
+    "category": "academic",
+    "source_id": "ac8e268d-6411-4ea5-b426-1b7262a30b40",
+    "source_quote": "Undergraduate students in 3rd year or above and master’s students.",
+    "is_ambiguous": false
+   },
+   {
+    "id": "111a3feb-b85e-4d7c-b1c6-d18d0a475ffe",
+    "order_index": 1,
+    "label": "GPA of at least 3.5 on a 4.0 scale",
+    "kind": "numeric_threshold",
+    "params": {
+     "scale": 4.0,
+     "value": 3.5,
+     "metric": "gpa",
+     "operator": ">="
+    },
+    "is_mandatory": true,
+    "category": "academic",
+    "source_id": "ac8e268d-6411-4ea5-b426-1b7262a30b40",
+    "source_quote": "Minimum GPA: 3.5 on a 4-point scale (or equivalent).",
+    "is_ambiguous": false
+   }
+  ],
+  "sources": [
+   {
+    "id": "ac8e268d-6411-4ea5-b426-1b7262a30b40",
+    "source_type": "official_page",
+    "url": "https://admissions.kaust.edu.sa/study/internships",
+    "publisher": "KAUST Admissions",
+    "retrieved_at": "2026-10-30T15:00:00+03:00",
+    "is_primary": true
+   }
+  ]
+ }
+}

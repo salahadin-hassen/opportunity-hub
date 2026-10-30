@@ -12,6 +12,9 @@ from app.models.enums import (
     LocationMode,
     OpportunityStatus,
     OpportunityType,
+    RequirementCategory,
+    RequirementKind,
+    SourceType,
 )
 
 
@@ -79,4 +82,59 @@ class OpportunityRead(BaseModel):
         return str(value) if value is not None else None
 
 
-__all__ = ["OpportunityCreate", "OpportunityRead"]
+class PublicSourceRead(BaseModel):
+    """Provenance a visitor can verify: where a rule came from and when.
+
+    Curator-only fields (``raw_snapshot``, ``content_hash``, ``notes``) are
+    deliberately absent.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    source_type: SourceType
+    url: HttpUrl
+    publisher: str | None
+    retrieved_at: datetime
+    is_primary: bool
+
+    @field_serializer("url")
+    def serialize_url(self, value: HttpUrl) -> str:
+        return str(value)
+
+
+class PublicRequirementRead(BaseModel):
+    """One eligibility rule as published, before any profile is evaluated.
+
+    ``kind`` + ``params`` are the rule itself, so clients can state it
+    without evaluating; curator ``notes`` and timestamps are not exposed.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    order_index: int
+    label: str
+    kind: RequirementKind
+    params: dict[str, Any]
+    is_mandatory: bool
+    category: RequirementCategory
+    source_id: uuid.UUID | None
+    source_quote: str | None
+    is_ambiguous: bool
+
+
+class OpportunityDetailRead(OpportunityRead):
+    """One public opportunity with its ordered rules and their sources."""
+
+    requirements: list[PublicRequirementRead]
+    sources: list[PublicSourceRead]
+
+
+__all__ = [
+    "OpportunityCreate",
+    "OpportunityDetailRead",
+    "OpportunityRead",
+    "PublicRequirementRead",
+    "PublicSourceRead",
+]

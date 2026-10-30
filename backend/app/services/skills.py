@@ -30,6 +30,11 @@ def _constraint_name(error: IntegrityError) -> str | None:
     return getattr(diagnostic, "constraint_name", None)
 
 
+def list_skills(db: Session) -> list[Skill]:
+    """Return the whole canonical skill vocabulary ordered by key."""
+    return list(db.scalars(select(Skill).order_by(Skill.key.asc())).all())
+
+
 def list_profile_skills(db: Session, profile_id: uuid.UUID) -> list[Skill]:
     """Return the profile's skills ordered by canonical key.
 

@@ -5,12 +5,14 @@ the ``current_user.id == profile.user_id`` comparison themselves.
 """
 from __future__ import annotations
 
+import secrets
 import uuid
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
+from app.core.config import settings
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models import Profile, User
@@ -20,6 +22,27 @@ bearer_token = HTTPBearer(auto_error=False)
 
 INVALID_CREDENTIALS_DETAIL = "Could not validate credentials."
 PROFILE_FORBIDDEN_DETAIL = "You do not have access to this profile."
+ADMIN_FORBIDDEN_DETAIL = "Curator access is required."
+
+
+def require_admin_token(
+    x_admin_token: str | None = Header(default=None, alias="X-Admin-Token"),
+) -> None:
+    """Allow curator-only writes when the shared ``ADMIN_API_TOKEN`` matches.
+
+    With no token configured the endpoint is disabled for everyone. Missing,
+    wrong and disabled cases share one 403 so callers learn nothing about
+    which check failed; the comparison is constant-time.
+    """
+    expected = settings.ADMIN_API_TOKEN
+    if (
+        not expected
+        or x_admin_token is None
+        or not secrets.compare_digest(x_admin_token.encode(), expected.encode())
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail=ADMIN_FORBIDDEN_DETAIL
+        )
 
 
 def unauthorized() -> HTTPException:

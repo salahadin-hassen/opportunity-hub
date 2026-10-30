@@ -21,6 +21,7 @@ from app.services.matching import (
     RequirementResult,
     evaluate_requirements,
 )
+from app.services.opportunities import is_public
 
 
 class MatchPersistenceError(Exception):
@@ -184,15 +185,15 @@ def evaluate_and_persist_match_for_user(
     The Profile row comes from the JWT ownership chain (``get_my_profile``),
     so this variant never accepts an arbitrary profile id; only the shared
     opportunity is addressed by client input. Returns ``None`` when the
-    opportunity does not exist. Same engine, same persistence path — no
-    second matching logic.
+    opportunity does not exist or is not public (draft or archived). Same
+    engine, same persistence path — no second matching logic.
     """
     owned_profile = _load_evaluable_profile(db, profile.id)
     if owned_profile is None:
         return None
 
     opportunity = _load_opportunity(db, opportunity_id)
-    if opportunity is None:
+    if opportunity is None or not is_public(opportunity):
         return None
 
     return _evaluate_and_persist(db, owned_profile, opportunity)

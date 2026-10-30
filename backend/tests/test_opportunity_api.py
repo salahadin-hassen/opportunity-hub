@@ -4,6 +4,7 @@ from __future__ import annotations
 import uuid
 
 import pytest
+from app.core.config import settings
 from app.db.session import get_db
 from app.main import app
 from app.schemas import OpportunityRead
@@ -33,15 +34,23 @@ def opportunity_payload(slug: str | None = None) -> dict[str, object]:
     }
 
 
+TEST_ADMIN_TOKEN = "test-only-curator-token"
+
+
 @pytest.fixture
-async def client(db_session: Session):
-    """Use the existing transaction-bound test session for API requests."""
+async def client(db_session: Session, monkeypatch):
+    """Use the transaction-bound test session, acting as a configured curator."""
     def override_get_db():
         yield db_session
 
+    monkeypatch.setattr(settings, "ADMIN_API_TOKEN", TEST_ADMIN_TOKEN)
     app.dependency_overrides[get_db] = override_get_db
     transport = ASGITransport(app=app)
-    async with AsyncClient(transport=transport, base_url="http://test") as test_client:
+    async with AsyncClient(
+        transport=transport,
+        base_url="http://test",
+        headers={"X-Admin-Token": TEST_ADMIN_TOKEN},
+    ) as test_client:
         yield test_client
     app.dependency_overrides.clear()
 
