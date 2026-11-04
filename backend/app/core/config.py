@@ -1,5 +1,6 @@
 """Application configuration using Pydantic Settings."""
 import ipaddress
+import os
 from pathlib import Path
 from typing import Literal
 
@@ -44,6 +45,9 @@ class Settings(BaseSettings):
     #: * ``xff_rightmost``: walking ``X-Forwarded-For`` from the right through at
     #:   most ``TRUSTED_PROXY_HOPS`` entries, the first that is not a trusted proxy.
     #: * ``header``: a single-address header set by the trusted edge (``CLIENT_IP_HEADER``).
+    #: * ``render_cf_connecting_ip``: the ``CF-Connecting-IP`` value on a public Render web
+    #:   service, whatever the peer or ``X-Forwarded-For`` say. **Only** valid there: see
+    #:   ``docs/architecture/RENDER_CLIENT_IP_VERIFICATION.md`` for its assumptions.
     #:
     #: The two header strategies are honoured only when the immediate peer is in
     #: ``TRUSTED_PROXY_CIDRS``, which requires running the server **without**
@@ -51,10 +55,9 @@ class Settings(BaseSettings):
     #: address can be established (header missing or malformed, an untrusted
     #: peer sending forwarding headers, a proxy address under ``peer``) the
     #: address budget is skipped for that request; the account budget still
-    #: applies. Which strategy is right for Render is not yet verified; until it
-    #: is, keep ``peer``. Don't pair ``peer`` with ``--no-proxy-headers`` behind
-    #: an unlisted proxy: the proxy's own address would become every client's bucket.
-    CLIENT_IP_STRATEGY: Literal["peer", "xff_rightmost", "header"] = "peer"
+    #: applies. Don't pair ``peer`` with ``--no-proxy-headers`` behind an unlisted
+    #: proxy: the proxy's own address would become every client's bucket.
+    CLIENT_IP_STRATEGY: Literal["peer", "xff_rightmost", "header", "render_cf_connecting_ip"] = "peer"
     CLIENT_IP_HEADER: str | None = None
     TRUSTED_PROXY_HOPS: int = Field(default=1, ge=1, le=10)
     TRUSTED_PROXY_CIDRS: str = ""
@@ -108,6 +111,14 @@ class Settings(BaseSettings):
     def require_trusted_proxies_for_header_strategies(self) -> "Settings":
         """Never read client addresses from headers without knowing which peers may set them."""
         networks = self.trusted_proxy_networks  # validates every entry, whatever the strategy
+        if self.CLIENT_IP_STRATEGY == "render_cf_connecting_ip":
+            # This strategy doesn't consult them, so setting them would only suggest a check that isn't made.
+            if networks or (self.CLIENT_IP_HEADER or "").strip():
+                raise ValueError("CLIENT_IP_STRATEGY=render_cf_connecting_ip ignores TRUSTED_PROXY_CIDRS and CLIENT_IP_HEADER; unset them")
+            # Render documents RENDER=true on every service. Anywhere else, callers could forge the header.
+            if self.is_production and os.environ.get("RENDER") != "true":
+                raise ValueError("CLIENT_IP_STRATEGY=render_cf_connecting_ip is valid in production only on Render")
+            return self
         if self.CLIENT_IP_STRATEGY != "peer":
             if not networks:
                 raise ValueError(f"CLIENT_IP_STRATEGY={self.CLIENT_IP_STRATEGY} requires TRUSTED_PROXY_CIDRS")

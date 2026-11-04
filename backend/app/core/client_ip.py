@@ -8,7 +8,10 @@ Only entries added by proxies we trust are evidence. Strategies (see
 * ``peer``: the address the ASGI server reports (today's behaviour);
 * ``xff_rightmost``: walking ``X-Forwarded-For`` from the right through at
   most ``TRUSTED_PROXY_HOPS`` entries, the first one that is not a trusted proxy;
-* ``header``: one address from a header the trusted edge sets.
+* ``header``: one address from a header the trusted edge sets;
+* ``render_cf_connecting_ip``: the ``CF-Connecting-IP`` value Cloudflare writes
+  on public traffic to a Render web service. See :func:`_render_cf_identity`
+  for the assumption it rests on.
 
 The result is a :class:`ClientIdentity`. When no trustworthy client address
 can be established its ``identity`` is ``None`` and ``reason`` says why; the
@@ -46,6 +49,12 @@ REASONS: tuple[Reason, ...] = Reason.__args__  # type: ignore[attr-defined]
 
 #: Headers whose presence on a direct connection suggests a proxy we were not told to trust.
 FORWARDING_HEADERS = ("x-forwarded-for", "forwarded", "x-real-ip")
+
+RENDER_CF_CONNECTING_IP = "render_cf_connecting_ip"
+#: Cloudflare's Pseudo IPv4 addresses are Class E; with "Overwrite Headers" the real address is in CF-Connecting-IPv6.
+CLOUDFLARE_PSEUDO_IPV4 = ipaddress.ip_network("240.0.0.0/4")
+#: The fixed value Cloudflare documents for cross-zone Worker subrequests: a constant, so it identifies nobody.
+CLOUDFLARE_WORKER_ADDRESS = ipaddress.ip_address("2a06:98c0:3600::103")
 
 
 @dataclass(frozen=True)
@@ -97,6 +106,54 @@ def _is_trusted(address: IPv4or6Address | None, networks: Sequence[IPv4or6Networ
     return address is not None and any(address in network for network in networks)
 
 
+def _parse_exact(value: str) -> IPv4or6Address | None:
+    """One bare IP address, or None: no port, brackets, list or IPv6 zone. IPv4-mapped IPv6 becomes IPv4."""
+    try:
+        address = ipaddress.ip_address(value.strip())
+    except ValueError:
+        return None
+    if isinstance(address, ipaddress.IPv6Address):
+        if address.scope_id is not None:
+            return None
+        if address.ipv4_mapped is not None:
+            return address.ipv4_mapped
+    return address
+
+
+def _render_cf_identity(headers: Mapping[str, str]) -> ClientIdentity:
+    """Identity from ``CF-Connecting-IP``, valid only for a public Render web service.
+
+    It rests on Render's published statements that all inbound traffic to a
+    web service passes through Cloudflare, which overwrites this header, and
+    on the service having no private-network callers. The peer and
+    ``X-Forwarded-For`` are never read, so there is nothing to fall back on.
+    A private-network caller on a paid plan could send any value: that caller
+    is a service in our own workspace, and such a service must not exist
+    unless this trust is acceptable.
+
+    The result is ``None`` for anything a real internet client can't produce:
+    a non-global address, or Cloudflare's constant Worker address.
+    """
+
+    def unavailable(reason: Reason) -> ClientIdentity:
+        return ClientIdentity(None, RENDER_CF_CONNECTING_IP, reason, False)
+
+    raw = headers.get("cf-connecting-ip")
+    if raw is None or not raw.strip():
+        return unavailable("trusted_proxy_header_missing")
+    if "," in raw:  # a list, or the header sent twice: Cloudflare writes exactly one address
+        return unavailable("ambiguous_forwarded_chain")
+    address = _parse_exact(raw)
+    if isinstance(address, ipaddress.IPv4Address) and address in CLOUDFLARE_PSEUDO_IPV4:
+        # Only reachable when Cloudflare wrote a pseudo address: no real client has a Class E address.
+        address = _parse_exact(headers.get("cf-connecting-ipv6", ""))
+        if not isinstance(address, ipaddress.IPv6Address):
+            return unavailable("trusted_proxy_header_invalid")
+    if address is None or not address.is_global or address == CLOUDFLARE_WORKER_ADDRESS:
+        return unavailable("trusted_proxy_header_invalid")
+    return ClientIdentity(bucket(address), RENDER_CF_CONNECTING_IP)
+
+
 def select_client_identity(
     *,
     strategy: str,
@@ -107,6 +164,8 @@ def select_client_identity(
     client_ip_header: str | None = None,
 ) -> ClientIdentity:
     """Return the client identity for one request under ``strategy`` (``headers`` keys lower-case)."""
+    if strategy == RENDER_CF_CONNECTING_IP:
+        return _render_cf_identity(headers)
     if strategy not in ("peer", "xff_rightmost", "header"):
         raise ValueError(f"Unknown client IP strategy {strategy!r}")
 
@@ -159,6 +218,7 @@ def select_client_identity(
 __all__ = [
     "FORWARDING_HEADERS",
     "REASONS",
+    "RENDER_CF_CONNECTING_IP",
     "ClientIdentity",
     "Reason",
     "bucket",

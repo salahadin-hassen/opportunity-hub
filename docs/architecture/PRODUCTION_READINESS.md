@@ -69,11 +69,11 @@ git push origin ci/m1-m2-foundation
 | # | Issue | Status | Class |
 | --- | --- | --- | --- |
 | B1 | Pushing the production branch auto-migrates production (4 migrations) | Open; repository config | Critical production blocker |
-| B2 | Client-IP spoofing (`--forwarded-allow-ips="*"`) | **Open.** Temporary accepted risk for the first release (§3.1) | High priority; must be closed after release |
-| B3 | Render proxy chain, trusted header and address ranges | Unverified; support request ready, not sent | High priority; needed to close B2 |
+| B2 | Client-IP spoofing (`--forwarded-allow-ips="*"`) | **Open in production.** Fix built and tested locally, not deployed. Temporary accepted risk (§3.1) | High priority; ideally closed in this release |
+| B3 | Trust assumptions behind the fix (plan, DNS proxy status, Workers, header overwrite) | Unverified on the live service; published guidance only | High priority; needed to close B2 |
 | B4 | Automated, tested backups | None in the repository; Neon point-in-time history unverified | Critical production blocker |
 | B5 | Migration recovery plan (downgrades are lossy) | Drafted below | Critical production blocker |
-| H1 | Python dependency reproducibility | Outstanding; CI resolves newer versions than local (§5) | High priority |
+| H1 | Python dependency reproducibility | CI pinned and green. The Render build is pinned only once the release deploys and the live build command is confirmed (§5) | High priority |
 | H2 | Argon2 limits against real memory and worker count | Unverified | High priority |
 | H3 | Targeted account lockout | **Open; the release introduces it to production.** Accepted (§3.1); design deferred (device cookies, M1b) | High priority |
 | O1 | Monitoring and alerting | Incomplete (§8) | Operational follow-up |
@@ -94,10 +94,13 @@ Accepted by the founder on 2026-11-04. **Neither risk is fixed.** Both stay open
   and logs `client_identity_degraded`.
 - What still holds: the account budget (10 per minute per email) and the Argon2 cap. Credential stuffing at one
   guess per account is not meaningfully limited by anything else.
+- The start command stays unchanged even with the strategy on, so uvicorn access logs keep showing untrustworthy client
+  values until `--no-proxy-headers` follows as a separate change.
 - Why accept it: the release doesn't make this worse, and it adds the account budget and the Argon2 cap, which
   production lacks today.
-- Exit: Render's answer reviewed, then the start-command and trust change deployed separately
-  (`RENDER_CLIENT_IP_VERIFICATION.md` §5).
+- Exit: `render_cf_connecting_ip` deployed, its assumptions confirmed in the dashboards, and the separately authorized
+  black-box check passed on production (`RENDER_CLIENT_IP_VERIFICATION.md` §3, §5). A support reply helps but
+  is no longer required.
 
 **Targeted account lockout (new in production with this release).**
 - Anyone who knows a student's email can keep that student's sign-in at 429, even with the correct password, from
@@ -252,7 +255,7 @@ The defaults stay `ARGON2_MAX_CONCURRENCY=2`, `ARGON2_REGISTRATION_MAX_CONCURREN
 3. Schema check against production with read-only queries. `alembic current` must be `ba09eb02910b`, and none
    of the new tables may already exist.
 4. The release commit has passed CI, and the dependency set is pinned (§5).
-5. Production config ready: `--forwarded-allow-ips="*"` stays for this release as an accepted risk (§3.1), and
+5. Production config ready: either the client-IP change in `RENDER_CLIENT_IP_VERIFICATION.md` §5, or `--forwarded-allow-ips="*"` staying as an accepted risk (§3.1); and
    `ARGON2_*` stays at the defaults or is set per §6. The dashboard's `CORS_ORIGINS` and `VITE_API_BASE` are checked
    against the live domains, because `render.yaml` still names `onrender.com`.
 6. A quiet window; the founder present; the demo account password known.

@@ -69,13 +69,16 @@ Open http://localhost:8000/health - should return `{"status": "ok"}`
   attempt is counted per client address bucket and per account email (60-second fixed windows) in the
   `rate_limit_buckets` table, shared by all instances. Keys are HMAC digests, never raw addresses or emails.
   If the table can't be written, the attempt is refused with 503 (fail closed).
-- The client address comes from `CLIENT_IP_STRATEGY` (`peer`, `xff_rightmost` or `header`, with
-  `TRUSTED_PROXY_CIDRS`, `TRUSTED_PROXY_HOPS` and `CLIENT_IP_HEADER`; see `app/core/config.py`).
+- The client address comes from `CLIENT_IP_STRATEGY`: `peer`, `xff_rightmost` or `header` (with
+  `TRUSTED_PROXY_CIDRS`, `TRUSTED_PROXY_HOPS` and `CLIENT_IP_HEADER`; see `app/core/config.py`), or
+  `render_cf_connecting_ip`, which is valid only on a public Render web service and whose assumptions are listed in
+  `docs/architecture/RENDER_CLIENT_IP_VERIFICATION.md`.
   When no trustworthy address can be established, the address budget is skipped for that request and
   the account budget still applies. A proxy address or a placeholder is never used as a bucket.
-- **Production caveat:** `render.yaml` still starts uvicorn with `--proxy-headers --forwarded-allow-ips="*"`,
-  under which the client chooses its own address, so the address budget can be evaded. Don't change it
-  before reading `docs/architecture/RENDER_CLIENT_IP_VERIFICATION.md`. Account-lockout risks are in
+- **Production caveat:** `render.yaml` still starts uvicorn with `--proxy-headers --forwarded-allow-ips="*"` and the
+  `peer` strategy, under which the client chooses its own address, so the address budget can be evaded. The fix is
+  built but not deployed. Keep those flags for now, and never remove them while the strategy is `peer`: see
+  `docs/architecture/RENDER_CLIENT_IP_VERIFICATION.md` §5. Account-lockout risks are in
   `docs/architecture/ACCOUNT_LOCKOUT_THREAT_MODEL.md`.
 - Telemetry (`app/core/auth_telemetry.py`) counts throttling, degraded identity and failures with
   bounded labels, logging at most one line per event and label set per minute.

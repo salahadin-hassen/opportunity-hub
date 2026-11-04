@@ -161,12 +161,21 @@ def subject_key(kind: str, value: str) -> str:
     return hmac.new(secret, f"{kind}:{value}".encode(), hashlib.sha256).hexdigest()
 
 
+def _combined_headers(request: Request) -> dict[str, str]:
+    """Lower-case names to values, with repeated lines joined by commas so a duplicate is visible, not lost."""
+    combined: dict[str, str] = {}
+    for name, value in request.headers.items():
+        key = name.lower()
+        combined[key] = f"{combined[key]}, {value}" if key in combined else value
+    return combined
+
+
 def client_identity(request: Request) -> ClientIdentity:
     """The client identity for ``request`` under the configured strategy."""
     return select_client_identity(
         strategy=settings.CLIENT_IP_STRATEGY,
         peer=request.client.host if request.client else None,
-        headers={name.lower(): value for name, value in request.headers.items()},
+        headers=_combined_headers(request),
         trusted_networks=settings.trusted_proxy_networks,
         trusted_hops=settings.TRUSTED_PROXY_HOPS,
         client_ip_header=settings.CLIENT_IP_HEADER,
