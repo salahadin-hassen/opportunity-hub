@@ -12,8 +12,9 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 ### 2. Install Dependencies
 ```bash
-pip install -e ".[dev]"
+pip install -e ".[dev]" -c constraints.txt
 ```
+`constraints.txt` pins the exact versions CI tests. Its header explains how to upgrade them.
 
 ### 3. Configure Environment
 ```bash

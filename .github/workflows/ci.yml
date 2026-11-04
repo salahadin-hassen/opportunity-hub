@@ -69,12 +69,28 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: backend/pyproject.toml
+          cache-dependency-path: |
+            backend/pyproject.toml
+            backend/constraints.txt
+
+      - name: Create a dedicated virtual environment
+        # Isolates the job from packages on the runner. $GITHUB_PATH makes every later step use it.
+        run: |
+          python -m venv "$RUNNER_TEMP/backend-venv"
+          echo "$RUNNER_TEMP/backend-venv/bin" >> "$GITHUB_PATH"
 
       - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -e ".[dev]" -c constraints.txt
+
+      - name: Check the job's environment and installed versions
+        # Constraints only limit what gets installed: a new dependency without a pin would install unpinned.
+        run: |
+          for tool in python pip alembic; do
+            test "$(command -v "$tool")" = "$RUNNER_TEMP/backend-venv/bin/$tool"
+          done
+          diff <(pip freeze --exclude-editable | sort -f) <(grep -vE '^(#|$)' constraints.txt | sort -f)
 
       - name: Wait for PostgreSQL
         run: |
@@ -121,12 +137,28 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
           cache: pip
-          cache-dependency-path: backend/pyproject.toml
+          cache-dependency-path: |
+            backend/pyproject.toml
+            backend/constraints.txt
+
+      - name: Create a dedicated virtual environment
+        # Isolates the job from packages on the runner. $GITHUB_PATH makes every later step use it.
+        run: |
+          python -m venv "$RUNNER_TEMP/backend-venv"
+          echo "$RUNNER_TEMP/backend-venv/bin" >> "$GITHUB_PATH"
 
       - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e ".[dev]"
+          pip install -e ".[dev]" -c constraints.txt
+
+      - name: Check the job's environment and installed versions
+        # Constraints only limit what gets installed: a new dependency without a pin would install unpinned.
+        run: |
+          for tool in python pip alembic; do
+            test "$(command -v "$tool")" = "$RUNNER_TEMP/backend-venv/bin/$tool"
+          done
+          diff <(pip freeze --exclude-editable | sort -f) <(grep -vE '^(#|$)' constraints.txt | sort -f)
 
       - name: Create two disposable databases
         run: |

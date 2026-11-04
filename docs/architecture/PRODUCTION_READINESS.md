@@ -44,23 +44,23 @@ the live dashboard. These checks need dashboard access.
 
 ## 2. The commit and the push
 
-The founder authorized the local commit on 2026-11-04. **The push still waits** for the checks in §1 and a separate
-authorization. Both branches started at `b8da30f` with no divergence, so the working tree carries across.
+The first commit, `899319f`, was pushed to `ci/m1-m2-foundation` on 2026-11-04, and its GitHub Actions run passed. Each
+later commit and push needs its own authorization, using the same steps.
 
 ```bash
 cd /path/to/opportunity-hub
-git switch ci/m1-m2-foundation                     # same commit as the current branch; keeps every change
+git switch ci/m1-m2-foundation                     # ahead of feat/opportunity-hub-product (at 899319f on 2026-11-04)
 git add --pathspec-from-file=<reviewed manifest>   # the reviewed list only; never `git add .` or `-A`
 git diff --cached --name-only | wc -l              # must equal the manifest length
 git diff --cached --check                          # no whitespace errors
 git status --short | grep -E '^\?\? (\.vscode|artifacts|docs/presentation)/'   # still untracked
 (cd backend && python -m pytest -q)                # final local run
 git commit                                         # message reviewed before committing
-git push origin refs/heads/ci/m1-m2-foundation:refs/heads/ci/m1-m2-foundation
+git push origin ci/m1-m2-foundation
 ```
 
-- **Push scope:** `push.default` is unset (git's `simple`), and no push refspec or hook is configured. The
-  explicit refspec pushes exactly one branch.
+- **Push scope:** `origin` with the branch named explicitly pushes exactly that one branch. No push refspec or hook
+  is configured.
 - **Never push `feat/opportunity-hub-product`.**
 - **Never open a PR** without separate approval: a PR against the linked branch could create a Render preview.
 
@@ -202,18 +202,22 @@ newest on the day, and `anyio` governs the cancellation behaviour the Argon2 tes
 | Status quo | None | None | Unchanged | None |
 
 **Recommendation:** a constraints file now, with no new tool.
-- It's used by CI (`pip install -e ".[dev]" -c constraints.txt`) and later by the Render build.
+- It's used by CI (`pip install -e ".[dev]" -c constraints.txt`) and the Render build.
 - `pyproject.toml` keeps its ranges, so the package stays installable.
 - Hash-pinned locking can follow when a lock tool is approved.
 
 The Render half is a deployment change, made only with the release.
 
-**Prepared 2026-11-04, deliberately not in the first commit:** `backend/constraints.txt`, 43 exact pins from a fresh
-CI-style install. Evidence: a second fresh venv reproduced the versions exactly and passed all 1045 tests, and a
-Render-style `pip install . -c constraints.txt` resolved with `pip check` clean and no dev packages. Nothing uses it
-yet. After the first green run, commit it and change CI to `pip install -e ".[dev]" -c constraints.txt`. It needs a
-`render.yaml` `buildCommand` change for the release, which needs approval. The file is generated on Linux with Python
-3.12; regenerate it when the Python version or platform changes.
+**Integrated 2026-11-04 (not yet deployed):** `backend/constraints.txt` holds 43 exact pins. CI installs with
+`pip install -e ".[dev]" -c constraints.txt` in a dedicated virtual environment and fails if the installed set differs from the file. `render.yaml` builds with
+`pip install . -c constraints.txt`.
+
+Limits:
+- `render.yaml` is not proof of the live build command. Check it in the dashboard, and review the file before any
+  Blueprint sync, because a sync also applies its other values, such as `CORS_ORIGINS`.
+- Pins don't cover pip itself or the setuptools used to build the project. Neither is imported at runtime.
+- There are no hashes, so this pins versions but doesn't verify package contents.
+- The pins were generated on Linux with Python 3.12. Regenerate them when the Python version or platform changes.
 
 ## 6. Production Argon2 sizing (H2)
 

@@ -12,7 +12,8 @@ services:
     region: frankfurt
     branch: feat/opportunity-hub-product
     rootDir: backend
-    buildCommand: pip install --upgrade pip && pip install .
+    # rootDir is backend, so constraints.txt resolves there; it holds the versions CI tested.
+    buildCommand: pip install --upgrade pip && pip install . -c constraints.txt
     # Migrations run before the server starts, so the service only turns healthy on the current schema.
     startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
     healthCheckPath: /health
