@@ -1,0 +1,1255 @@
+{
+  "schema_version": 1,
+  "dataset_version": "1.0.0",
+  "valid_as_of": "2026-10-30T12:00:00Z",
+  "provenance": "Derived from the 14 opportunities curated by hand in backend/scripts/seed_demo.py. Every title, host, URL, date and quote was copied verbatim from the official page on the retrieval date; rules were structured only where the wording maps onto a fact the engine reads, otherwise kept as unparsed.",
+  "limitations": [
+    "No page snapshots are stored: quote verification against page text cannot be evaluated from this version.",
+    "Facts are valid as of the retrieval date; deadlines and statuses on the live pages may have changed since.",
+    "Opportunity type, location mode, countries, languages and tags are curator classifications without quotes and are not scored.",
+    "Mandatory classification follows the curated default (all rules mandatory); no page stated an optional rule.",
+    "Requirements with review_flags rest on a curator interpretation and are excluded from rule-conversion scoring until a person resolves them.",
+    "Fourteen records from six kinds of provider cannot show statistically reliable accuracy; they show systematic errors."
+  ],
+  "records": [
+    {
+      "id": "cern-summer-student-programme",
+      "title": "CERN Summer Student Programme",
+      "provider": "CERN",
+      "official_url": "https://careers.cern/programmes/summer-studentship/",
+      "deadline_at": null,
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://careers.cern/programmes/summer-studentship/"
+      ],
+      "reference": {
+        "opportunity_type": "internship",
+        "location_mode": "onsite",
+        "countries": [
+          "CH"
+        ],
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "tags": [
+          "physics",
+          "engineering",
+          "computer science",
+          "summer"
+        ],
+        "publisher": "CERN Careers",
+        "description": "Join CERN for an unforgettable summer! You’ll work on advanced scientific or technical projects, attend lectures by leading scientists, and immerse yourself in a vibrant international environment. You will gain hands-on experience that goes beyond the classroom, making this more than just a summer job—it’s a unique journey into the heart of scientific discovery."
+      },
+      "requirements": [
+        {
+          "id": "cern-summer-student-programme#0",
+          "label": "Pursuing a Bachelor’s or Master’s degree (not a PhD)",
+          "quote": "By the start of the summer, you are pursuing a Bachelor’s or Master’s degree (not a PhD) in Physics, Engineering, Computer Science or Mathematics and have completed at least 6 semesters of full-time university studies in one of these fields.",
+          "quote_form": "sentence",
+          "source_url": "https://careers.cern/programmes/summer-studentship/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "any_of",
+          "params": {
+            "any_of": [
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "bachelor"
+                }
+              },
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "master"
+                }
+              }
+            ]
+          },
+          "review_flags": []
+        },
+        {
+          "id": "cern-summer-student-programme#1",
+          "label": "Enrolled as a full-time student",
+          "quote": "You remain enrolled as a full-time student at least until the start of the summer studentship.",
+          "quote_form": "sentence",
+          "source_url": "https://careers.cern/programmes/summer-studentship/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "boolean_flag",
+          "params": {
+            "metric": "is_currently_enrolled",
+            "expected": true
+          },
+          "review_flags": []
+        },
+        {
+          "id": "cern-summer-student-programme#2",
+          "label": "At least 6 semesters of full-time study in physics, engineering, CS or maths",
+          "quote": "By the start of the summer, you are pursuing a Bachelor’s or Master’s degree (not a PhD) in Physics, Engineering, Computer Science or Mathematics and have completed at least 6 semesters of full-time university studies in one of these fields.",
+          "quote_form": "sentence",
+          "source_url": "https://careers.cern/programmes/summer-studentship/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Semesters completed and field of study are not evaluated by the engine."
+          },
+          "review_flags": []
+        },
+        {
+          "id": "cern-summer-student-programme#3",
+          "label": "No previous CERN Summer Student Programme or CERN stint over 3 months",
+          "quote": "You have not worked at CERN for more than 3 months under any other status, and you have not previously participated in the Summer Student Programme at CERN.",
+          "quote_form": "sentence",
+          "source_url": "https://careers.cern/programmes/summer-studentship/",
+          "category": "other",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Past CERN participation is not part of the profile."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "kaust-visiting-student-research-program",
+      "title": "KAUST Visiting Student Research Program (VSRP)",
+      "provider": "King Abdullah University of Science and Technology",
+      "official_url": "https://admissions.kaust.edu.sa/study/internships",
+      "deadline_at": null,
+      "deadline_type": "rolling",
+      "listing_status": "published",
+      "source_urls": [
+        "https://admissions.kaust.edu.sa/study/internships"
+      ],
+      "reference": {
+        "opportunity_type": "research_program",
+        "location_mode": "onsite",
+        "countries": [
+          "SA"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "research",
+          "stem",
+          "stipend"
+        ],
+        "publisher": "KAUST Admissions",
+        "description": "The Visiting Student Research Program (VSRP) at KAUST offers internships for 3rd and 4th-year bachelor’s and master’s students in science, technology, engineering, and mathematics (STEM). With over 100 faculty-led projects, students can choose research topics that align with their interests for internships lasting 2 to 6 months."
+      },
+      "requirements": [
+        {
+          "id": "kaust-visiting-student-research-program#0",
+          "label": "Bachelor’s or master’s student",
+          "quote": "Undergraduate students in 3rd year or above and master’s students.",
+          "quote_form": "sentence",
+          "source_url": "https://admissions.kaust.edu.sa/study/internships",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "any_of",
+          "params": {
+            "any_of": [
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "bachelor"
+                }
+              },
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "master"
+                }
+              }
+            ]
+          },
+          "review_flags": []
+        },
+        {
+          "id": "kaust-visiting-student-research-program#1",
+          "label": "GPA of at least 3.5 on a 4.0 scale",
+          "quote": "Minimum GPA: 3.5 on a 4-point scale (or equivalent).",
+          "quote_form": "sentence",
+          "source_url": "https://admissions.kaust.edu.sa/study/internships",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "numeric_threshold",
+          "params": {
+            "metric": "gpa",
+            "operator": ">=",
+            "value": 3.5,
+            "scale": 4.0
+          },
+          "review_flags": [
+            "or_equivalent_wording"
+          ]
+        },
+        {
+          "id": "kaust-visiting-student-research-program#2",
+          "label": "Not a current KAUST student or KAUST alumnus",
+          "quote": "Current PhD candidates, KAUST students or KAUST alumni are not eligible to apply.",
+          "quote_form": "sentence",
+          "source_url": "https://admissions.kaust.edu.sa/study/internships",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Past or current KAUST enrolment is not part of the profile."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "github-student-developer-pack",
+      "title": "GitHub Student Developer Pack",
+      "provider": "GitHub Education",
+      "official_url": "https://education.github.com/pack",
+      "deadline_at": null,
+      "deadline_type": "none",
+      "listing_status": "published",
+      "source_urls": [
+        "https://docs.github.com/en/education/about-github-education/github-education-for-students/apply-to-github-education-as-a-student"
+      ],
+      "reference": {
+        "opportunity_type": "other",
+        "location_mode": "remote",
+        "countries": [],
+        "languages": [],
+        "tags": [
+          "developer tools",
+          "software"
+        ],
+        "publisher": "GitHub Docs",
+        "description": "Learn to ship software like a pro. There's no substitute for hands-on experience. But for most students, real world tools can be cost-prohibitive."
+      },
+      "requirements": [
+        {
+          "id": "github-student-developer-pack#0",
+          "label": "Enrolled in a degree- or diploma-granting program",
+          "quote": "Are enrolled in a degree- or diploma-granting program, such as a high school, college, university, or homeschool.",
+          "quote_form": "sentence",
+          "source_url": "https://docs.github.com/en/education/about-github-education/github-education-for-students/apply-to-github-education-as-a-student",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "boolean_flag",
+          "params": {
+            "metric": "is_currently_enrolled",
+            "expected": true
+          },
+          "review_flags": []
+        },
+        {
+          "id": "github-student-developer-pack#1",
+          "label": "At least 13 years old (checked as of 30 Oct 2026)",
+          "quote": "Are at least 13 years old.",
+          "quote_form": "sentence",
+          "source_url": "https://docs.github.com/en/education/about-github-education/github-education-for-students/apply-to-github-education-as-a-student",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "date_gate",
+          "params": {
+            "metric": "date_of_birth",
+            "operator": "<=",
+            "value": "2013-10-30"
+          },
+          "review_flags": [
+            "retrieval_date_reference"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nasa-ostem-internships-summer-2027",
+      "title": "NASA OSTEM Internships — Summer 2027",
+      "provider": "NASA",
+      "official_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+      "deadline_at": "2027-03-02T04:59:00Z",
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://www.nasa.gov/learning-resources/internship-programs/"
+      ],
+      "reference": {
+        "opportunity_type": "internship",
+        "location_mode": "onsite",
+        "countries": [
+          "US"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "aerospace",
+          "space",
+          "stem"
+        ],
+        "publisher": "NASA",
+        "description": "OSTEM Internships offer short‑term, hands‑on opportunities for students to work on real NASA projects. These experiences help to build technical and professional skills while learning from NASA mentors."
+      },
+      "requirements": [
+        {
+          "id": "nasa-ostem-internships-summer-2027#0",
+          "label": "U.S. citizen",
+          "quote": "Citizenship | U.S. Citizen",
+          "quote_form": "table_cells",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "set_membership",
+          "params": {
+            "metric": "citizenship",
+            "operator": "in",
+            "allowed": [
+              "US"
+            ]
+          },
+          "review_flags": [
+            "table_cells_quote"
+          ]
+        },
+        {
+          "id": "nasa-ostem-internships-summer-2027#1",
+          "label": "GPA of at least 3.0 on a 4.0 scale",
+          "quote": "GPA | 3.0 on a 4.0 scale",
+          "quote_form": "table_cells",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "numeric_threshold",
+          "params": {
+            "metric": "gpa",
+            "operator": ">=",
+            "value": 3.0,
+            "scale": 4.0
+          },
+          "review_flags": [
+            "table_cells_quote"
+          ]
+        },
+        {
+          "id": "nasa-ostem-internships-summer-2027#2",
+          "label": "Enrolled in an accredited program, or a recent graduate",
+          "quote": "Unless a recent high school graduate, applicants must be enrolled (full-time or part-time) in a certificate or degree-granting program that is accredited by a recognized accrediting organization of the U.S. Department of Education.",
+          "quote_form": "sentence",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Recent graduates also qualify, and graduation timing is not evaluated."
+          },
+          "review_flags": []
+        },
+        {
+          "id": "nasa-ostem-internships-summer-2027#3",
+          "label": "18 or older by the session start date",
+          "quote": "Must be 18 or older by the published start date of session",
+          "quote_form": "sentence",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "The session start date is not stated next to this rule."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "nasa-ostem-internships-fall-2027",
+      "title": "NASA OSTEM Internships — Fall 2027",
+      "provider": "NASA",
+      "official_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+      "deadline_at": "2027-05-25T03:59:00Z",
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://www.nasa.gov/learning-resources/internship-programs/"
+      ],
+      "reference": {
+        "opportunity_type": "internship",
+        "location_mode": "onsite",
+        "countries": [
+          "US"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "aerospace",
+          "space",
+          "stem"
+        ],
+        "publisher": "NASA",
+        "description": "OSTEM Internships offer short‑term, hands‑on opportunities for students to work on real NASA projects. These experiences help to build technical and professional skills while learning from NASA mentors."
+      },
+      "requirements": [
+        {
+          "id": "nasa-ostem-internships-fall-2027#0",
+          "label": "U.S. citizen",
+          "quote": "Citizenship | U.S. Citizen",
+          "quote_form": "table_cells",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "set_membership",
+          "params": {
+            "metric": "citizenship",
+            "operator": "in",
+            "allowed": [
+              "US"
+            ]
+          },
+          "review_flags": [
+            "table_cells_quote"
+          ]
+        },
+        {
+          "id": "nasa-ostem-internships-fall-2027#1",
+          "label": "GPA of at least 3.0 on a 4.0 scale",
+          "quote": "GPA | 3.0 on a 4.0 scale",
+          "quote_form": "table_cells",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "numeric_threshold",
+          "params": {
+            "metric": "gpa",
+            "operator": ">=",
+            "value": 3.0,
+            "scale": 4.0
+          },
+          "review_flags": [
+            "table_cells_quote"
+          ]
+        },
+        {
+          "id": "nasa-ostem-internships-fall-2027#2",
+          "label": "Enrolled in an accredited program, or a recent graduate",
+          "quote": "Unless a recent high school graduate, applicants must be enrolled (full-time or part-time) in a certificate or degree-granting program that is accredited by a recognized accrediting organization of the U.S. Department of Education.",
+          "quote_form": "sentence",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Recent graduates also qualify, and graduation timing is not evaluated."
+          },
+          "review_flags": []
+        },
+        {
+          "id": "nasa-ostem-internships-fall-2027#3",
+          "label": "18 or older by the session start date",
+          "quote": "Must be 18 or older by the published start date of session",
+          "quote_form": "sentence",
+          "source_url": "https://www.nasa.gov/learning-resources/internship-programs/",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "The session start date is not stated next to this rule."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "amelia-earhart-fellowship-2027",
+      "title": "Amelia Earhart Fellowship 2027",
+      "provider": "Zonta International",
+      "official_url": "https://www.zonta.org/Web/Programs/Education/Amelia_Earhart_Fellowship",
+      "deadline_at": "2026-11-15T12:00:00Z",
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://www.zonta.org/Web/Programs/Education/Amelia_Earhart_Fellowship"
+      ],
+      "reference": {
+        "opportunity_type": "fellowship",
+        "location_mode": "unknown",
+        "countries": [],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "aerospace",
+          "space science",
+          "doctoral"
+        ],
+        "publisher": "Zonta International",
+        "description": "Established in 1938 in honor of famed aviator and Zontian Amelia Earhart, the Amelia Earhart Fellowship supports women pursuing Ph.D./doctoral degrees in aerospace engineering and space sciences. Up to 30 Fellows will receive a US$12,000 Amelia Earhart Fellowship to support their advanced studies at any university or college offering accredited post-graduate courses and degrees in these fields."
+      },
+      "requirements": [
+        {
+          "id": "amelia-earhart-fellowship-2027#0",
+          "label": "Pursuing a Ph.D./doctoral degree",
+          "quote": "Women of any nationality pursuing a Ph.D./doctoral degree who demonstrate a superior academic record conducting research applied to aerospace engineering or space sciences are eligible.",
+          "quote_form": "sentence",
+          "source_url": "https://www.zonta.org/Web/Programs/Education/Amelia_Earhart_Fellowship",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "equality",
+          "params": {
+            "metric": "degree_level",
+            "operator": "==",
+            "value": "doctorate"
+          },
+          "review_flags": []
+        },
+        {
+          "id": "amelia-earhart-fellowship-2027#1",
+          "label": "Open to women",
+          "quote": "Women of any nationality pursuing a Ph.D./doctoral degree who demonstrate a superior academic record conducting research applied to aerospace engineering or space sciences are eligible.",
+          "quote_form": "sentence",
+          "source_url": "https://www.zonta.org/Web/Programs/Education/Amelia_Earhart_Fellowship",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Gender is not part of the profile, so this cannot be checked."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "google-summer-of-code",
+      "title": "Google Summer of Code",
+      "provider": "Google",
+      "official_url": "https://developers.google.com/open-source/gsoc/faq",
+      "deadline_at": null,
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://developers.google.com/open-source/gsoc/faq"
+      ],
+      "reference": {
+        "opportunity_type": "open_source_program",
+        "location_mode": "remote",
+        "countries": [],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "open source",
+          "software",
+          "stipend"
+        ],
+        "publisher": "Google for Developers",
+        "description": "To be eligible, contributors must be at least 18 years old, reside in a non-embargoed country, and have limited prior open source experience, while organizations must have an active open source project and at least two mentors."
+      },
+      "requirements": [
+        {
+          "id": "google-summer-of-code#0",
+          "label": "18 or older at registration",
+          "quote": "18+ years old at registration",
+          "quote_form": "sentence",
+          "source_url": "https://developers.google.com/open-source/gsoc/faq",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "The registration date is set by the yearly timeline, not stated here."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "schwarzman-scholars-2028-2029",
+      "title": "Schwarzman Scholars — Class of 2028–2029",
+      "provider": "Schwarzman Scholars",
+      "official_url": "https://www.schwarzmanscholars.org/admissions/eligibility/",
+      "deadline_at": null,
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://www.schwarzmanscholars.org/admissions/eligibility/"
+      ],
+      "reference": {
+        "opportunity_type": "scholarship",
+        "location_mode": "onsite",
+        "countries": [
+          "CN"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "leadership",
+          "master's",
+          "fully funded"
+        ],
+        "publisher": "Schwarzman Scholars",
+        "description": "Schwarzman Scholars are selected from an international pool of distinguished candidates. Prospective Scholars are expected to demonstrate academic excellence, exceptional results in their field and outstanding leadership qualities."
+      },
+      "requirements": [
+        {
+          "id": "schwarzman-scholars-2028-2029#0",
+          "label": "At least 18 on 1 Aug 2028",
+          "quote": "Candidates must be at least 18 but not yet 29 years of age as of August 1 of their Schwarzman Scholars enrollment year (for the Class of 2028-2029, as of August 1, 2028).",
+          "quote_form": "sentence",
+          "source_url": "https://www.schwarzmanscholars.org/admissions/eligibility/",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "date_gate",
+          "params": {
+            "metric": "date_of_birth",
+            "operator": "<=",
+            "value": "2010-08-01"
+          },
+          "review_flags": [
+            "derived_reference_date"
+          ]
+        },
+        {
+          "id": "schwarzman-scholars-2028-2029#1",
+          "label": "Not yet 29 on 1 Aug 2028",
+          "quote": "Candidates must be at least 18 but not yet 29 years of age as of August 1 of their Schwarzman Scholars enrollment year (for the Class of 2028-2029, as of August 1, 2028).",
+          "quote_form": "sentence",
+          "source_url": "https://www.schwarzmanscholars.org/admissions/eligibility/",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "date_gate",
+          "params": {
+            "metric": "date_of_birth",
+            "operator": ">",
+            "value": "1999-08-01"
+          },
+          "review_flags": [
+            "derived_reference_date"
+          ]
+        },
+        {
+          "id": "schwarzman-scholars-2028-2029#2",
+          "label": "Undergraduate degree completed by 1 Aug of the enrollment year",
+          "quote": "Applicants who are currently enrolled in undergraduate degree programs must be on track to successfully complete all degree requirements before August 1 of their Schwarzman Scholars enrollment year.",
+          "quote_form": "sentence",
+          "source_url": "https://www.schwarzmanscholars.org/admissions/eligibility/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Expected graduation date is not evaluated by the engine."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "brooke-owens-fellowship-2027",
+      "title": "Brooke Owens Fellowship — Class of 2027",
+      "provider": "Brooke Owens Fellowship",
+      "official_url": "https://www.brookeowensfellowship.org/apply",
+      "deadline_at": null,
+      "deadline_type": "fixed",
+      "listing_status": "closed",
+      "source_urls": [
+        "https://www.brookeowensfellowship.org/apply"
+      ],
+      "reference": {
+        "opportunity_type": "fellowship",
+        "location_mode": "unknown",
+        "countries": [],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "aerospace",
+          "mentorship",
+          "undergraduate"
+        ],
+        "publisher": "Brooke Owens Fellowship",
+        "description": "The Brooke Owens Fellowship is committed to expanding opportunities for women and gender minorities in aerospace."
+      },
+      "requirements": [
+        {
+          "id": "brooke-owens-fellowship-2027#0",
+          "label": "Undergraduate working toward a bachelor’s or associate degree",
+          "quote": "I am an undergraduate student who has completed at least one year of coursework toward a bachelor’s or associate degree.",
+          "quote_form": "sentence",
+          "source_url": "https://www.brookeowensfellowship.org/apply",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "any_of",
+          "params": {
+            "any_of": [
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "bachelor"
+                }
+              },
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "associate"
+                }
+              }
+            ]
+          },
+          "review_flags": []
+        },
+        {
+          "id": "brooke-owens-fellowship-2027#1",
+          "label": "18 or older (checked as of 30 Oct 2026)",
+          "quote": "I am 18 years of age or older.",
+          "quote_form": "sentence",
+          "source_url": "https://www.brookeowensfellowship.org/apply",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "date_gate",
+          "params": {
+            "metric": "date_of_birth",
+            "operator": "<=",
+            "value": "2008-10-30"
+          },
+          "review_flags": [
+            "retrieval_date_reference"
+          ]
+        },
+        {
+          "id": "brooke-owens-fellowship-2027#2",
+          "label": "Identifies as a woman or gender minority",
+          "quote": "I identify as a woman or gender minority.",
+          "quote_form": "sentence",
+          "source_url": "https://www.brookeowensfellowship.org/apply",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Gender identity is not part of the profile, so this cannot be checked."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "mitacs-globalink-research-internship-2027",
+      "title": "Mitacs Globalink Research Internship 2027",
+      "provider": "Mitacs",
+      "official_url": "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+      "deadline_at": null,
+      "deadline_type": "fixed",
+      "listing_status": "closed",
+      "source_urls": [
+        "https://www.mitacs.ca/our-programs/globalink-research-internship-students/"
+      ],
+      "reference": {
+        "opportunity_type": "internship",
+        "location_mode": "onsite",
+        "countries": [
+          "CA"
+        ],
+        "languages": [
+          "en",
+          "fr"
+        ],
+        "tags": [
+          "research",
+          "undergraduate",
+          "canada"
+        ],
+        "publisher": "Mitacs",
+        "description": "Mitacs Globalink Research Internship is a competitive initiative for international undergraduates from the following countries and regions: Austria, Brazil, Chile, China, Colombia, Finland, France, Germany, Hong Kong, India, Ireland, Jordan, Mexico, Pakistan, Peru, Singapore, South Korea, Taiwan, Thailand, Tunisia, Ukraine, United Kingdom and the United States."
+      },
+      "requirements": [
+        {
+          "id": "mitacs-globalink-research-internship-2027#0",
+          "label": "Enrolled in a full-time program",
+          "quote": "Be enrolled in a full-time undergraduate or combined undergraduate/master’s program at an eligible institution (see list of eligible institutions by country)",
+          "quote_form": "sentence",
+          "source_url": "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "boolean_flag",
+          "params": {
+            "metric": "is_currently_enrolled",
+            "expected": true
+          },
+          "review_flags": []
+        },
+        {
+          "id": "mitacs-globalink-research-internship-2027#1",
+          "label": "Undergraduate or combined undergraduate/master’s student",
+          "quote": "Be enrolled in a full-time undergraduate or combined undergraduate/master’s program at an eligible institution (see list of eligible institutions by country)",
+          "quote_form": "sentence",
+          "source_url": "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "any_of",
+          "params": {
+            "any_of": [
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "bachelor"
+                }
+              },
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "master"
+                }
+              }
+            ]
+          },
+          "review_flags": []
+        },
+        {
+          "id": "mitacs-globalink-research-internship-2027#2",
+          "label": "Studying at an eligible partner institution",
+          "quote": "Be enrolled in a full-time undergraduate or combined undergraduate/master’s program at an eligible institution (see list of eligible institutions by country)",
+          "quote_form": "sentence",
+          "source_url": "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+          "category": "logistics",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Eligibility depends on the institution's country, which the profile does not record."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "gates-cambridge-scholarship",
+      "title": "Gates Cambridge Scholarship",
+      "provider": "Gates Cambridge Trust",
+      "official_url": "https://www.gatescambridge.org/apply/eligibility/",
+      "deadline_at": null,
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://www.gatescambridge.org/apply/eligibility/"
+      ],
+      "reference": {
+        "opportunity_type": "scholarship",
+        "location_mode": "onsite",
+        "countries": [
+          "GB"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "postgraduate",
+          "phd",
+          "fully funded"
+        ],
+        "publisher": "Gates Cambridge Trust",
+        "description": "You can apply for a Gates Cambridge Scholarship if you are:\na citizen of any country outside the United Kingdom\napplying to pursue one of the following courses at the University of Cambridge:\nPhD (full-time or part-time*)\nMLitt (full-time)\none-year postgraduate course (full-time), with some exceptions – see below."
+      },
+      "requirements": [
+        {
+          "id": "gates-cambridge-scholarship#0",
+          "label": "Citizen of a country outside the United Kingdom",
+          "quote": "a citizen of any country outside the United Kingdom",
+          "quote_form": "sentence",
+          "source_url": "https://www.gatescambridge.org/apply/eligibility/",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "set_membership",
+          "params": {
+            "metric": "citizenship",
+            "operator": "not_in",
+            "allowed": [
+              "GB"
+            ]
+          },
+          "review_flags": []
+        },
+        {
+          "id": "gates-cambridge-scholarship#1",
+          "label": "Applying for a PhD, MLitt or one-year postgraduate course at Cambridge",
+          "quote": "applying to pursue one of the following courses at the University of Cambridge:",
+          "quote_form": "sentence",
+          "source_url": "https://www.gatescambridge.org/apply/eligibility/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "The course being applied to is not part of the profile."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "summer-at-epfl-2027",
+      "title": "Summer@EPFL 2027",
+      "provider": "EPFL School of Computer and Communication Sciences",
+      "official_url": "https://summer.epfl.ch/",
+      "deadline_at": "2026-11-29T12:00:00Z",
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://summer.epfl.ch/"
+      ],
+      "reference": {
+        "opportunity_type": "research_program",
+        "location_mode": "onsite",
+        "countries": [
+          "CH"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "computer science",
+          "research",
+          "summer"
+        ],
+        "publisher": "EPFL",
+        "description": "The School of Computer and Communication Sciences of the École polytechnique fédérale de Lausanne (EPFL) offers summer fellowships to international students. Participants get the chance to learn new skills and to gain hands-on experience in their chosen field while collaborating with leading senior scientists."
+      },
+      "requirements": [
+        {
+          "id": "summer-at-epfl-2027#0",
+          "label": "Bachelor’s or master’s student",
+          "quote": "Fellowships are awarded to students enrolled in BSc, BTech, MSc, MTech, or equivalent programmes in Computer Science, Computer Engineering, Telecommunications, or Electrical Engineering.",
+          "quote_form": "sentence",
+          "source_url": "https://summer.epfl.ch/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "any_of",
+          "params": {
+            "any_of": [
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "bachelor"
+                }
+              },
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "master"
+                }
+              }
+            ]
+          },
+          "review_flags": [
+            "or_equivalent_wording"
+          ]
+        },
+        {
+          "id": "summer-at-epfl-2027#1",
+          "label": "Studying computer science, computer engineering, telecoms or electrical engineering",
+          "quote": "Fellowships are awarded to students enrolled in BSc, BTech, MSc, MTech, or equivalent programmes in Computer Science, Computer Engineering, Telecommunications, or Electrical Engineering.",
+          "quote_form": "sentence",
+          "source_url": "https://summer.epfl.ch/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Field of study is not evaluated by the engine."
+          },
+          "review_flags": []
+        },
+        {
+          "id": "summer-at-epfl-2027#2",
+          "label": "Currently enrolled",
+          "quote": "At the time of application, applicants must be enrolled in the 2nd year Bachelor or above (therefore, all applicants must have successfully completed at least their 1st year of the Bachelor's programme).",
+          "quote_form": "sentence",
+          "source_url": "https://summer.epfl.ch/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "boolean_flag",
+          "params": {
+            "metric": "is_currently_enrolled",
+            "expected": true
+          },
+          "review_flags": []
+        },
+        {
+          "id": "summer-at-epfl-2027#3",
+          "label": "In the 2nd year of a bachelor’s or above",
+          "quote": "At the time of application, applicants must be enrolled in the 2nd year Bachelor or above (therefore, all applicants must have successfully completed at least their 1st year of the Bachelor's programme).",
+          "quote_form": "sentence",
+          "source_url": "https://summer.epfl.ch/",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Year of study is not evaluated by the engine."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "eth-student-summer-research-fellowship-2027",
+      "title": "ETH Student Summer Research Fellowship 2027",
+      "provider": "ETH Zurich, Department of Computer Science",
+      "official_url": "https://inf.ethz.ch/studies/summer-research-fellowship.html",
+      "deadline_at": "2026-12-16T12:00:00Z",
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://inf.ethz.ch/studies/summer-research-fellowship/how-to-apply.html",
+        "https://inf.ethz.ch/studies/summer-research-fellowship.html"
+      ],
+      "reference": {
+        "opportunity_type": "research_program",
+        "location_mode": "onsite",
+        "countries": [
+          "CH"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "computer science",
+          "research",
+          "summer"
+        ],
+        "publisher": "ETH Zurich",
+        "description": "The ETH Student Summer Research Fellowship (ETH SSRF) programme offers undergraduate and graduate students the opportunity to gain their first research experience in an area of their choice."
+      },
+      "requirements": [
+        {
+          "id": "eth-student-summer-research-fellowship-2027#0",
+          "label": "Enrolled in a study programme",
+          "quote": "You are enrolled in a study programme (bachelor or master) in computer science or a closely related field (e.g., electrical engineering, mathematics, physics)",
+          "quote_form": "sentence",
+          "source_url": "https://inf.ethz.ch/studies/summer-research-fellowship/how-to-apply.html",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "boolean_flag",
+          "params": {
+            "metric": "is_currently_enrolled",
+            "expected": true
+          },
+          "review_flags": []
+        },
+        {
+          "id": "eth-student-summer-research-fellowship-2027#1",
+          "label": "Bachelor’s or master’s student",
+          "quote": "You are enrolled in a study programme (bachelor or master) in computer science or a closely related field (e.g., electrical engineering, mathematics, physics)",
+          "quote_form": "sentence",
+          "source_url": "https://inf.ethz.ch/studies/summer-research-fellowship/how-to-apply.html",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "any_of",
+          "params": {
+            "any_of": [
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "bachelor"
+                }
+              },
+              {
+                "kind": "equality",
+                "params": {
+                  "metric": "degree_level",
+                  "operator": "==",
+                  "value": "master"
+                }
+              }
+            ]
+          },
+          "review_flags": []
+        },
+        {
+          "id": "eth-student-summer-research-fellowship-2027#2",
+          "label": "Studying computer science or a closely related field",
+          "quote": "You are enrolled in a study programme (bachelor or master) in computer science or a closely related field (e.g., electrical engineering, mathematics, physics)",
+          "quote_form": "sentence",
+          "source_url": "https://inf.ethz.ch/studies/summer-research-fellowship/how-to-apply.html",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Field of study is not evaluated by the engine."
+          },
+          "review_flags": []
+        },
+        {
+          "id": "eth-student-summer-research-fellowship-2027#3",
+          "label": "Two years of study completed by the programme start",
+          "quote": "You will have completed two years of study by start of the programme (master students naturally satisfy this condition)",
+          "quote_form": "sentence",
+          "source_url": "https://inf.ethz.ch/studies/summer-research-fellowship/how-to-apply.html",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Years of study completed are not evaluated by the engine."
+          },
+          "review_flags": []
+        },
+        {
+          "id": "eth-student-summer-research-fellowship-2027#4",
+          "label": "Not enrolled at ETH Zurich",
+          "quote": "is open to all students worldwide, except for students enrolled at ETH Zurich.",
+          "quote_form": "sentence",
+          "source_url": "https://inf.ethz.ch/studies/summer-research-fellowship.html",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "The profile's institution is not evaluated by the engine."
+          },
+          "review_flags": []
+        }
+      ]
+    },
+    {
+      "id": "kaust-masters-fellowship-fall-2027",
+      "title": "KAUST Master’s Degree with the KAUST Fellowship — Fall 2027",
+      "provider": "King Abdullah University of Science and Technology",
+      "official_url": "https://admissions.kaust.edu.sa/study/master's-degree",
+      "deadline_at": "2027-01-03T12:00:00Z",
+      "deadline_type": "fixed",
+      "listing_status": "published",
+      "source_urls": [
+        "https://admissions.kaust.edu.sa/how-to-apply/entry-requirements"
+      ],
+      "reference": {
+        "opportunity_type": "scholarship",
+        "location_mode": "onsite",
+        "countries": [
+          "SA"
+        ],
+        "languages": [
+          "en"
+        ],
+        "tags": [
+          "master's",
+          "fully funded",
+          "stem"
+        ],
+        "publisher": "KAUST Admissions",
+        "description": "The cost of our Master’s program reflects the world-class education and advanced academic environment at KAUST. However, all admitted master’s students* receive the fully-funded KAUST Fellowship, which covers tuition fees, housing, health insurance, relocation support, and more.\n*Some students with external sponsorship or funding may not be eligible for the KAUST Fellowship"
+      },
+      "requirements": [
+        {
+          "id": "kaust-masters-fellowship-fall-2027#0",
+          "label": "Bachelor’s degree in a relevant subject before entry",
+          "quote": "Bachelors degree in a subject relevant the program being applied to, from a recognized higher education institution for entry into our Masters programs",
+          "quote_form": "sentence",
+          "source_url": "https://admissions.kaust.edu.sa/how-to-apply/entry-requirements",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "unparsed",
+          "params": {
+            "reason": "Completed degrees and their subject are not evaluated by the engine."
+          },
+          "review_flags": []
+        },
+        {
+          "id": "kaust-masters-fellowship-fall-2027#1",
+          "label": "GPA of at least 3.0 on a 4.0 scale",
+          "quote": "The minimum permitted GPA is 3.0 on a 4-point scale (or equivalent).",
+          "quote_form": "sentence",
+          "source_url": "https://admissions.kaust.edu.sa/how-to-apply/entry-requirements",
+          "category": "academic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "numeric_threshold",
+          "params": {
+            "metric": "gpa",
+            "operator": ">=",
+            "value": 3.0,
+            "scale": 4.0
+          },
+          "review_flags": [
+            "or_equivalent_wording"
+          ]
+        },
+        {
+          "id": "kaust-masters-fellowship-fall-2027#2",
+          "label": "At least 18 on entry (29 Aug 2027)",
+          "quote": "At least 18 years of age on entry",
+          "quote_form": "sentence",
+          "source_url": "https://admissions.kaust.edu.sa/how-to-apply/entry-requirements",
+          "category": "demographic",
+          "is_mandatory": true,
+          "is_ambiguous": false,
+          "kind": "date_gate",
+          "params": {
+            "metric": "date_of_birth",
+            "operator": "<=",
+            "value": "2009-08-29"
+          },
+          "review_flags": [
+            "derived_reference_date"
+          ]
+        }
+      ]
+    }
+  ]
+}

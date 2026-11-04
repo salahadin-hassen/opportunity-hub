@@ -57,9 +57,46 @@ Open http://localhost:8000/health - should return `{"status": "ok"}`
   published and closed ones and includes their `requirements` (the rules) and `sources`
   (provenance); curator-only fields such as snapshots and notes are never exposed.
 - `GET /skills` returns the canonical skill catalog; there is no HTTP route that creates skills.
-- `POST /opportunities` is curator-only: it requires the `X-Admin-Token` header to match
-  `ADMIN_API_TOKEN`. With no token configured, creation is disabled.
+- `POST /opportunities` and the `/curate/sources` routes require a signed-in curator or admin;
+  `/admin/audit` requires an admin. Roles are stored on `users.role`, every account starts as a
+  student, and roles change only through `python -m app.cli grant-role <email> <role>`
+  (audited). The old `X-Admin-Token` header and `ADMIN_API_TOKEN` setting no longer exist.
 - Match endpoints treat draft and archived opportunities as not found.
+
+## Credential rate limiting
+- Off unless `AUTH_RATE_LIMIT_PER_MINUTE` is set. When on, every `/auth/login` and `/auth/register`
+  attempt is counted per client address bucket and per account email (60-second fixed windows) in the
+  `rate_limit_buckets` table, shared by all instances. Keys are HMAC digests, never raw addresses or emails.
+  If the table can't be written, the attempt is refused with 503 (fail closed).
+- The client address comes from `CLIENT_IP_STRATEGY` (`peer`, `xff_rightmost` or `header`, with
+  `TRUSTED_PROXY_CIDRS`, `TRUSTED_PROXY_HOPS` and `CLIENT_IP_HEADER`; see `app/core/config.py`).
+  When no trustworthy address can be established, the address budget is skipped for that request and
+  the account budget still applies. A proxy address or a placeholder is never used as a bucket.
+- **Production caveat:** `render.yaml` still starts uvicorn with `--proxy-headers --forwarded-allow-ips="*"`,
+  under which the client chooses its own address, so the address budget can be evaded. Don't change it
+  before reading `docs/architecture/RENDER_CLIENT_IP_VERIFICATION.md`. Account-lockout risks are in
+  `docs/architecture/ACCOUNT_LOCKOUT_THREAT_MODEL.md`.
+- Telemetry (`app/core/auth_telemetry.py`) counts throttling, degraded identity and failures with
+  bounded labels, logging at most one line per event and label set per minute.
+- **Argon2 capacity:**
+  - Passwords use argon2-cffi defaults (Argon2id, m=64 MiB, t=3, p=4; about 130 ms on a development
+    laptop).
+  - At most `ARGON2_MAX_CONCURRENCY` (default 2, allowed 1–16) hashes or verifications run at once per
+    process: one memory ceiling for login and registration together.
+  - Registration may hold at most `ARGON2_REGISTRATION_MAX_CONCURRENCY` of those slots (default 1; it must
+    not exceed the total). The rest only ever serve sign-in, so a registration flood can't refuse login.
+    Login may use every free slot. With a total of 1 nothing can be reserved, and the two share the slot.
+  - A slot is held only around the Argon2 call. Login checks for capacity *before* looking the account up
+    (without reserving), so a saturated service refuses known and unknown emails alike, and unknown emails
+    never hold a slot.
+  - When no slot is available the request gets 503 with `Retry-After: 2` at once. It's never queued, never
+    hashed, and never reported as a wrong password.
+  - The limit is per process: total = value × uvicorn workers (`--workers`, or `WEB_CONCURRENCY` if set) ×
+    instances.
+  - The default suits a 512 MB container with one worker. The live limit is unmeasured, so measure before
+    raising it.
+- **Registration** looks the email up before hashing, so a known email gets its 409 without Argon2. The
+  unique constraint on `users.email` stays the final authority for concurrent registrations.
 
 ## Eligibility engine notes
 - GPA thresholds must declare `params.scale`. A profile GPA is compared only when its `gpa_scale` equals

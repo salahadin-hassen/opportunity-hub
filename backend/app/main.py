@@ -9,6 +9,8 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
 from app.api.routers.auth import router as auth_router
+from app.api.routers.curate import admin_router
+from app.api.routers.curate import router as curate_router
 from app.api.routers.education import router as education_router
 from app.api.routers.matches import router as matches_router
 from app.api.routers.opportunities import router as opportunities_router
@@ -53,12 +55,14 @@ if settings.cors_origins:
         CORSMiddleware,
         allow_origins=settings.cors_origins,
         allow_credentials=False,
-        allow_methods=["GET", "POST", "PATCH", "DELETE"],
+        allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
         allow_headers=["Authorization", "Content-Type"],
         max_age=600,
     )
 
 app.include_router(auth_router)
+app.include_router(curate_router)
+app.include_router(admin_router)
 app.include_router(education_router)
 app.include_router(opportunities_router)
 app.include_router(matches_router)

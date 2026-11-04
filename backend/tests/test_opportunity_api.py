@@ -4,9 +4,10 @@ from __future__ import annotations
 import uuid
 
 import pytest
-from app.core.config import settings
+from app.core.security import create_access_token
 from app.db.session import get_db
 from app.main import app
+from app.models import User
 from app.schemas import OpportunityRead
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.orm import Session
@@ -34,22 +35,21 @@ def opportunity_payload(slug: str | None = None) -> dict[str, object]:
     }
 
 
-TEST_ADMIN_TOKEN = "test-only-curator-token"
-
-
 @pytest.fixture
-async def client(db_session: Session, monkeypatch):
-    """Use the transaction-bound test session, acting as a configured curator."""
+async def client(db_session: Session):
+    """Use the transaction-bound test session, signed in as a curator."""
     def override_get_db():
         yield db_session
 
-    monkeypatch.setattr(settings, "ADMIN_API_TOKEN", TEST_ADMIN_TOKEN)
+    curator = User(email=f"curator-{uuid.uuid4().hex[:8]}@example.org", password_hash="x", role="curator")
+    db_session.add(curator)
+    db_session.flush()
     app.dependency_overrides[get_db] = override_get_db
     transport = ASGITransport(app=app)
     async with AsyncClient(
         transport=transport,
         base_url="http://test",
-        headers={"X-Admin-Token": TEST_ADMIN_TOKEN},
+        headers={"Authorization": f"Bearer {create_access_token(curator.id)}"},
     ) as test_client:
         yield test_client
     app.dependency_overrides.clear()

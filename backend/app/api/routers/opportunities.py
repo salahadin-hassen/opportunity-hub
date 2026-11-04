@@ -6,8 +6,11 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import require_admin_token
+from app.api.deps import require_permission
+from app.core.permissions import Permission
 from app.db.session import get_db
+from app.models import User
+from app.services import audit
 from app.schemas import OpportunityCreate, OpportunityDetailRead, OpportunityRead
 from app.services.opportunities import (
     OpportunitySlugConflictError,
@@ -23,17 +26,29 @@ router = APIRouter(prefix="/opportunities", tags=["opportunities"])
     "",
     response_model=OpportunityRead,
     status_code=status.HTTP_201_CREATED,
-    dependencies=[Depends(require_admin_token)],
 )
-def create(payload: OpportunityCreate, db: Session = Depends(get_db)) -> OpportunityRead:
-    """Create an opportunity (curators only, via ``X-Admin-Token``)."""
+def create(
+    payload: OpportunityCreate,
+    db: Session = Depends(get_db),
+    curator: User = Depends(require_permission(Permission.OPPORTUNITY_CREATE)),
+) -> OpportunityRead:
+    """Create an opportunity (curators and admins only); audited in the same transaction."""
     try:
-        return create_opportunity(db, payload)
+        opportunity = create_opportunity(db, payload)
     except OpportunitySlugConflictError as error:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="An opportunity with this slug already exists.",
         ) from error
+    audit.record(
+        db,
+        action="opportunity.created",
+        target_type="opportunity",
+        target_id=opportunity.id,
+        actor_id=curator.id,
+        changes={"slug": opportunity.slug, "status": opportunity.status, "title": opportunity.title},
+    )
+    return opportunity
 
 
 @router.get("", response_model=list[OpportunityRead])

@@ -127,6 +127,100 @@ class MatchOutcome(StrEnum):
     NEEDS_REVIEW = "needs_review"
 
 
+class UserRole(StrEnum):
+    """What an account may do beyond its own data; see ``app.core.permissions``.
+
+    Stored on ``users.role`` and read from the database on every request,
+    never from a token or a request body.
+    """
+
+    STUDENT = "student"
+    CURATOR = "curator"
+    ADMIN = "admin"
+
+
+class SourceCategory(StrEnum):
+    """What kind of organisation an acquisition source belongs to."""
+
+    UNIVERSITY = "university"
+    GOVERNMENT = "government"
+    SCHOLARSHIP_PROVIDER = "scholarship_provider"
+    FOUNDATION = "foundation"
+    INTERNATIONAL_ORGANIZATION = "international_organization"
+    EMPLOYER = "employer"
+    RESEARCH_INSTITUTION = "research_institution"
+    AGGREGATOR = "aggregator"
+    COMMUNITY = "community"
+
+
+class AuthorityLevel(StrEnum):
+    """Whether a source may be cited for published claims.
+
+    Only ``official`` sources are citable; ``secondary`` and ``community``
+    sources can only ever produce discovery leads.
+    """
+
+    OFFICIAL = "official"
+    SECONDARY = "secondary"
+    COMMUNITY = "community"
+
+
+class DiscoveryMethod(StrEnum):
+    """How a source's connector finds candidate pages."""
+
+    SITEMAP = "sitemap"
+    FEED = "feed"
+    API = "api"
+    HTML_INDEX = "html_index"
+    URL_LIST = "url_list"
+    STRUCTURED_DATA = "structured_data"
+
+
+class SourceStatus(StrEnum):
+    """Lifecycle of an acquisition source: proposed → testing → approved → paused → retired."""
+
+    PROPOSED = "proposed"
+    TESTING = "testing"
+    APPROVED = "approved"
+    PAUSED = "paused"
+    RETIRED = "retired"
+
+
+class PublishMode(StrEnum):
+    """How far automation may go for one source, in increasing order of trust."""
+
+    OFF = "off"
+    SHADOW = "shadow"
+    LISTING_ONLY = "listing_only"
+    FULL = "full"
+
+
+class RobotsStatus(StrEnum):
+    """Last known robots.txt verdict for a source's discovery paths."""
+
+    UNKNOWN = "unknown"
+    ALLOWED = "allowed"
+    DISALLOWED = "disallowed"
+    UNREACHABLE = "unreachable"
+
+
+class TermsStatus(StrEnum):
+    """Outcome of the human review of a source's terms of use."""
+
+    NOT_REVIEWED = "not_reviewed"
+    ACCEPTABLE = "acceptable"
+    RESTRICTED = "restricted"
+
+
+class SourceHostKind(StrEnum):
+    """Role of one exact hostname attached to a source."""
+
+    #: Pages on this host may be fetched and cited for the source.
+    ALLOWED = "allowed"
+    #: Third-party application portal the provider sends applicants to; never fetched.
+    APPLICATION = "application"
+
+
 def enum_check_constraint(table: str, column: str, enum_cls: type[StrEnum]) -> CheckConstraint:
     """Build a CHECK constraint limiting ``column`` to the enum's values.
 
@@ -148,5 +242,14 @@ __all__ = [
     "DegreeLevel",
     "MatchStatus",
     "MatchOutcome",
+    "UserRole",
+    "SourceCategory",
+    "AuthorityLevel",
+    "DiscoveryMethod",
+    "SourceStatus",
+    "PublishMode",
+    "RobotsStatus",
+    "TermsStatus",
+    "SourceHostKind",
     "enum_check_constraint",
 ]

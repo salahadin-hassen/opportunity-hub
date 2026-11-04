@@ -15,7 +15,8 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.orm import Session
 
 TEST_JWT_SECRET = "test-only-public-api-secret-0123456789abcdef"
-TEST_ADMIN_TOKEN = "test-only-curator-token"
+#: The retired shared curator header; sending it must grant nothing.
+RETIRED_ADMIN_HEADER = "X-Admin-Token"
 
 
 def opportunity(status: str = "published", **overrides) -> Opportunity:
@@ -39,7 +40,6 @@ async def client(db_session: Session, monkeypatch):
         yield db_session
 
     monkeypatch.setattr(settings, "JWT_SECRET", TEST_JWT_SECRET)
-    monkeypatch.setattr(settings, "ADMIN_API_TOKEN", None)
     app.dependency_overrides[get_db] = override_get_db
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as test_client:
@@ -264,49 +264,48 @@ async def test_skill_catalog_has_no_write_route(client):
 # --- Curator-only creation ------------------------------------------------------------------
 
 
+def bearer(user: User) -> dict[str, str]:
+    return {"Authorization": f"Bearer {create_access_token(user.id)}"}
+
+
+def seed_user(db_session: Session, role: str) -> User:
+    user = User(email=f"{role}-{uuid.uuid4().hex[:8]}@example.test", password_hash="x", role=role)
+    add(db_session, user)
+    return user
+
+
 @pytest.mark.asyncio
-async def test_creation_is_disabled_when_no_curator_token_is_configured(client):
-    response = await client.post(
-        "/opportunities", json=creation_payload(), headers={"X-Admin-Token": ""}
-    )
-
-    assert response.status_code == 403
-    assert response.json() == {"detail": "Curator access is required."}
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("headers", [{}, {"X-Admin-Token": "wrong"}])
-async def test_creation_rejects_missing_or_wrong_curator_token(client, monkeypatch, headers):
-    monkeypatch.setattr(settings, "ADMIN_API_TOKEN", TEST_ADMIN_TOKEN)
-
+@pytest.mark.parametrize("headers", [{}, {RETIRED_ADMIN_HEADER: "anything"}, {RETIRED_ADMIN_HEADER: ""}])
+async def test_creation_requires_a_signed_in_account(client, headers):
     response = await client.post("/opportunities", json=creation_payload(), headers=headers)
 
-    assert response.status_code == 403
-    assert response.json() == {"detail": "Curator access is required."}
+    assert response.status_code == 401
 
 
 @pytest.mark.asyncio
-async def test_bearer_user_token_is_not_curator_access(client, db_session, monkeypatch):
-    monkeypatch.setattr(settings, "ADMIN_API_TOKEN", TEST_ADMIN_TOKEN)
+async def test_a_student_account_cannot_create(client, db_session):
+    user = seed_owner_with_profile(db_session)
+
+    response = await client.post("/opportunities", json=creation_payload(), headers=bearer(user))
+
+    assert response.status_code == 403
+    assert response.json() == {"detail": "You do not have permission for this action."}
+
+
+@pytest.mark.asyncio
+async def test_the_retired_shared_header_adds_nothing_to_a_student(client, db_session):
     user = seed_owner_with_profile(db_session)
 
     response = await client.post(
-        "/opportunities",
-        json=creation_payload(),
-        headers={"Authorization": f"Bearer {create_access_token(user.id)}"},
+        "/opportunities", json=creation_payload(), headers={**bearer(user), RETIRED_ADMIN_HEADER: "anything"}
     )
 
     assert response.status_code == 403
 
 
 @pytest.mark.asyncio
-async def test_creation_succeeds_with_curator_token(client, monkeypatch):
-    monkeypatch.setattr(settings, "ADMIN_API_TOKEN", TEST_ADMIN_TOKEN)
-
-    response = await client.post(
-        "/opportunities",
-        json=creation_payload(),
-        headers={"X-Admin-Token": TEST_ADMIN_TOKEN},
-    )
+@pytest.mark.parametrize("role", ["curator", "admin"])
+async def test_curators_and_admins_can_create(client, db_session, role):
+    response = await client.post("/opportunities", json=creation_payload(), headers=bearer(seed_user(db_session, role)))
 
     assert response.status_code == 201

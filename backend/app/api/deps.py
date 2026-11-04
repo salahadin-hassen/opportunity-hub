@@ -5,14 +5,14 @@ the ``current_user.id == profile.user_id`` comparison themselves.
 """
 from __future__ import annotations
 
-import secrets
 import uuid
+from collections.abc import Callable
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
-from app.core.config import settings
+from app.core.permissions import Permission, has_permission
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models import Profile, User
@@ -22,27 +22,7 @@ bearer_token = HTTPBearer(auto_error=False)
 
 INVALID_CREDENTIALS_DETAIL = "Could not validate credentials."
 PROFILE_FORBIDDEN_DETAIL = "You do not have access to this profile."
-ADMIN_FORBIDDEN_DETAIL = "Curator access is required."
-
-
-def require_admin_token(
-    x_admin_token: str | None = Header(default=None, alias="X-Admin-Token"),
-) -> None:
-    """Allow curator-only writes when the shared ``ADMIN_API_TOKEN`` matches.
-
-    With no token configured the endpoint is disabled for everyone. Missing,
-    wrong and disabled cases share one 403 so callers learn nothing about
-    which check failed; the comparison is constant-time.
-    """
-    expected = settings.ADMIN_API_TOKEN
-    if (
-        not expected
-        or x_admin_token is None
-        or not secrets.compare_digest(x_admin_token.encode(), expected.encode())
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=ADMIN_FORBIDDEN_DETAIL
-        )
+PERMISSION_FORBIDDEN_DETAIL = "You do not have permission for this action."
 
 
 def unauthorized() -> HTTPException:
@@ -77,6 +57,24 @@ def get_current_user(
     if user is None or not user.is_active:
         raise unauthorized()
     return user
+
+
+def require_permission(permission: Permission) -> Callable[..., User]:
+    """Dependency factory: the authenticated user, if their stored role grants ``permission``.
+
+    The role is read from the ``users`` row loaded for this request, never
+    from the token or the request, so a demotion takes effect on the next
+    request. Unauthenticated callers get the usual 401; authenticated ones
+    without the permission get one generic 403.
+    """
+
+    def dependency(current_user: User = Depends(get_current_user)) -> User:
+        if not has_permission(current_user.role, permission):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=PERMISSION_FORBIDDEN_DETAIL)
+        return current_user
+
+    dependency.__name__ = f"require_{permission.value.replace('.', '_')}"
+    return dependency
 
 
 def get_my_profile(

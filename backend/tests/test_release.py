@@ -82,8 +82,12 @@ def api(db_session: Session):
         yield db_session
 
     app.dependency_overrides[get_db] = override_get_db
+    rate_limit.set_limiter(None)
     rate_limit.reset()
+    # A frozen clock, so a test cannot straddle a window boundary and see its counters reset.
+    rate_limit.set_limiter(rate_limit.PostgresRateLimiter(rate_limit.get_limiter().engine, clock=lambda: 1_800_000_000.0))
     yield
+    rate_limit.set_limiter(None)
     rate_limit.reset()
     app.dependency_overrides.clear()
 
@@ -100,6 +104,46 @@ async def test_login_attempts_are_limited_per_client(api, monkeypatch):
     assert limited.status_code == 429
     assert limited.json()["detail"].startswith("Too many attempts")
     assert int(limited.headers["Retry-After"]) >= 1
+
+
+async def _login_from(address: str, email: str) -> int:
+    """POST one login as if it came from ``address`` (what a forged X-Forwarded-For yields)."""
+    transport = ASGITransport(app=app, client=(address, 40000))
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        response = await client.post("/auth/login", json={"email": email, "password": "wrong-password"})
+    return response.status_code
+
+
+async def test_rotating_client_addresses_cannot_reset_one_accounts_budget(api, monkeypatch):
+    monkeypatch.setattr(settings, "AUTH_RATE_LIMIT_PER_MINUTE", 3)
+    statuses = [await _login_from(f"203.0.113.{i}", "target@example.org") for i in range(1, 5)]
+    assert statuses == [401, 401, 401, 429]
+
+
+async def test_account_budget_ignores_email_case_and_surrounding_space(api, monkeypatch):
+    monkeypatch.setattr(settings, "AUTH_RATE_LIMIT_PER_MINUTE", 2)
+    emails = ["Target@Example.org", "target@example.org", "TARGET@EXAMPLE.ORG"]
+    statuses = [await _login_from(f"198.51.100.{i}", email) for i, email in enumerate(emails, 1)]
+    assert statuses == [401, 401, 429]
+
+
+async def test_account_budget_does_not_block_other_accounts(api, monkeypatch):
+    monkeypatch.setattr(settings, "AUTH_RATE_LIMIT_PER_MINUTE", 2)
+    statuses = [await _login_from(f"192.0.2.{i}", f"user{i}@example.org") for i in range(1, 6)]
+    assert statuses == [401] * 5
+
+
+async def test_registration_is_budgeted_per_account(api, monkeypatch):
+    monkeypatch.setattr(settings, "AUTH_RATE_LIMIT_PER_MINUTE", 2)
+    statuses = []
+    for i in range(1, 4):
+        transport = ASGITransport(app=app, client=(f"203.0.113.{i}", 40000))
+        async with AsyncClient(transport=transport, base_url="http://test") as client:
+            response = await client.post(
+                "/auth/register", json={"email": "probe@example.org", "password": "long-enough-password"}
+            )
+        statuses.append(response.status_code)
+    assert statuses == [201, 409, 429]
 
 
 async def test_rate_limit_is_off_unless_configured(api, monkeypatch):
