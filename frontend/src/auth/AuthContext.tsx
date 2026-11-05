@@ -8,7 +8,7 @@ type AuthState = {
   email: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => void | Promise<void>;
   /** Present only in development builds whose env defines a demo account. */
   demo: { email: string; password: string } | null;
 };
@@ -26,7 +26,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const clear = useCallback(() => {
+  const clear = useCallback(async () => {
+    try {
+      await api.POST("/auth/logout", {});
+    } catch {
+      /* ignore if server unavailable or already logged out */
+    }
     setSession(null);
     setCurrent(null);
     client.removeQueries({ queryKey: ["me"] });

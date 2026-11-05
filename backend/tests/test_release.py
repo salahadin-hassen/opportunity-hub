@@ -254,7 +254,7 @@ def test_preflight_allows_only_the_configured_frontend(production_server):
     assert allowed.status_code == 200
     assert allowed.headers["access-control-allow-origin"] == "https://app.example.org"
     assert "authorization" in allowed.headers["access-control-allow-headers"].lower()
-    assert "access-control-allow-credentials" not in allowed.headers
+    assert allowed.headers.get("access-control-allow-credentials") == "true"
 
     other = httpx.options(f"{production_server}/auth/login", headers={"Origin": "https://evil.example", **preflight})
     assert other.status_code == 400
