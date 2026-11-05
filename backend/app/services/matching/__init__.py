@@ -1,5 +1,12 @@
 """Deterministic requirement evaluation services."""
 
+from app.services.matching.capabilities import (
+    Capability,
+    CAPABILITIES_CATALOG,
+    get_capabilities,
+    find_capability,
+    is_supported_rule,
+)
 from app.services.matching.evaluate import (
 	MatchEvaluationResult,
 	OpportunityMatchStatus,
@@ -14,6 +21,11 @@ ENGINE_VERSION = "1"
 
 __all__ = [
 	"ENGINE_VERSION",
+	"Capability",
+	"CAPABILITIES_CATALOG",
+	"get_capabilities",
+	"find_capability",
+	"is_supported_rule",
 	"MatchEvaluationResult",
 	"OpportunityMatchStatus",
 	"RequirementOutcome",

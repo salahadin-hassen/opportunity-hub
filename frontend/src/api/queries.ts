@@ -141,6 +141,15 @@ export async function evaluateOpportunity(opportunityId: string): Promise<Match>
   return normalizeMatch(match);
 }
 
+export async function batchEvaluateOpportunities(opportunityIds?: string[]): Promise<Match[]> {
+  const matches = await unwrap(
+    (api as any).POST("/me/matches/batch-evaluate", {
+      body: { opportunity_ids: opportunityIds && opportunityIds.length > 0 ? opportunityIds : null },
+    }),
+  );
+  return (matches as any[]).map(normalizeMatch);
+}
+
 // --- Profile mutations ----------------------------------------------------------------------
 
 export function useCreateProfile() {

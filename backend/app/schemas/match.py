@@ -79,4 +79,10 @@ class MatchRead(BaseModel):
     )
 
 
-__all__ = ["MatchFacts", "MatchRead", "MatchRequirementRead", "RequirementSummary"]
+class BatchEvaluateRequest(BaseModel):
+    """Optional list of opportunity IDs to evaluate; if omitted or None, evaluates all public opportunities."""
+
+    opportunity_ids: list[uuid.UUID] | None = None
+
+
+__all__ = ["BatchEvaluateRequest", "MatchFacts", "MatchRead", "MatchRequirementRead", "RequirementSummary"]

@@ -1,10 +1,8 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { ApiError } from "../api/client";
-import { evaluateOpportunity, keys, mergeMatch, opportunitiesQuery } from "../api/queries";
+import { batchEvaluateOpportunities, keys, mergeMatch, opportunitiesQuery } from "../api/queries";
 import type { Match, Opportunity } from "../api/types";
-
-const CONCURRENCY = 4;
 
 type Progress = { total: number; done: number; failed: number };
 
@@ -48,39 +46,29 @@ export function EligibilityProvider({ children }: { children: ReactNode }) {
         const previous = new Map(
           (client.getQueryData<Match[]>(keys.matches) ?? []).map((match) => [match.opportunity_id, match]),
         );
-        const results: Match[] = [];
-        let failed = 0;
         setRunning(true);
         setProgress({ total: queue.length, done: 0, failed: 0 });
 
-        let cursor = 0;
-        const worker = async () => {
-          while (cursor < queue.length) {
-            const id = queue[cursor++]!;
-            try {
-              const match = await evaluateOpportunity(id);
-              results.push(match);
-              client.setQueryData<Match[]>(keys.matches, (old) => mergeMatch(old, match));
-              const prior = previous.get(id);
-              if (prior && prior.status !== match.status) {
-                setChangedAt((old) => new Map(old).set(id, Date.now()));
-              }
-              if (prior && outcomesDiffer(prior, match)) {
-                setBefore((old) => new Map(old).set(id, prior));
-              }
-            } catch (error) {
-              failed += 1;
-              if (error instanceof ApiError && error.status === 401) throw error;
-            } finally {
-              setProgress((old) => ({ ...old, done: old.done + 1, failed }));
+        try {
+          // Robust server-side batch evaluation in 1 HTTP transaction
+          const results = await batchEvaluateOpportunities(ids);
+          for (const match of results) {
+            client.setQueryData<Match[]>(keys.matches, (old) => mergeMatch(old, match));
+            const prior = previous.get(match.opportunity_id);
+            if (prior && prior.status !== match.status) {
+              setChangedAt((old) => new Map(old).set(match.opportunity_id, Date.now()));
+            }
+            if (prior && outcomesDiffer(prior, match)) {
+              setBefore((old) => new Map(old).set(match.opportunity_id, prior));
             }
           }
-        };
-
-        try {
-          await Promise.all(Array.from({ length: Math.min(CONCURRENCY, queue.length) }, worker));
-          if (failed === 0) setStale(false);
+          setProgress({ total: queue.length, done: queue.length, failed: 0 });
+          setStale(false);
           return results;
+        } catch (error) {
+          setProgress({ total: queue.length, done: 0, failed: queue.length });
+          if (error instanceof ApiError && error.status === 401) throw error;
+          return [];
         } finally {
           setRunning(false);
           inFlight.current = null;

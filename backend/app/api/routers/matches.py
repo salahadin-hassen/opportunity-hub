@@ -23,8 +23,10 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_my_profile
 from app.db.session import get_db
 from app.models import Opportunity, Profile
-from app.schemas import MatchRead
+from app.schemas import BatchEvaluateRequest, MatchRead
+from app.services.matching import Capability, get_capabilities
 from app.services.matches import (
+    batch_evaluate_and_persist_matches_for_user,
     evaluate_and_persist_match_for_user,
     get_match_for_user,
     list_matches_for_user,
@@ -32,6 +34,13 @@ from app.services.matches import (
 from app.services.opportunities import is_public
 
 router = APIRouter(prefix="/me", tags=["matches"])
+capabilities_router = APIRouter(prefix="/eligibility", tags=["eligibility"])
+
+
+@capabilities_router.get("/capabilities", response_model=list[Capability])
+def list_capabilities() -> list[Capability]:
+    """Public registry of deterministic rule capabilities supported by the engine."""
+    return get_capabilities()
 
 
 def _opportunity_or_match_not_found(db: Session, opportunity_id: uuid.UUID) -> HTTPException:
@@ -49,6 +58,26 @@ def _opportunity_or_match_not_found(db: Session, opportunity_id: uuid.UUID) -> H
     else:
         detail = "Match not found."
     return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
+
+@router.post(
+    "/matches/batch-evaluate",
+    response_model=list[MatchRead],
+    status_code=status.HTTP_200_OK,
+)
+def batch_evaluate_for_me(
+    payload: BatchEvaluateRequest | None = None,
+    profile: Profile = Depends(get_my_profile),
+    db: Session = Depends(get_db),
+) -> list[MatchRead]:
+    """Evaluate the owned profile against multiple opportunities in a single transaction.
+
+    Accepts an optional list of opportunity UUIDs. When omitted or empty, every
+    published public opportunity is evaluated. Returns the complete updated Match
+    and evidence rows in a single response, eliminating client-side concurrency storms.
+    """
+    opp_ids = payload.opportunity_ids if payload else None
+    return batch_evaluate_and_persist_matches_for_user(db, profile, opp_ids)
 
 
 @router.post(
