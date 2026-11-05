@@ -61,14 +61,24 @@ The middle column is only what the repository says. Nothing here has been checke
 | `ALLOWED_HOSTS` | Not set | | Recorded |
 | Database host and provider | Neon, per `docs/DEPLOYMENT.md` | | Provider and PostgreSQL version confirmed |
 | `DATABASE_URL` endpoint | Not stated | | Direct or pooled: recorded (host only, never the password) |
-| Cloudflare: API record proxy status | Not stated | | **DNS only**, if enabling the client-IP strategy |
+| Cloudflare: API record proxy status | Not stated. Public DNS on 2026-11-04 indicates **Proxied** (§2.1) | | **DNS only**, if enabling the client-IP strategy |
 | Cloudflare: Workers routes on the API hostname | None configured here | | None, if enabling the client-IP strategy |
 | Cloudflare: Pseudo IPv4 | Not stated | | Recorded (handled in code) |
 
 **The CORS risk.** The repository's `CORS_ORIGINS` and `VITE_API_BASE` name `onrender.com`, while the documented live
-site uses `opportunities.sahelyon.com` and `api.opportunities.sahelyon.com`. If the services auto-sync from the Blueprint,
-promoting the release could apply the wrong values and break the site's API calls. In that case, correct `render.yaml`
-to match the live values first, get CI green on that commit, and promote that commit.
+site uses `opportunities.sahelyon.com` and `api.opportunities.sahelyon.com`.
+
+- `docs/DEPLOYMENT.md` creates the services from the Blueprint, and Render's default is to sync on any push to the linked
+  branch that changes `render.yaml`. The candidate changes that file (`buildCommand`), so **under the defaults, promotion
+  itself triggers a sync.**
+- A sync overwrites any dashboard value the Blueprint defines. That includes `CORS_ORIGINS`, `VITE_API_BASE` and possibly
+  `plan`. Render's documentation says `sync: false` values such as `DATABASE_URL` are ignored on updates, and a
+  `generateValue` variable is added only if it doesn't already exist.
+- Measured on the real app: with `CORS_ORIGINS` set to the file's value, a page on the live origin gets a 400 preflight and
+  no `Access-Control-Allow-Origin`, so the browser blocks every API call. Sign-in and the catalogue would both fail.
+
+So correct `render.yaml` to exactly the live values first, get CI green on that commit, and promote that commit. Never
+leave this to chance by assuming Auto Sync is off.
 
 ### 2.1 Client-IP trust checklist (must pass before enabling `render_cf_connecting_ip`)
 
@@ -77,13 +87,21 @@ Local tests and CI can't answer these. **The strategy isn't production-safe unti
 | # | Check | Where | Passes if | Evidence |
 | --- | --- | --- | --- | --- |
 | 1 | Live Render plan of `opportunity-hub-api` | Render dashboard | Free, so it can't receive private traffic. If paid, check 4 decides | |
-| 2 | API DNS record proxy status | Cloudflare dashboard, zone `sahelyon.com` | **DNS only** | |
+| 2 | API DNS record proxy status | Cloudflare dashboard, zone `sahelyon.com` | **DNS only** | Public DNS only, 2026-11-04: **indicates a failure** (below). Confirm in the dashboard |
 | 3 | Worker routes on the API hostname | Cloudflare dashboard | None | |
 | 4 | Private-network callers | Render dashboard: every service in the same workspace and region | No service can call the API privately, or the risk is accepted in writing | |
 | 5 | Black-box forged-header test | Production, **after deployment and with its own authorization** (`RENDER_CLIENT_IP_VERIFICATION.md` §5) | 11th attempt gets 429 | |
 
 If any of checks 1 to 4 fails, leave `CLIENT_IP_STRATEGY` at `peer` and ship under the accepted risk. If check 5 fails, turn the
 strategy off. Don't remove `--proxy-headers` in this release.
+
+**Check 2, public evidence.** `dig api.opportunities.sahelyon.com` through three public resolvers on 2026-11-04 returned only
+A records and no CNAME: `104.21.88.102` and `172.67.176.80`, or `188.114.96.6` and `188.114.97.6`, depending on the resolver.
+All are in Cloudflare's published ranges. `opportunity-hub-api.onrender.com` resolved differently, to `216.24.57.x`, outside
+them. The zone uses Cloudflare nameservers. That is what a Proxied record looks like, and a DNS-only record would show the
+Render target. Cloudflare and Render don't document what `CF-Connecting-IP` holds across two Cloudflare layers. If it held a
+Cloudflare address, students would share one bucket and could lock each other out, so the strategy stays off until this is
+resolved.
 
 ### 2.2 Argon2 limits
 
@@ -110,7 +128,8 @@ psql -Atc "SHOW server_version"
 pg_dump --version          # must be the same major version as the server, or newer
 ```
 
-Your local tools are PostgreSQL 16. If the server is newer, stop and get a matching client.
+Your local tools and the local cluster are PostgreSQL 16. If the server is newer, stop: you need a matching client, and the
+local cluster is no longer a valid restore target.
 
 ### 3.2 Encrypt
 Immediately after `pg_dump` and the checks in §4.1. `gpg` prompts for a passphrase, so it stays out of history. Keep
@@ -140,7 +159,7 @@ Then follow the restore steps in §4.1 using `"$F.check"`, and `shred -u "$F.che
 `oh_restore_check_test`, compare with the production counts and check that the schema came across:
 
 ```bash
-DB="-h localhost -p 5433 -d oh_restore_check_test"
+DB="-h localhost -p 5433 -U ohub -d oh_restore_check_test"
 psql $DB -Atc "SELECT version_num FROM alembic_version"
 psql $DB -Atc "SELECT count(*) FROM pg_constraint WHERE connamespace = 'public'::regnamespace"
 psql $DB -Atc "SELECT 'users', count(*) FROM users UNION ALL SELECT 'profiles', count(*) FROM profiles UNION ALL SELECT 'opportunities', count(*) FROM opportunities UNION ALL SELECT 'matches', count(*) FROM matches"
@@ -171,8 +190,10 @@ Local, on the scratch database, from a clean checkout of the candidate. It holds
 it anywhere else, and drop it when you finish.
 
 ```bash
+git rev-parse HEAD      # must be the candidate commit
 cd backend
-export DATABASE_URL='postgresql://<local user>@localhost:5433/oh_restore_check_test'
+source .venv/bin/activate
+export DATABASE_URL='postgresql://ohub@localhost:5433/oh_restore_check_test'
 export APP_ENV=development JWT_SECRET="$(python -c 'import secrets; print(secrets.token_hex(32))')"
 alembic current         # expect ba09eb02910b
 alembic upgrade head    # four steps, in one transaction
@@ -197,11 +218,40 @@ Row counts must match §3.4. Keep the same terminal for the checks and unset `DA
 No existing table loses a column, and `matches` and `match_requirements` are untouched. Rehearsed locally with seeded
 data; not yet on a copy of production.
 
+### 4a. Rehearsal on a Neon branch (same provider, same role)
+
+The local cluster's `ohub` role is a superuser, so the run above can't show that the live role may migrate. Tested locally:
+a non-superuser that owns the tables succeeds, and one that doesn't fails with `must be owner of table users` and rolls back.
+Only a branch tests the real role. A branch doesn't replace §3, because it lives with the same provider.
+
+Neon's documentation says a branch's changes are independent of its parent and that creating one doesn't load the parent. The
+Free plan lists 10 branches per project. **If the console offers a charge or an upgrade, stop.**
+
+1. Console: **Branches → New branch**. Parent: the production branch. Include: **Current data**. Name:
+   `release-rehearsal`. Leave automatic deletion on. Don't use **Restore** or **Reset from parent**.
+2. **Connect**: choose `release-rehearsal`, the same database and role as the live `DATABASE_URL`, with connection pooling
+   **off**.
+3. In a new terminal, prove the target before any migration. **Stop if the host equals the live host recorded in §2.**
+
+   ```bash
+   git rev-parse HEAD      # must be the candidate commit
+   cd backend
+   source .venv/bin/activate
+   read -rs DATABASE_URL && export DATABASE_URL
+   python -c "import os, urllib.parse as u; print(u.urlsplit(os.environ['DATABASE_URL']).hostname)"
+   ```
+
+4. Run the `alembic` and `psql` commands from §4 from `export APP_ENV=development …` onwards, skipping the `export DATABASE_URL`
+   line. Time `alembic upgrade head`, and record the database role name.
+5. Close the terminal and delete the branch.
+
 ## 5. Go/no-go (every line must be yes)
 
 - [ ] The candidate commit has a green GitHub Actions run, and it's the exact commit being promoted
 - [ ] Backup taken, encrypted, stored off this machine, and restored successfully
-- [ ] Migration rehearsal passed on the restored copy
+- [ ] Migration rehearsal passed on the restored copy (§4) and on a Neon branch with the live role (§4a)
+- [ ] Recovery for an unhealthy release decided: fix forward, or the old-code procedure in the stop conditions (§7), with
+  the founder aware that Render's rollback alone won't start `b8da30f`
 - [ ] Render worksheet complete, with no unexplained difference
 - [ ] `CORS_ORIGINS` and `VITE_API_BASE` correct after promotion, whether or not a Blueprint sync happens
 - [ ] The live build command uses `-c constraints.txt`, or the founder accepts the unpinned build for this release
@@ -281,9 +331,25 @@ python -m app.cli grant-role '<your exact email>' admin
 | --- | --- |
 | Build fails | Production keeps running. Fix, CI, and promote again |
 | Migration fails | All four roll back. Check `/health` at once, then follow `PRODUCTION_READINESS.md` §7 |
-| App unhealthy after the migrations | Roll the application back to `b8da30f` with Render's rollback. The schema stays at head |
+| App unhealthy after the migrations | **Don't rely on Render's rollback.** Fix forward if you can; otherwise use the old-code procedure below. The schema stays at head |
 | CORS or frontend failure | Correct the environment value and redeploy. No rollback needed if the API is healthy |
 | Wrong data | Stop writes; restore into a **new** database (§7). Never `alembic downgrade` |
+
+### Running the old code after the migrations
+
+Render's documentation says a rollback reuses the target deploy's start command. For `b8da30f` that begins with
+`alembic upgrade head`, and its code doesn't know the new revision. Tested locally on a migrated database: the command
+exits 255 with `Can't locate revision identified by '2d0318b24522'`, so uvicorn never starts. `b8da30f` does serve correctly on
+that schema when uvicorn runs alone (also tested locally). **This procedure hasn't been run on Render.** It changes
+production settings, so it needs authorization at the time:
+
+1. Set Blueprint **Auto Sync** to No and pause pushes, because a sync would overwrite the commands below.
+2. If `CLIENT_IP_STRATEGY` was changed, set it back to `peer`: `b8da30f` refuses the new value.
+3. Build command: `pip install --upgrade pip && pip install .` (`b8da30f` has no `constraints.txt`).
+4. Start command, without Alembic: `uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"`
+5. **Manual Deploy → Deploy a specific commit → `b8da30f`.** This turns auto-deploy off. Render's page doesn't state that this
+   kind of deploy uses the current commands, so read the deploy log to confirm.
+6. Before the next forward deploy, restore both commands and re-enable Auto Sync and auto-deploy.
 
 ## 8. After the release: the catalogue sprint
 

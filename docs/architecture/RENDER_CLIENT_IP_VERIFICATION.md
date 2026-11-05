@@ -70,7 +70,7 @@ These show how our code behaves. They don't show what Render does.
 | --- | --- | --- | --- |
 | 1 | Every public request passes through Cloudflare, which overwrites the header | Render's articles | Black-box check after deployment (§5) |
 | 2 | Nothing can reach the service privately with a forged header | Free plan can't receive private traffic. `render.yaml` declares `free`, and its only other service is a static site | Dashboard: the live plan. If paid, list every service in the same workspace and region |
-| 3 | The API hostname isn't proxied by our own Cloudflare zone | Render's setup says DNS only; two layers are undocumented | Cloudflare dashboard: proxy status of the record |
+| 3 | The API hostname isn't proxied by our own Cloudflare zone | Render's setup starts as DNS only; two layers are undocumented. **Public DNS on 2026-11-04 indicates it is proxied** (`RELEASE_RUNBOOK_2026-11.md` §2.1), so treat this as failed until shown otherwise | Cloudflare dashboard: proxy status of the record |
 | 4 | No Worker runs on the API hostname | Nothing in the repository configures one | Cloudflare dashboard: Workers routes |
 
 **If the service is paid (assumption 2 fails):** a service in the same workspace and region could call port 10000 directly and choose its own identity. That caller is our own code, not the internet, so this is a smaller risk than today's, but a compromised neighbour could evade the address budget. The account budget still applies. Keep such services out of this workspace, or block the traffic with a Pro environment rule. Without the header, a private caller gets no identity.

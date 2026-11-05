@@ -4,7 +4,7 @@
 | --- | --- |
 | Status | Preparation only. **Nothing here has been executed against production.** |
 | Date | 2026-11-03, updated 2026-11-04 |
-| Code | `ci/m1-m2-foundation`, not pushed and not deployed; production runs `b8da30f` |
+| Code | `ci/m1-m2-foundation`, pushed with CI green and not deployed; production runs `b8da30f` |
 | Related | Plan §C.4, §G.4 (DEC-21), §F.8, M1-T1…T8; `RENDER_CLIENT_IP_VERIFICATION.md`; `ACCOUNT_LOCKOUT_THREAT_MODEL.md` |
 
 Two milestones, in order:
@@ -49,7 +49,7 @@ later commit and push needs its own authorization, using the same steps.
 
 ```bash
 cd /path/to/opportunity-hub
-git switch ci/m1-m2-foundation                     # ahead of feat/opportunity-hub-product (at 899319f on 2026-11-04)
+git switch ci/m1-m2-foundation                     # ahead of feat/opportunity-hub-product
 git add --pathspec-from-file=<reviewed manifest>   # the reviewed list only; never `git add .` or `-A`
 git diff --cached --name-only | wc -l              # must equal the manifest length
 git diff --cached --check                          # no whitespace errors
@@ -72,7 +72,7 @@ git push origin ci/m1-m2-foundation
 | B2 | Client-IP spoofing (`--forwarded-allow-ips="*"`) | **Open in production.** Fix built and tested locally, not deployed. Temporary accepted risk (§3.1) | High priority; ideally closed in this release |
 | B3 | Trust assumptions behind the fix (plan, DNS proxy status, Workers, header overwrite) | Unverified on the live service; published guidance only | High priority; needed to close B2 |
 | B4 | Automated, tested backups | None in the repository; Neon point-in-time history unverified | Critical production blocker |
-| B5 | Migration recovery plan (downgrades are lossy) | Drafted below | Critical production blocker |
+| B5 | Migration recovery plan (downgrades are lossy) | Drafted below. **Render's rollback to `b8da30f` can't start after the migrations** (§7) | Critical production blocker |
 | H1 | Python dependency reproducibility | CI pinned and green. The Render build is pinned only once the release deploys and the live build command is confirmed (§5) | High priority |
 | H2 | Argon2 limits against real memory and worker count | Unverified | High priority |
 | H3 | Targeted account lockout | **Open; the release introduces it to production.** Accepted (§3.1); design deferred (device cookies, M1b) | High priority |
@@ -181,9 +181,10 @@ exit   # close this terminal, so PG* can't point at production by accident
 
 ```bash
 env | grep '^PG'                                      # must print nothing
-createdb -h localhost -p 5433 oh_restore_check_test
-pg_restore --no-owner --no-privileges --exit-on-error -h localhost -p 5433 -d oh_restore_check_test "$F"
-psql -h localhost -p 5433 -d oh_restore_check_test -Atc "SELECT version_num FROM alembic_version"
+F=~/opportunity-hub-backups/<the dump file name>      # a new terminal doesn't have it
+createdb -h localhost -p 5433 -U ohub oh_restore_check_test
+pg_restore --no-owner --no-privileges --exit-on-error -h localhost -p 5433 -U ohub -d oh_restore_check_test "$F"
+psql -h localhost -p 5433 -U ohub -d oh_restore_check_test -Atc "SELECT version_num FROM alembic_version"
 # Compare the row counts with "$F.counts", then drop the scratch database.
 ```
 
@@ -269,10 +270,15 @@ The defaults stay `ARGON2_MAX_CONCURRENCY=2`, `ARGON2_REGISTRATION_MAX_CONCURREN
 - Grant roles with the CLI: there are no curators or admins until someone is granted.
 
 **If something fails:**
-- **The app fails but the migrations completed:** roll the **application** back to `b8da30f` with Render's rollback.
-  It runs on the new schema, as verified locally. Leave the schema at head and fix forward: correct the code or
-  add a new migration, pass CI, redeploy. While rolled back, the new tables sit unused and the old in-memory
-  limiter applies. Any role grants stay stored and take effect again on the next forward deploy.
+- **The app fails but the migrations completed:** leave the schema at head and fix forward if you can: correct the code or
+  add a new migration, pass CI, redeploy.
+  - **Render's rollback alone won't work.** Render's documentation says it reuses the target's start command, and tested
+    locally, `b8da30f`'s command exits 255 on the migrated schema (`Can't locate revision identified by '2d0318b24522'`). The
+    documentation says a failed deploy leaves the current one serving, so the broken release would stay up.
+  - `b8da30f` does serve on the new schema when uvicorn runs without Alembic (tested locally). The old-code procedure is in
+    `RELEASE_RUNBOOK_2026-11.md` §7, and it hasn't been run on Render.
+  - While the old code runs, the new tables sit unused and the old in-memory limiter applies. Any role grants stay stored
+    and take effect again on the next forward deploy.
 - **A migration fails partway:**
   - `alembic/env.py` runs the whole `upgrade head` in **one** transaction (no `transaction_per_migration`),
     and none of the four migrations uses non-transactional DDL.

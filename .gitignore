@@ -31,6 +31,7 @@ frontend/tsconfig.tsbuildinfo
 
 # Local release rehearsal secrets and logs
 .release/
+.vscode/
 
 # Local visual-QA screenshot rounds (large; the curated demo backup lives in docs/demo-backup/)
 docs/screenshots/
