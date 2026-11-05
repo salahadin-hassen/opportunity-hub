@@ -29,7 +29,7 @@ services:
       - key: JWT_SECRET
         generateValue: true
       - key: CORS_ORIGINS
-        value: https://opportunity-hub.onrender.com
+        value: https://opportunities.sahelyon.com,https://opportunity-hub.onrender.com
       - key: AUTH_RATE_LIMIT_PER_MINUTE
         value: "10"
 
@@ -44,7 +44,7 @@ services:
       - key: NODE_VERSION
         value: "22"
       - key: VITE_API_BASE
-        value: https://opportunity-hub-api.onrender.com
+        value: https://api.opportunities.sahelyon.com
     routes:
       # Single-page app: every path that isn't a file serves index.html (direct links and refreshes).
       - type: rewrite
@@ -60,3 +60,52 @@ services:
       - path: /*
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
+
+  - type: cron
+    name: opportunity-hub-email-worker
+    runtime: python
+    region: frankfurt
+    plan: starter
+    schedule: "*/2 * * * *"
+    branch: ci/m1-m2-foundation
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install . -c constraints.txt
+    startCommand: python -m app.cli process-outbox --batch-size 50
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: DATABASE_URL
+      - key: APP_ENV
+        value: production
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        value: noreply@opportunities.sahelyon.com
+
+  - type: cron
+    name: opportunity-hub-account-purge
+    runtime: python
+    region: frankfurt
+    plan: starter
+    schedule: "0 3 * * *"
+    branch: ci/m1-m2-foundation
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install . -c constraints.txt
+    startCommand: python -m app.cli purge-deleted-accounts
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: DATABASE_URL
+      - key: APP_ENV
+        value: production
+
