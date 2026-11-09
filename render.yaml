@@ -14,8 +14,10 @@ services:
     rootDir: backend
     # rootDir is backend, so constraints.txt resolves there; it holds the versions CI tested.
     buildCommand: pip install --upgrade pip && pip install . -c constraints.txt
-    # Migrations run before the server starts, so the service only turns healthy on the current schema.
-    startCommand: alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    # Start web workers cleanly without concurrent migration races.
+    # Path A (Free plan): migrations are run once by operator prior to deploy (proven backward-compatible).
+    # Path B (Paid plan / Starter): add 'preDeployCommand: alembic upgrade head' above startCommand.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
     healthCheckPath: /health
     envVars:
       - key: PYTHON_VERSION
