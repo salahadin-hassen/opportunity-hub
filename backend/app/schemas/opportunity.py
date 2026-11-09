@@ -52,6 +52,31 @@ class OpportunityCreate(BaseModel):
         return str(value) if value is not None else None
 
 
+class OpportunityUpdate(BaseModel):
+    """Payload for updating an opportunity (curators/admins)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str | None = Field(default=None, min_length=1, max_length=500)
+    opportunity_type: OpportunityType | None = None
+    description: str | None = None
+    host_name: str | None = Field(default=None, max_length=255)
+    official_url: HttpUrl | None = Field(default=None, max_length=2000)
+    deadline_at: datetime | None = None
+    deadline_type: DeadlineType | None = None
+    starts_at: date | None = None
+    ends_at: date | None = None
+    location_mode: LocationMode | None = None
+    countries: list[str] | None = None
+    languages: list[str] | None = None
+    tags: list[str] | None = None
+    status: OpportunityStatus | None = None
+
+    @field_serializer("official_url")
+    def serialize_official_url(self, value: HttpUrl | None) -> str | None:
+        return str(value) if value is not None else None
+
+
 class OpportunityRead(BaseModel):
     """A persisted opportunity as returned to clients."""
 
@@ -135,6 +160,7 @@ __all__ = [
     "OpportunityCreate",
     "OpportunityDetailRead",
     "OpportunityRead",
+    "OpportunityUpdate",
     "PublicRequirementRead",
     "PublicSourceRead",
 ]

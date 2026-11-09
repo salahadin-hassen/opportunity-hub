@@ -1,10 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, unwrap } from "./client";
 import type {
+  ApplicationCreate,
+  ApplicationItemCreate,
+  ApplicationItemUpdate,
+  ApplicationUpdate,
   EducationCreate,
   EducationUpdate,
   Match,
   Opportunity,
+  OpportunityUpdate,
   ProfileCreate,
   ProfileUpdate,
   TestScoreCreate,
@@ -18,11 +23,18 @@ export const keys = {
   opportunities: ["opportunities"] as const,
   opportunity: (id: string) => ["opportunity", id] as const,
   skills: ["skills"] as const,
+  account: ["me", "account"] as const,
   profile: ["me", "profile"] as const,
   education: ["me", "education"] as const,
   testScores: ["me", "test-scores"] as const,
   mySkills: ["me", "skills"] as const,
   matches: ["me", "matches"] as const,
+  savedOpportunities: ["me", "saved-opportunities"] as const,
+  applications: ["me", "applications"] as const,
+  application: (id: string) => ["me", "applications", id] as const,
+  curatorSources: ["curate", "sources"] as const,
+  curatorOpportunities: (status?: string) => ["curate", "opportunities", status ?? "all"] as const,
+  auditLog: ["admin", "audit"] as const,
 };
 
 const PAGE = 100;
@@ -220,5 +232,233 @@ export function useToggleSkill() {
         ? unwrap(api.DELETE("/me/profile/skills/{skill_id}", { params: { path: { skill_id: skillId } } }))
         : unwrap(api.POST("/me/profile/skills", { body: { skill_id: skillId } })),
     onSuccess: () => client.invalidateQueries({ queryKey: keys.mySkills }),
+  });
+}
+
+export function useUserAccount() {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.account,
+    queryFn: () => unwrap(api.GET("/me")),
+    enabled: isAuthenticated,
+    staleTime: 60_000,
+  });
+}
+
+export function useSavedOpportunities() {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.savedOpportunities,
+    queryFn: () => unwrap(api.GET("/me/saved-opportunities")),
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+}
+
+export function useSaveOpportunity() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ opportunityId, remindersEnabled = true }: { opportunityId: string; remindersEnabled?: boolean }) =>
+      unwrap(api.POST("/me/saved-opportunities", { body: { opportunity_id: opportunityId, reminders_enabled: remindersEnabled } })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: keys.savedOpportunities });
+    },
+  });
+}
+
+export function useUnsaveOpportunity() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (opportunityId: string) =>
+      unwrap(api.DELETE("/me/saved-opportunities/{opportunity_id}", { params: { path: { opportunity_id: opportunityId } } })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: keys.savedOpportunities });
+    },
+  });
+}
+
+export function useApplications() {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.applications,
+    queryFn: () => unwrap(api.GET("/me/applications")),
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+}
+
+export function useApplication(id: string | undefined) {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.application(id ?? ""),
+    queryFn: () => unwrap(api.GET("/me/applications/{application_id}", { params: { path: { application_id: id! } } })),
+    enabled: isAuthenticated && Boolean(id),
+    staleTime: 30_000,
+  });
+}
+
+export function useCreateApplication() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: ApplicationCreate) => unwrap(api.POST("/me/applications", { body })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: keys.applications });
+      client.invalidateQueries({ queryKey: keys.savedOpportunities });
+    },
+  });
+}
+
+export function useUpdateApplication() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: ApplicationUpdate }) =>
+      unwrap(api.PATCH("/me/applications/{application_id}", { params: { path: { application_id: id } }, body })),
+    onSuccess: (_, variables) => {
+      client.invalidateQueries({ queryKey: keys.applications });
+      client.invalidateQueries({ queryKey: keys.application(variables.id) });
+    },
+  });
+}
+
+export function useDeleteApplication() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      unwrap(api.DELETE("/me/applications/{application_id}", { params: { path: { application_id: id } } })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: keys.applications });
+    },
+  });
+}
+
+export function useCreateApplicationItem() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ applicationId, body }: { applicationId: string; body: ApplicationItemCreate }) =>
+      unwrap(api.POST("/me/applications/{application_id}/items", { params: { path: { application_id: applicationId } }, body })),
+    onSuccess: (_, variables) => {
+      client.invalidateQueries({ queryKey: keys.application(variables.applicationId) });
+      client.invalidateQueries({ queryKey: keys.applications });
+    },
+  });
+}
+
+export function useUpdateApplicationItem() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ applicationId, itemId, body }: { applicationId: string; itemId: string; body: ApplicationItemUpdate }) =>
+      unwrap(
+        api.PATCH("/me/applications/{application_id}/items/{item_id}", {
+          params: { path: { application_id: applicationId, item_id: itemId } },
+          body,
+        }),
+      ),
+    onSuccess: (_, variables) => {
+      client.invalidateQueries({ queryKey: keys.application(variables.applicationId) });
+      client.invalidateQueries({ queryKey: keys.applications });
+    },
+  });
+}
+
+export function useDeleteApplicationItem() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ applicationId, itemId }: { applicationId: string; itemId: string }) =>
+      unwrap(
+        api.DELETE("/me/applications/{application_id}/items/{item_id}", {
+          params: { path: { application_id: applicationId, item_id: itemId } },
+        }),
+      ),
+    onSuccess: (_, variables) => {
+      client.invalidateQueries({ queryKey: keys.application(variables.applicationId) });
+      client.invalidateQueries({ queryKey: keys.applications });
+    },
+  });
+}
+
+export function useCuratorSources() {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.curatorSources,
+    queryFn: () => unwrap(api.GET("/curate/sources")),
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+}
+
+export function useCuratorOpportunities(status?: string) {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.curatorOpportunities(status),
+    queryFn: () =>
+      unwrap(
+        api.GET("/curate/opportunities", {
+          params: { query: status && status !== "all" ? { status: status as any } : {} },
+        }),
+      ),
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+}
+
+export function useCreateOpportunity() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (body: Schemas["OpportunityCreate"]) => unwrap(api.POST("/opportunities", { body })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["curate", "opportunities"] });
+      client.invalidateQueries({ queryKey: keys.opportunities });
+    },
+  });
+}
+
+export function useUpdateOpportunity() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: OpportunityUpdate }) =>
+      unwrap(api.PATCH("/curate/opportunities/{opportunity_id}", { params: { path: { opportunity_id: id } }, body })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["curate", "opportunities"] });
+      client.invalidateQueries({ queryKey: keys.opportunities });
+    },
+  });
+}
+
+export function usePublishOpportunity() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      unwrap(api.POST("/curate/opportunities/{opportunity_id}/publish", { params: { path: { opportunity_id: id } } })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["curate", "opportunities"] });
+      client.invalidateQueries({ queryKey: keys.opportunities });
+    },
+  });
+}
+
+export function useCloseOpportunity() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      unwrap(api.POST("/curate/opportunities/{opportunity_id}/close", { params: { path: { opportunity_id: id } } })),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["curate", "opportunities"] });
+      client.invalidateQueries({ queryKey: keys.opportunities });
+    },
+  });
+}
+
+export function useAuditLog(targetType?: string, action?: string) {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.auditLog,
+    queryFn: () =>
+      unwrap(
+        api.GET("/admin/audit", {
+          params: { query: { target_type: targetType, action } },
+        }),
+      ),
+    enabled: isAuthenticated,
+    staleTime: 15_000,
   });
 }

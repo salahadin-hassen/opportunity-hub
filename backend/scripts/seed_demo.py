@@ -50,17 +50,20 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from sqlalchemy import select  # noqa: E402
+from sqlalchemy import delete, select  # noqa: E402
 
 from app.core.config import settings  # noqa: E402
 from app.core.security import hash_password  # noqa: E402
 from app.db.session import SessionLocal  # noqa: E402
 from app.models import (  # noqa: E402
+    Application,
+    ApplicationItem,
     Education,
     Opportunity,
     Profile,
     ProfileSkill,
     Requirement,
+    SavedOpportunity,
     Skill,
     Source,
     TestScore,
@@ -800,6 +803,12 @@ def upsert_opportunity(session, spec: dict) -> Opportunity:
         select(Opportunity).where(Opportunity.slug == spec["slug"])
     )
     if existing is not None:
+        # Delete dependent tracking records created during test runs before deleting opportunity
+        app_ids = list(session.scalars(select(Application.id).where(Application.opportunity_id == existing.id)).all())
+        if app_ids:
+            session.execute(delete(ApplicationItem).where(ApplicationItem.application_id.in_(app_ids)))
+            session.execute(delete(Application).where(Application.id.in_(app_ids)))
+        session.execute(delete(SavedOpportunity).where(SavedOpportunity.opportunity_id == existing.id))
         session.delete(existing)
         session.flush()
 

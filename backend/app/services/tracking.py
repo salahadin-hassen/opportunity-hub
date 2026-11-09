@@ -242,3 +242,35 @@ def update_application_item(
 
     db.flush()
     return item
+
+
+def delete_application(
+    db: Session, profile_id: uuid.UUID, application_id: uuid.UUID
+) -> bool:
+    """Delete an owned application and its items."""
+    app = get_application(db, profile_id, application_id)
+    if app is None:
+        return False
+    db.delete(app)
+    db.flush()
+    return True
+
+
+def delete_application_item(
+    db: Session, profile_id: uuid.UUID, application_id: uuid.UUID, item_id: uuid.UUID
+) -> bool:
+    """Delete an item from an owned application."""
+    app = get_application(db, profile_id, application_id)
+    if app is None:
+        return False
+    item = db.scalar(
+        select(ApplicationItem).where(
+            ApplicationItem.id == item_id,
+            ApplicationItem.application_id == application_id,
+        )
+    )
+    if item is None:
+        return False
+    db.delete(item)
+    db.flush()
+    return True

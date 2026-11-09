@@ -23,4 +23,17 @@ class UserRead(BaseModel):
     updated_at: datetime
 
 
-__all__ = ["UserRead"]
+class UserAccountRead(BaseModel):
+    """Authenticated account identity including role."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    email: EmailStr
+    role: str = "student"
+    is_active: bool
+    created_at: datetime
+    updated_at: datetime
+
+
+__all__ = ["UserRead", "UserAccountRead"]

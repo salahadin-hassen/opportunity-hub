@@ -176,3 +176,40 @@ def update_item(
         )
     return item
 
+
+@router.delete(
+    "/applications/{application_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_app(
+    application_id: uuid.UUID,
+    profile: Profile = Depends(get_my_profile),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Delete a tracked application."""
+    if not tracking.delete_application(db, profile.id, application_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Application not found.",
+        )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.delete(
+    "/applications/{application_id}/items/{item_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+def delete_item(
+    application_id: uuid.UUID,
+    item_id: uuid.UUID,
+    profile: Profile = Depends(get_my_profile),
+    db: Session = Depends(get_db),
+) -> Response:
+    """Delete a checklist item from an application."""
+    if not tracking.delete_application_item(db, profile.id, application_id, item_id):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Application item not found.",
+        )
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
+

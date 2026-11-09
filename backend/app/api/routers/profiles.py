@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_current_user, get_owned_profile
 from app.db.session import get_db
 from app.models import Profile, User
-from app.schemas import ProfileCreate, ProfileRead, ProfileUpdate
+from app.schemas import ProfileCreate, ProfileRead, ProfileUpdate, UserAccountRead, UserRead
 from app.services import audit
 from app.services.profiles import (
     ProfileAlreadyExistsError,
@@ -37,6 +37,12 @@ def get_one(profile: Profile = Depends(get_owned_profile)) -> ProfileRead:
     return profile
 
 
+@me_router.get("", response_model=UserAccountRead)
+def get_my_account(current_user: User = Depends(get_current_user)) -> UserAccountRead:
+    """Return the authenticated user's account details and role."""
+    return current_user
+
+
 @me_router.get("/profile", response_model=ProfileRead)
 def get_my_profile(
     current_user: User = Depends(get_current_user),
@@ -59,7 +65,9 @@ def create_my_profile(
 ) -> ProfileRead:
     """Create the authenticated user's single profile."""
     try:
-        return create_profile_for_user(db, current_user.id, payload)
+        profile = create_profile_for_user(db, current_user.id, payload)
+        db.commit()
+        return profile
     except ProfileAlreadyExistsError as error:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
@@ -82,7 +90,9 @@ def patch_my_profile(
     profile = get_profile_for_user(db, current_user.id)
     if profile is None:
         raise _profile_not_found()
-    return update_profile(db, profile, payload)
+    updated = update_profile(db, profile, payload)
+    db.commit()
+    return updated
 
 
 @me_router.post("/account/request-deletion", status_code=status.HTTP_200_OK)

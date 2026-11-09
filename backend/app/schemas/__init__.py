@@ -4,6 +4,7 @@ from app.schemas.opportunity import (
     OpportunityCreate,
     OpportunityDetailRead,
     OpportunityRead,
+    OpportunityUpdate,
     PublicRequirementRead,
     PublicSourceRead,
 )
@@ -33,12 +34,13 @@ from app.schemas.skill import (
     SkillRead,
 )
 from app.schemas.test_score import TestScoreCreate, TestScoreRead, TestScoreUpdate
-from app.schemas.user import UserRead
+from app.schemas.user import UserAccountRead, UserRead
 
 __all__ = [
     "OpportunityCreate",
     "OpportunityRead",
     "OpportunityDetailRead",
+    "OpportunityUpdate",
     "PublicRequirementRead",
     "PublicSourceRead",
     "BatchEvaluateRequest",
@@ -47,6 +49,7 @@ __all__ = [
     "MatchRequirementRead",
     "RequirementSummary",
     "UserRead",
+    "UserAccountRead",
     "UserCreate",
     "UserLogin",
     "TokenResponse",

@@ -13,7 +13,10 @@ from app.api.routers.curate import admin_router
 from app.api.routers.curate import router as curate_router
 from app.api.routers.education import router as education_router
 from app.api.routers.matches import capabilities_router, router as matches_router
-from app.api.routers.opportunities import router as opportunities_router
+from app.api.routers.opportunities import (
+    curate_router as curate_opportunities_router,
+    router as opportunities_router,
+)
 from app.api.routers.profiles import me_router, router as profiles_router
 from app.api.routers.skills import catalog_router as skills_catalog_router
 from app.api.routers.skills import router as skills_router
@@ -58,13 +61,14 @@ if settings.cors_origins:
         allow_origins=settings.cors_origins,
         allow_credentials=True,
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
-        allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Requested-With"],
+        allow_headers=["Authorization", "Content-Type", "X-Request-ID", "X-Requested-With", "X-OH-Client"],
         expose_headers=["X-Request-ID"],
         max_age=600,
     )
 
 app.include_router(auth_router)
 app.include_router(curate_router)
+app.include_router(curate_opportunities_router)
 app.include_router(admin_router)
 app.include_router(education_router)
 app.include_router(opportunities_router)

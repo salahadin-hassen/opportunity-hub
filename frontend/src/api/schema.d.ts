@@ -270,6 +270,86 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/curate/opportunities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Curator Opportunities
+         * @description List opportunities across all statuses for curators.
+         */
+        get: operations["list_curator_opportunities_curate_opportunities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/opportunities/{opportunity_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Patch Curator Opportunity
+         * @description Update opportunity details and metadata.
+         */
+        patch: operations["patch_curator_opportunity_curate_opportunities__opportunity_id__patch"];
+        trace?: never;
+    };
+    "/curate/opportunities/{opportunity_id}/publish": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Publish Curator Opportunity
+         * @description Publish an opportunity after checking source and rule verification.
+         */
+        post: operations["publish_curator_opportunity_curate_opportunities__opportunity_id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/opportunities/{opportunity_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Close Curator Opportunity
+         * @description Close an opportunity cycle.
+         */
+        post: operations["close_curator_opportunity_curate_opportunities__opportunity_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/audit": {
         parameters: {
             query?: never;
@@ -476,6 +556,26 @@ export interface paths {
          * @description Public registry of deterministic rule capabilities supported by the engine.
          */
         get: operations["list_capabilities_eligibility_capabilities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get My Account
+         * @description Return the authenticated user's account details and role.
+         */
+        get: operations["get_my_account_me_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -769,7 +869,11 @@ export interface paths {
         get: operations["get_app_me_applications__application_id__get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete App
+         * @description Delete a tracked application.
+         */
+        delete: operations["delete_app_me_applications__application_id__delete"];
         options?: never;
         head?: never;
         /**
@@ -809,7 +913,11 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete Item
+         * @description Delete a checklist item from an application.
+         */
+        delete: operations["delete_item_me_applications__application_id__items__item_id__delete"];
         options?: never;
         head?: never;
         /**
@@ -1436,6 +1544,36 @@ export interface components {
          * @enum {string}
          */
         OpportunityType: "scholarship" | "internship" | "fellowship" | "research_program" | "summer_school" | "hackathon" | "competition" | "open_source_program" | "grant" | "conference" | "course" | "job" | "other";
+        /**
+         * OpportunityUpdate
+         * @description Payload for updating an opportunity (curators/admins).
+         */
+        OpportunityUpdate: {
+            /** Title */
+            title?: string | null;
+            opportunity_type?: components["schemas"]["OpportunityType"] | null;
+            /** Description */
+            description?: string | null;
+            /** Host Name */
+            host_name?: string | null;
+            /** Official Url */
+            official_url?: string | null;
+            /** Deadline At */
+            deadline_at?: string | null;
+            deadline_type?: components["schemas"]["DeadlineType"] | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /** Ends At */
+            ends_at?: string | null;
+            location_mode?: components["schemas"]["LocationMode"] | null;
+            /** Countries */
+            countries?: string[] | null;
+            /** Languages */
+            languages?: string[] | null;
+            /** Tags */
+            tags?: string[] | null;
+            status?: components["schemas"]["OpportunityStatus"] | null;
+        };
         /** ProfileCreate */
         ProfileCreate: {
             /** Full Name */
@@ -2005,6 +2143,39 @@ export interface components {
              * @default bearer
              */
             token_type: string;
+        };
+        /**
+         * UserAccountRead
+         * @description Authenticated account identity including role.
+         */
+        UserAccountRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
+            /**
+             * Role
+             * @default student
+             */
+            role: string;
+            /** Is Active */
+            is_active: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
         };
         /**
          * UserCreate
@@ -2612,6 +2783,136 @@ export interface operations {
             };
         };
     };
+    list_curator_opportunities_curate_opportunities_get: {
+        parameters: {
+            query?: {
+                status?: components["schemas"]["OpportunityStatus"] | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_curator_opportunity_curate_opportunities__opportunity_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpportunityUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    publish_curator_opportunity_curate_opportunities__opportunity_id__publish_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    close_curator_opportunity_curate_opportunities__opportunity_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                opportunity_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OpportunityRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_audit_admin_audit_get: {
         parameters: {
             query?: {
@@ -3003,6 +3304,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["Capability"][];
+                };
+            };
+        };
+    };
+    get_my_account_me_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["UserAccountRead"];
                 };
             };
         };
@@ -3553,6 +3874,35 @@ export interface operations {
             };
         };
     };
+    delete_app_me_applications__application_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     update_app_me_applications__application_id__patch: {
         parameters: {
             query?: never;
@@ -3611,6 +3961,36 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ApplicationItemRead"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_item_me_applications__application_id__items__item_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                application_id: string;
+                item_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

@@ -15,6 +15,8 @@ from app.models.enums import UserRole
 
 class Permission(StrEnum):
     OPPORTUNITY_CREATE = "opportunity.create"
+    OPPORTUNITY_EDIT = "opportunity.edit"
+    OPPORTUNITY_PUBLISH = "opportunity.publish"
     SOURCE_READ = "source.read"
     SOURCE_PROPOSE = "source.propose"
     SOURCE_EDIT = "source.edit"
@@ -32,6 +34,8 @@ class Permission(StrEnum):
 _CURATOR = frozenset(
     {
         Permission.OPPORTUNITY_CREATE,
+        Permission.OPPORTUNITY_EDIT,
+        Permission.OPPORTUNITY_PUBLISH,
         Permission.SOURCE_READ,
         Permission.SOURCE_PROPOSE,
         Permission.SOURCE_EDIT,
