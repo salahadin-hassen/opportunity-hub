@@ -18,6 +18,10 @@ the parts that need you: creating accounts and pasting one secret.
                    Neon PostgreSQL 16        eu-central-1 (Frankfurt)          (persistent database)
 ```
 
+This shows the default Render hostnames. The live site is documented at `opportunities.sahelyon.com` and
+`api.opportunities.sahelyon.com`. Before any Blueprint sync, read `architecture/RELEASE_RUNBOOK_2026-11.md` §2: a sync
+overwrites the dashboard's `CORS_ORIGINS` and `VITE_API_BASE` with the values in `render.yaml`.
+
 - **The frontend calls the API cross-origin.** `VITE_API_BASE` is fixed at build time, and the API allows
   exactly that one origin through `CORS_ORIGINS`. There's no wildcard, and no cookies are used: tokens travel
   in the `Authorization` header.

@@ -21,7 +21,7 @@ from app.services.matching import (
     RequirementResult,
     evaluate_requirements,
 )
-from app.services.opportunities import is_public
+from app.services.opportunities import PUBLIC_STATUSES, is_public
 
 
 class MatchPersistenceError(Exception):
@@ -122,13 +122,17 @@ def persist_match_evaluation(
 def _load_evaluable_profile(db: Session, profile_id: uuid.UUID) -> Profile | None:
     """Load a profile with everything the evaluators read up front.
 
-    Education and skills are eager-loaded so evaluation itself never
+    Education, skills, and test scores are eager-loaded so evaluation itself never
     issues SQL; the ownership decision always happens above this lookup.
     """
     return db.scalar(
         select(Profile)
         .where(Profile.id == profile_id)
-        .options(selectinload(Profile.education), selectinload(Profile.skills))
+        .options(
+            selectinload(Profile.education),
+            selectinload(Profile.skills),
+            selectinload(Profile.test_scores),
+        )
     )
 
 
@@ -197,6 +201,41 @@ def evaluate_and_persist_match_for_user(
         return None
 
     return _evaluate_and_persist(db, owned_profile, opportunity)
+
+
+def batch_evaluate_and_persist_matches_for_user(
+    db: Session,
+    profile: Profile,
+    opportunity_ids: list[uuid.UUID] | None = None,
+) -> list[Match]:
+    """Evaluate the authenticated user's profile against multiple opportunities in a single pass.
+
+    Eliminates client-side N-query storms by eager-loading the profile and all
+    relevant opportunities, evaluating in-memory, and batch persisting within a
+    single transaction savepoint.
+    """
+    owned_profile = _load_evaluable_profile(db, profile.id)
+    if owned_profile is None:
+        return []
+
+    stmt = (
+        select(Opportunity)
+        .where(Opportunity.status.in_(PUBLIC_STATUSES))
+        .options(selectinload(Opportunity.requirements))
+        .order_by(Opportunity.created_at.desc(), Opportunity.id.desc())
+    )
+    if opportunity_ids is not None:
+        if not opportunity_ids:
+            return []
+        stmt = stmt.where(Opportunity.id.in_(opportunity_ids))
+
+    opportunities = list(db.scalars(stmt).all())
+    matches: list[Match] = []
+    for opp in opportunities:
+        match = _evaluate_and_persist(db, owned_profile, opp)
+        matches.append(match)
+
+    return matches
 
 
 def get_match(

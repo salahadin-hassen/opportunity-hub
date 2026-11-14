@@ -24,6 +24,9 @@ const OpportunityDetail = lazy(() => import("../routes/OpportunityDetail").then(
 const Privacy = lazy(() => import("../routes/Privacy").then((module) => ({ default: module.Privacy })));
 const Credits = lazy(() => import("../routes/Credits").then((module) => ({ default: module.Credits })));
 const Profile = lazy(() => import("../routes/Profile").then((module) => ({ default: module.Profile })));
+const Saved = lazy(() => import("../routes/Saved").then((module) => ({ default: module.Saved })));
+const Applications = lazy(() => import("../routes/Applications").then((module) => ({ default: module.Applications })));
+const Curate = lazy(() => import("../routes/Curate").then((module) => ({ default: module.Curate })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -149,6 +152,9 @@ export function App() {
                   <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
                   <Route path="/discover" element={app(<Discover />)} />
                   <Route path="/eligibility" element={app(<Eligibility />)} />
+                  <Route path="/saved" element={app(<Saved />)} />
+                  <Route path="/applications" element={app(<Applications />)} />
+                  <Route path="/curate" element={app(<Curate />)} />
                   <Route path="/profile" element={app(<Profile />)} />
                   <Route path="/credits" element={<Credits />} />
                   <Route path="/privacy" element={<Privacy />} />

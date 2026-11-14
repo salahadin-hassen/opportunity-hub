@@ -5,44 +5,29 @@ the ``current_user.id == profile.user_id`` comparison themselves.
 """
 from __future__ import annotations
 
-import secrets
 import uuid
+from collections.abc import Callable
+from typing import Any
 
-from fastapi import Depends, Header, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.core.permissions import Permission, has_permission
 from app.core.security import decode_access_token
 from app.db.session import get_db
 from app.models import Profile, User
 from app.services.profiles import get_profile_for_user
+from app.services.sessions import resolve_session
+
+SESSION_COOKIE_NAME = "oh_session"
 
 bearer_token = HTTPBearer(auto_error=False)
 
 INVALID_CREDENTIALS_DETAIL = "Could not validate credentials."
 PROFILE_FORBIDDEN_DETAIL = "You do not have access to this profile."
-ADMIN_FORBIDDEN_DETAIL = "Curator access is required."
-
-
-def require_admin_token(
-    x_admin_token: str | None = Header(default=None, alias="X-Admin-Token"),
-) -> None:
-    """Allow curator-only writes when the shared ``ADMIN_API_TOKEN`` matches.
-
-    With no token configured the endpoint is disabled for everyone. Missing,
-    wrong and disabled cases share one 403 so callers learn nothing about
-    which check failed; the comparison is constant-time.
-    """
-    expected = settings.ADMIN_API_TOKEN
-    if (
-        not expected
-        or x_admin_token is None
-        or not secrets.compare_digest(x_admin_token.encode(), expected.encode())
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail=ADMIN_FORBIDDEN_DETAIL
-        )
+PERMISSION_FORBIDDEN_DETAIL = "You do not have permission for this action."
 
 
 def unauthorized() -> HTTPException:
@@ -58,25 +43,101 @@ def unauthorized() -> HTTPException:
     )
 
 
+class _DummyRequest:
+    cookies: dict[str, str] = {}
+    method: str = "GET"
+    headers: dict[str, str] = {}
+
+
+_DEFAULT_REQUEST: Any = _DummyRequest()
+
+
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_token),
     db: Session = Depends(get_db),
+    request: Request = _DEFAULT_REQUEST,
 ) -> User:
-    """Resolve the bearer token to the active User it names.
+    """Resolve the active User from bearer credentials or a secure session cookie.
 
     Missing, malformed, expired, forged or unknown tokens and deactivated
     accounts all fail with the same 401, so responses never reveal which
     check failed or anything about the submitted token.
     """
-    if credentials is None or credentials.scheme.lower() != "bearer":
+    raw_token: str | None = None
+    is_cookie_auth = False
+
+    if credentials is not None and getattr(credentials, "scheme", "").lower() == "bearer":
+        raw_token = credentials.credentials
+    elif hasattr(request, "cookies") and SESSION_COOKIE_NAME in request.cookies:
+        raw_token = request.cookies[SESSION_COOKIE_NAME]
+        is_cookie_auth = True
+
+    if not raw_token:
         raise unauthorized()
-    user_id = decode_access_token(credentials.credentials)
+
+    # CSRF protection for cookie-authenticated mutating requests
+    if is_cookie_auth and getattr(request, "method", "") in ("POST", "PUT", "PATCH", "DELETE"):
+        origin = request.headers.get("origin") or request.headers.get("referer")
+        if origin and settings.cors_origins:
+            allowed = [o.rstrip("/") for o in settings.cors_origins]
+            origin_clean = origin.split("?")[0].rstrip("/")
+            if not any(origin_clean.startswith(a) for a in allowed):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="CSRF validation failed.",
+                )
+
+    # 1. Check opaque server session first
+    user = resolve_session(db, raw_token)
+    if user is not None:
+        return user
+
+    # Browser authentication strictly requires an active opaque session.
+    # Obsolete browser JWT fallback is disabled to ensure sessions are revocable server-side.
+    if is_cookie_auth:
+        raise unauthorized()
+
+    # 2. Check if this token was recorded as a session and explicitly revoked
+    from app.services.sessions import hash_token
+    from app.models.session import Session as SessionModel
+    from sqlalchemy import select
+
+    token_hash = hash_token(raw_token)
+    revoked_session = db.scalar(
+        select(SessionModel).where(
+            SessionModel.token_hash == token_hash,
+            SessionModel.revoked_at.is_not(None),
+        )
+    )
+    if revoked_session is not None:
+        raise unauthorized()
+
+    # 3. Fall back to signed JWT access token for backwards compatibility
+    user_id = decode_access_token(raw_token)
     if user_id is None:
         raise unauthorized()
     user = db.get(User, user_id)
     if user is None or not user.is_active:
         raise unauthorized()
     return user
+
+
+def require_permission(permission: Permission) -> Callable[..., User]:
+    """Dependency factory: the authenticated user, if their stored role grants ``permission``.
+
+    The role is read from the ``users`` row loaded for this request, never
+    from the token or the request, so a demotion takes effect on the next
+    request. Unauthenticated callers get the usual 401; authenticated ones
+    without the permission get one generic 403.
+    """
+
+    def dependency(current_user: User = Depends(get_current_user)) -> User:
+        if not has_permission(current_user.role, permission):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=PERMISSION_FORBIDDEN_DETAIL)
+        return current_user
+
+    dependency.__name__ = f"require_{permission.value.replace('.', '_')}"
+    return dependency
 
 
 def get_my_profile(

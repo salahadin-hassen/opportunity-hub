@@ -50,23 +50,28 @@ from pathlib import Path
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from sqlalchemy import select  # noqa: E402
+from sqlalchemy import delete, select  # noqa: E402
 
 from app.core.config import settings  # noqa: E402
 from app.core.security import hash_password  # noqa: E402
 from app.db.session import SessionLocal  # noqa: E402
 from app.models import (  # noqa: E402
+    Application,
+    ApplicationItem,
     Education,
     Opportunity,
+    OpportunityStatus,
     Profile,
     ProfileSkill,
     Requirement,
+    SavedOpportunity,
     Skill,
     Source,
     TestScore,
     User,
 )
 from app.schemas import OpportunityCreate, RequirementCreate, SkillCreate  # noqa: E402
+from app.services.opportunities import close_opportunity, publish_opportunity  # noqa: E402
 
 DEMO_EMAIL = "demo@example.org"
 DEMO_PASSWORD_ENV = "DEMO_PASSWORD"
@@ -800,11 +805,18 @@ def upsert_opportunity(session, spec: dict) -> Opportunity:
         select(Opportunity).where(Opportunity.slug == spec["slug"])
     )
     if existing is not None:
+        # Delete dependent tracking records created during test runs before deleting opportunity
+        app_ids = list(session.scalars(select(Application.id).where(Application.opportunity_id == existing.id)).all())
+        if app_ids:
+            session.execute(delete(ApplicationItem).where(ApplicationItem.application_id.in_(app_ids)))
+            session.execute(delete(Application).where(Application.id.in_(app_ids)))
+        session.execute(delete(SavedOpportunity).where(SavedOpportunity.opportunity_id == existing.id))
         session.delete(existing)
         session.flush()
 
-    payload = OpportunityCreate(status=status, published_at=RETRIEVED_AT, **spec)
-    opportunity = Opportunity(id=opportunity_id, **payload.model_dump())
+    payload = OpportunityCreate(**spec)
+    # Created as a draft; it is published below only through publish_opportunity's validation.
+    opportunity = Opportunity(id=opportunity_id, **payload.model_dump(), status=OpportunityStatus.DRAFT)
     session.add(opportunity)
     sources: dict[str, Source] = {}
     for url in dict.fromkeys([source_url, *(item.get("source_url", source_url) for item in rules)]):
@@ -832,6 +844,12 @@ def upsert_opportunity(session, spec: dict) -> Opportunity:
         requirement.opportunity = opportunity
         session.add(requirement)
     session.flush()
+    if status in (OpportunityStatus.PUBLISHED, OpportunityStatus.CLOSED):
+        opportunity = publish_opportunity(session, opportunity_id, published_at=RETRIEVED_AT)
+        if status == OpportunityStatus.CLOSED:
+            opportunity = close_opportunity(session, opportunity_id)
+    elif status != OpportunityStatus.DRAFT:
+        raise ValueError(f"Unsupported seed status {status!r} for {spec['slug']}")
     return opportunity
 
 

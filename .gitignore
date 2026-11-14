@@ -26,11 +26,13 @@ node_modules/
 frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
+frontend/e2e-artifacts/
 frontend/tsconfig.tsbuildinfo
 *.local
 
 # Local release rehearsal secrets and logs
 .release/
+.vscode/
 
 # Local visual-QA screenshot rounds (large; the curated demo backup lives in docs/demo-backup/)
 docs/screenshots/

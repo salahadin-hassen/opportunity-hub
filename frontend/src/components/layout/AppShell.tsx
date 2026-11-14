@@ -1,17 +1,19 @@
 import { AnimatePresence, motion } from "motion/react";
-import { ChevronDown, Compass, LogOut, Menu, ScanSearch, UserRound, X, type LucideIcon } from "lucide-react";
+import { Bookmark, ChevronDown, Compass, FileCheck, LogOut, Menu, ScanSearch, Shield, UserRound, X, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router";
-import { useProfile } from "../../api/queries";
+import { useProfile, useUserAccount } from "../../api/queries";
 import { useAuth } from "../../auth/AuthContext";
 import { useEligibility } from "../../features/eligibility";
 import { Logo } from "../ui/Logo";
 import { MobileMenuSheet, useMobileMenu } from "../marketing/MarketingChrome";
 import { ThemeToggle } from "../ui/ThemeToggle";
 
-const NAV: { to: string; label: string; icon: LucideIcon }[] = [
+const BASE_NAV: { to: string; label: string; icon: LucideIcon }[] = [
   { to: "/discover", label: "Discover", icon: Compass },
   { to: "/eligibility", label: "Eligibility", icon: ScanSearch },
+  { to: "/saved", label: "Saved", icon: Bookmark },
+  { to: "/applications", label: "Applications", icon: FileCheck },
   { to: "/profile", label: "Profile", icon: UserRound },
 ];
 
@@ -119,13 +121,19 @@ function AccountMenu() {
  */
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const account = useUserAccount();
+  const isCuratorOrAdmin = account.data?.role === "curator" || account.data?.role === "admin";
+  const navItems = isCuratorOrAdmin
+    ? [...BASE_NAV, { to: "/curate", label: "Admin", icon: Shield }]
+    : BASE_NAV;
+
   return (
     <div className="min-h-dvh bg-ivory pb-20 md:pb-0">
       <header className="sticky top-0 z-40 border-b border-rule bg-ivory/90 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-[1240px] items-center gap-8 px-4 sm:px-8">
           <Logo to="/discover" />
           <nav aria-label="Application" className="hidden h-full items-stretch gap-1 md:flex">
-            {NAV.map(({ to, label }) => {
+            {navItems.map(({ to, label }) => {
               const active = location.pathname.startsWith(to);
               return (
                 <NavLink key={to} to={to} className={`relative flex items-center px-3 text-[14.5px] ${active ? "font-semibold text-ink" : "text-ink-soft hover:text-ink"}`}>
@@ -146,12 +154,12 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main id="main">{children}</main>
 
       <nav aria-label="Application" className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
-        <ul className="grid grid-cols-3">
-          {NAV.map(({ to, label, icon: Icon }) => {
+        <ul className="flex items-center justify-around">
+          {navItems.map(({ to, label, icon: Icon }) => {
             const active = location.pathname.startsWith(to);
             return (
-              <li key={to}>
-                <NavLink to={to} className={`flex h-16 flex-col items-center justify-center gap-1 text-[11.5px] ${active ? "font-semibold text-ink" : "text-muted"}`}>
+              <li key={to} className="flex-1">
+                <NavLink to={to} className={`flex h-16 flex-col items-center justify-center gap-1 text-[11px] ${active ? "font-semibold text-ink" : "text-muted"}`}>
                   <span className={`inline-flex h-7 w-12 items-center justify-center rounded-full transition-colors ${active ? "bg-lime text-night" : ""}`}>
                     <Icon size={18} strokeWidth={active ? 2.3 : 1.8} />
                   </span>

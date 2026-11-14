@@ -306,31 +306,39 @@ async def test_login_responses_carry_no_sensitive_material(client: AsyncClient):
     assert TEST_JWT_SECRET not in failure.text
 
 
-# --- JWT claims ----------------------------------------------------------------------------
+# --- Opaque session token and legacy authentication --------------------------------------
 
-async def test_token_subject_names_the_registered_user(client: AsyncClient):
+async def test_login_returns_opaque_session_token_and_cookie(client: AsyncClient, db_session: Session):
     payload, registration = await registered_user(client)
-    claims = decode_claims(await login_token(client, payload))
-    assert claims["sub"] == registration["id"]
+    response = await client.post(
+        "/auth/login",
+        json={"email": payload["email"], "password": payload["password"]},
+    )
+    assert response.status_code == 200
+    token = response.json()["access_token"]
+    assert len(token) >= 40  # 32 urlsafe bytes = 43 chars
+    assert "oh_session" in response.cookies
+    assert response.cookies["oh_session"] == token
+
+    # Database stores only SHA-256 hash
+    import hashlib
+    from app.models.session import Session as SessionModel
+    from sqlalchemy import select
+
+    token_hash = hashlib.sha256(token.encode("utf-8")).hexdigest()
+    session_row = db_session.scalar(select(SessionModel).where(SessionModel.token_hash == token_hash))
+    assert session_row is not None
+    assert str(session_row.user_id) == registration["id"]
 
 
-async def test_token_carries_an_expiry_claim(client: AsyncClient):
-    payload, _ = await registered_user(client)
-    claims = decode_claims(await login_token(client, payload))
+def test_legacy_jwt_claims_contain_expected_fields(auth_secret: str):
+    user_id = uuid.uuid4()
+    token = create_access_token(user_id)
+    claims = decode_claims(token)
+    assert claims["sub"] == str(user_id)
     assert isinstance(claims["exp"], int)
-
-
-async def test_token_carries_an_issued_at_claim(client: AsyncClient):
-    payload, _ = await registered_user(client)
-    claims = decode_claims(await login_token(client, payload))
     assert isinstance(claims["iat"], int)
-
-
-async def test_token_claims_contain_no_password_material(client: AsyncClient):
-    payload, _ = await registered_user(client)
-    claims = decode_claims(await login_token(client, payload))
     assert set(claims) == {"sub", "exp", "iat"}
-    assert payload["password"] not in str(claims)
 
 
 async def test_expired_token_is_rejected_by_get_current_user(
@@ -353,3 +361,64 @@ async def test_malformed_token_is_rejected(client: AsyncClient):
     )
     assert response.status_code == 401
     assert response.json()["detail"] == INVALID_CREDENTIALS_DETAIL
+
+
+async def test_cookie_auth_rejects_legacy_jwt_without_active_session(
+    client: AsyncClient, db_session: Session, auth_secret: str
+):
+    """Regression test: browser cookie auth MUST reject legacy JWTs without an active opaque session."""
+    user = make_user()
+    db_session.add(user)
+    db_session.flush()
+
+    legacy_jwt = create_access_token(user.id)
+    # Attempting to use legacy JWT in browser cookie 'oh_session'
+    client.cookies.set("oh_session", legacy_jwt)
+    response = await client.get("/me/profile")
+    assert response.status_code == 401
+    assert response.json()["detail"] == INVALID_CREDENTIALS_DETAIL
+    client.cookies.clear()
+
+
+async def test_cookie_auth_accepts_valid_opaque_session(
+    client: AsyncClient, db_session: Session
+):
+    """Browser cookie auth succeeds when an active opaque session exists."""
+    from app.services.sessions import create_session
+
+    user = make_user()
+    db_session.add(user)
+    db_session.flush()
+
+    session_row, raw_token = create_session(db_session, user_id=user.id)
+    db_session.flush()
+
+    client.cookies.set("oh_session", raw_token)
+    response = await client.get("/me/profile")
+    # Returns 404 profile not found (user is authenticated, but has not completed profile)
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Profile not found."
+    client.cookies.clear()
+
+
+async def test_cookie_auth_rejects_revoked_opaque_session(
+    client: AsyncClient, db_session: Session
+):
+    """Browser cookie auth fails when the session was revoked."""
+    from app.services.sessions import create_session, revoke_session_by_id
+
+    user = make_user()
+    db_session.add(user)
+    db_session.flush()
+
+    session_row, raw_token = create_session(db_session, user_id=user.id)
+    db_session.flush()
+    revoke_session_by_id(db_session, user.id, session_row.id)
+    db_session.flush()
+
+    client.cookies.set("oh_session", raw_token)
+    response = await client.get("/me/profile")
+    assert response.status_code == 401
+    assert response.json()["detail"] == INVALID_CREDENTIALS_DETAIL
+    client.cookies.clear()
+

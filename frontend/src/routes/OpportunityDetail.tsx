@@ -1,8 +1,16 @@
-import { ArrowLeft, ArrowUpRight, Lock, RefreshCw, ScanSearch, SearchX } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Bookmark, BookmarkCheck, FileCheck, Lock, RefreshCw, ScanSearch, SearchX } from "lucide-react";
 import { useState } from "react";
-import { Link, useLocation, useParams } from "react-router";
+import { Link, useLocation, useNavigate, useParams } from "react-router";
 import { ApiError } from "../api/client";
-import { useMatchMap, useOpportunity, useProfile } from "../api/queries";
+import {
+  useCreateApplication,
+  useMatchMap,
+  useOpportunity,
+  useProfile,
+  useSaveOpportunity,
+  useSavedOpportunities,
+  useUnsaveOpportunity,
+} from "../api/queries";
 import { useAuth } from "../auth/AuthContext";
 import { EvidenceList, ruleFacts } from "../components/eligibility/Evidence";
 import { Content, Page } from "../components/layout/Page";
@@ -17,12 +25,18 @@ import { FACT_LABELS } from "../lib/rules";
 export function OpportunityDetail() {
   const { id } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const profile = useProfile();
   const opportunity = useOpportunity(id);
   const matchMap = useMatchMap();
   const { run, running, changedAt, before } = useEligibility();
   const [error, setError] = useState<string | null>(null);
+
+  const savedQuery = useSavedOpportunities();
+  const save = useSaveOpportunity();
+  const unsave = useUnsaveOpportunity();
+  const createApplication = useCreateApplication();
 
   if (opportunity.isPending) {
     return (
@@ -161,6 +175,34 @@ export function OpportunityDetail() {
                     {running ? <Spinner size={14} /> : match ? <RefreshCw size={15} /> : <ScanSearch size={15} />}
                     {match ? "Re-check" : "Check my eligibility"}
                   </button>
+                )}
+                {hasProfile && (
+                  <div className="mt-3 flex flex-col gap-2">
+                    <button
+                      type="button"
+                      onClick={() => (savedQuery.data ?? []).some((s) => s.opportunity_id === item.id) ? unsave.mutate(item.id) : save.mutate({ opportunityId: item.id })}
+                      disabled={save.isPending || unsave.isPending}
+                      className={`btn w-full justify-center gap-2 text-[13.5px] ${(savedQuery.data ?? []).some((s) => s.opportunity_id === item.id) ? "border border-persimmon text-persimmon font-semibold" : "btn-quiet"}`}
+                    >
+                      {(savedQuery.data ?? []).some((s) => s.opportunity_id === item.id) ? <BookmarkCheck size={16} /> : <Bookmark size={16} />}
+                      {(savedQuery.data ?? []).some((s) => s.opportunity_id === item.id) ? "Saved to your list" : "Save opportunity"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          await createApplication.mutateAsync({ opportunity_id: item.id });
+                        } catch {
+                          /* already tracked */
+                        }
+                        navigate("/applications");
+                      }}
+                      className="btn btn-quiet w-full justify-center gap-2 text-[13.5px]"
+                    >
+                      <FileCheck size={16} />
+                      Track application
+                    </button>
+                  </div>
                 )}
                 {!isAuthenticated && (
                   <Link to={`/login?next=${encodeURIComponent(location.pathname)}`} className="btn btn-ink mt-5 w-full">

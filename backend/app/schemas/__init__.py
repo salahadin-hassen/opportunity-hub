@@ -1,9 +1,10 @@
 """Pydantic schemas for Opportunity Hub (database slice 1)."""
-from app.schemas.match import MatchFacts, MatchRead, MatchRequirementRead, RequirementSummary
+from app.schemas.match import BatchEvaluateRequest, MatchFacts, MatchRead, MatchRequirementRead, RequirementSummary
 from app.schemas.opportunity import (
     OpportunityCreate,
     OpportunityDetailRead,
     OpportunityRead,
+    OpportunityUpdate,
     PublicRequirementRead,
     PublicSourceRead,
 )
@@ -33,19 +34,22 @@ from app.schemas.skill import (
     SkillRead,
 )
 from app.schemas.test_score import TestScoreCreate, TestScoreRead, TestScoreUpdate
-from app.schemas.user import UserRead
+from app.schemas.user import UserAccountRead, UserRead
 
 __all__ = [
     "OpportunityCreate",
     "OpportunityRead",
     "OpportunityDetailRead",
+    "OpportunityUpdate",
     "PublicRequirementRead",
     "PublicSourceRead",
+    "BatchEvaluateRequest",
     "MatchFacts",
     "MatchRead",
     "MatchRequirementRead",
     "RequirementSummary",
     "UserRead",
+    "UserAccountRead",
     "UserCreate",
     "UserLogin",
     "TokenResponse",

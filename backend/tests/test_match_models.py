@@ -60,7 +60,9 @@ def make_opportunity(**overrides) -> Opportunity:
         "status": "published",
     }
     payload.update(overrides)
-    return Opportunity(**OpportunityCreate(**payload).model_dump())
+    # Lifecycle fields go straight to the ORM row: OpportunityCreate only describes drafts.
+    lifecycle = {key: payload.pop(key) for key in ("status", "published_at") if key in payload}
+    return Opportunity(**OpportunityCreate(**payload).model_dump(), **lifecycle)
 
 
 def make_requirement(**overrides) -> Requirement:

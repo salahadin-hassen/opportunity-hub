@@ -84,7 +84,7 @@ const auth: Middleware = {
   },
 };
 
-export const api = createClient<paths>({ baseUrl: API_BASE });
+export const api = createClient<paths>({ baseUrl: API_BASE, credentials: "include" });
 api.use(auth);
 
 export class ApiError extends Error {
