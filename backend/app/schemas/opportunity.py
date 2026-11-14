@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from typing import Any
+from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_serializer, model_validator
 
@@ -37,8 +37,8 @@ class OpportunityCreate(BaseModel):
     countries: list[str] = Field(default_factory=list)
     languages: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
-    status: OpportunityStatus = OpportunityStatus.DRAFT
-    published_at: datetime | None = None
+    # No ``status`` or ``published_at``: every new opportunity is a draft, and only
+    # ``publish_opportunity`` may publish one. ``extra="forbid"`` turns either key into a 422.
 
     @model_validator(mode="after")
     def validate_date_range(self) -> OpportunityCreate:
@@ -70,7 +70,19 @@ class OpportunityUpdate(BaseModel):
     countries: list[str] | None = None
     languages: list[str] | None = None
     tags: list[str] | None = None
-    status: OpportunityStatus | None = None
+    # Lifecycle fields are not editable here: publish and close have their own validated operations.
+
+    #: Columns that are NOT NULL: they may be omitted from a PATCH but never set to null.
+    NON_NULLABLE: ClassVar[tuple[str, ...]] = ("title", "opportunity_type", "deadline_type", "location_mode", "countries", "languages", "tags")
+
+    @model_validator(mode="after")
+    def reject_null_for_required_columns(self) -> OpportunityUpdate:
+        nulled = [name for name in self.NON_NULLABLE if name in self.model_fields_set and getattr(self, name) is None]
+        if nulled:
+            raise ValueError(f"{', '.join(nulled)} cannot be null")
+        if self.title is not None and not self.title.strip():
+            raise ValueError("title cannot be blank")
+        return self
 
     @field_serializer("official_url")
     def serialize_official_url(self, value: HttpUrl | None) -> str | None:

@@ -4,6 +4,7 @@ from __future__ import annotations
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.api.deps import require_permission
@@ -14,9 +15,12 @@ from app.services import audit
 from app.schemas import OpportunityCreate, OpportunityDetailRead, OpportunityRead, OpportunityUpdate
 from app.services.opportunities import (
     IncompleteOpportunityError,
+    InvalidStatusTransitionError,
     OpportunitySlugConflictError,
+    OpportunityWouldBecomeIncompleteError,
     close_opportunity,
     create_opportunity,
+    get_opportunity,
     get_public_opportunity,
     list_all_opportunities,
     list_opportunities,
@@ -25,6 +29,14 @@ from app.services.opportunities import (
 )
 
 router = APIRouter(prefix="/opportunities", tags=["opportunities"])
+
+
+def opp_status_for_audit(db: Session, opportunity_id: uuid.UUID) -> str | None:
+    """The status left in place after a rejected lifecycle operation (for the audit entry)."""
+    opp = get_opportunity(db, opportunity_id)
+    return str(opp.status) if opp is not None else None
+
+
 curate_router = APIRouter(prefix="/curate/opportunities", tags=["curate"])
 
 
@@ -40,15 +52,36 @@ def list_curator_opportunities(
     return list_all_opportunities(db, status=status, limit=limit, offset=offset)
 
 
-@curate_router.patch("/{opportunity_id}", response_model=OpportunityRead)
+@curate_router.patch(
+    "/{opportunity_id}",
+    response_model=OpportunityRead,
+    responses={409: {"description": "The edit would leave a public opportunity incomplete"}},
+)
 def patch_curator_opportunity(
     opportunity_id: uuid.UUID,
     payload: OpportunityUpdate,
     db: Session = Depends(get_db),
     curator: User = Depends(require_permission(Permission.OPPORTUNITY_EDIT)),
-) -> OpportunityRead:
-    """Update opportunity details and metadata."""
-    updated = update_opportunity(db, opportunity_id, payload)
+):
+    """Update opportunity details and metadata.
+
+    Edits to a published or closed opportunity are re-validated atomically; an edit that would
+    leave it incomplete changes nothing, is audited as ``opportunity.update_rejected`` and
+    returns 409 (returned, not raised, so the audit entry commits).
+    """
+    try:
+        updated = update_opportunity(db, opportunity_id, payload)
+    except OpportunityWouldBecomeIncompleteError as error:
+        audit.record(
+            db,
+            action="opportunity.update_rejected",
+            target_type="opportunity",
+            target_id=opportunity_id,
+            actor_id=curator.id,
+            changes={"fields": sorted(payload.model_fields_set), "status": opp_status_for_audit(db, opportunity_id)},
+            reason=str(error),
+        )
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": str(error)})
     if updated is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Opportunity not found.")
     audit.record(
@@ -57,22 +90,45 @@ def patch_curator_opportunity(
         target_type="opportunity",
         target_id=opportunity_id,
         actor_id=curator.id,
-        changes=payload.model_dump(exclude_unset=True),
+        changes=payload.model_dump(mode="json", exclude_unset=True),
     )
     return updated
 
 
-@curate_router.post("/{opportunity_id}/publish", response_model=OpportunityRead)
+@curate_router.post(
+    "/{opportunity_id}/publish",
+    response_model=OpportunityRead,
+    responses={400: {"description": "Publication validation failed"}, 409: {"description": "Not publishable from its status"}},
+)
 def publish_curator_opportunity(
     opportunity_id: uuid.UUID,
     db: Session = Depends(get_db),
     curator: User = Depends(require_permission(Permission.OPPORTUNITY_PUBLISH)),
-) -> OpportunityRead:
-    """Publish an opportunity after checking source and rule verification."""
+):
+    """Publish an opportunity if it passes the publication completeness checks.
+
+    The checks are structural (an official URL, an own source record, quoted mandatory rules
+    citing it); they do not establish that a source is authentic or that a quote is on the page.
+
+    Validation runs inside a savepoint: a rejection rolls back any change to the
+    opportunity, and the rejection itself is audited and committed (the error is
+    returned rather than raised, so the request transaction still commits).
+    """
     try:
-        opp = publish_opportunity(db, opportunity_id)
-    except IncompleteOpportunityError as error:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(error)) from error
+        with db.begin_nested():
+            opp = publish_opportunity(db, opportunity_id)
+    except (IncompleteOpportunityError, InvalidStatusTransitionError) as error:
+        code = status.HTTP_409_CONFLICT if isinstance(error, InvalidStatusTransitionError) else status.HTTP_400_BAD_REQUEST
+        audit.record(
+            db,
+            action="opportunity.publish_rejected",
+            target_type="opportunity",
+            target_id=opportunity_id,
+            actor_id=curator.id,
+            changes={"status": opp_status_for_audit(db, opportunity_id)},
+            reason=str(error),
+        )
+        return JSONResponse(status_code=code, content={"detail": str(error)})
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
 
@@ -87,15 +143,30 @@ def publish_curator_opportunity(
     return opp
 
 
-@curate_router.post("/{opportunity_id}/close", response_model=OpportunityRead)
+@curate_router.post(
+    "/{opportunity_id}/close",
+    response_model=OpportunityRead,
+    responses={409: {"description": "Only published opportunities can be closed"}},
+)
 def close_curator_opportunity(
     opportunity_id: uuid.UUID,
     db: Session = Depends(get_db),
     curator: User = Depends(require_permission(Permission.OPPORTUNITY_EDIT)),
-) -> OpportunityRead:
-    """Close an opportunity cycle."""
+):
+    """Close a published opportunity cycle."""
     try:
         opp = close_opportunity(db, opportunity_id)
+    except InvalidStatusTransitionError as error:
+        audit.record(
+            db,
+            action="opportunity.close_rejected",
+            target_type="opportunity",
+            target_id=opportunity_id,
+            actor_id=curator.id,
+            changes={"status": opp_status_for_audit(db, opportunity_id)},
+            reason=str(error),
+        )
+        return JSONResponse(status_code=status.HTTP_409_CONFLICT, content={"detail": str(error)})
     except ValueError as error:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(error)) from error
 

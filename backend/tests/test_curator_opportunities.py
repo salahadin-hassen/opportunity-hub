@@ -84,7 +84,6 @@ async def test_curator_opportunity_lifecycle(client: AsyncClient, db_session: Se
         "title": "Initial Draft Fellowship",
         "opportunity_type": "fellowship",
         "description": "Fellowship description",
-        "status": "draft",
     }
     create_res = await client.post("/opportunities", headers=curator_headers, json=create_payload)
     assert create_res.status_code == 201
@@ -99,7 +98,7 @@ async def test_curator_opportunity_lifecycle(client: AsyncClient, db_session: Se
     # 3. Incomplete opportunity cannot be published (fails guard: missing sources and rules)
     pub_res = await client.post(f"/curate/opportunities/{opp_id}/publish", headers=curator_headers)
     assert pub_res.status_code == 400
-    assert "at least one verified source" in pub_res.json()["detail"]
+    assert "at least one source record" in pub_res.json()["detail"]
 
     # 4. Attach verified source and quoted requirement
     source = Source(
@@ -119,14 +118,17 @@ async def test_curator_opportunity_lifecycle(client: AsyncClient, db_session: Se
         category=RequirementCategory.ACADEMIC,
         source_quote="Applicants must hold a Bachelor degree or equivalent.",
     )
-    db_session.add_all([source, req])
+    db_session.add(source)
+    db_session.flush()
+    req.source_id = source.id  # mandatory rules must cite one of the opportunity's own sources
+    db_session.add(req)
     db_session.flush()
 
     # 5. Update opportunity metadata
     patch_res = await client.patch(
         f"/curate/opportunities/{opp_id}",
         headers=curator_headers,
-        json={"title": "Updated Production Fellowship 2026"},
+        json={"title": "Updated Production Fellowship 2026", "official_url": "https://example.org/fellowship"},
     )
     assert patch_res.status_code == 200
     assert patch_res.json()["title"] == "Updated Production Fellowship 2026"
@@ -153,5 +155,6 @@ async def test_curator_opportunity_lifecycle(client: AsyncClient, db_session: Se
     actions = [e.action for e in audit_entries]
     assert "opportunity.created" in actions
     assert "opportunity.updated" in actions
+    assert "opportunity.publish_rejected" in actions
     assert "opportunity.published" in actions
     assert "opportunity.closed" in actions

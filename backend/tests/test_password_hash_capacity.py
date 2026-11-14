@@ -556,7 +556,7 @@ def capacity_server():
         port = probe.getsockname()[1]
     env = {**os.environ, "APP_ENV": "development", "DATABASE_URL": settings.DATABASE_URL, "JWT_SECRET": "c" * 40,
            "ARGON2_MAX_CONCURRENCY": "3", "ARGON2_REGISTRATION_MAX_CONCURRENCY": "2"}
-    env.pop("AUTH_RATE_LIMIT_PER_MINUTE", None)
+    env["AUTH_RATE_LIMIT_PER_MINUTE"] = "disabled"  # explicit: this server measures Argon2 capacity only
     env.pop("WEB_CONCURRENCY", None)
     process = subprocess.Popen(
         [sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", str(port), "--no-proxy-headers"],

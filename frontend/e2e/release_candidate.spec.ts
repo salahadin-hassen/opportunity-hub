@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 
 const password = "release-password-1";
+// Created by backend/scripts/seed_e2e_fixtures.py in the throwaway e2e database only.
+const ADMIN = { email: "admin@example.org", password: process.env.E2E_ADMIN_PASSWORD ?? "AdminPass123!" };
 const freshEmail = (tag: string) => `e2e-rc-${tag}-${Date.now()}-${Math.floor(Math.random() * 1e6)}@example.org`;
 
 async function register(page: Page, email: string) {
@@ -8,7 +10,8 @@ async function register(page: Page, email: string) {
   await page.fill("#email", email);
   await page.fill("#password", password);
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page).toHaveURL(/\/onboarding$/);
+  // Registration runs Argon2 then signs in; allow for a loaded CI runner, like the other waits here.
+  await expect(page).toHaveURL(/\/onboarding$/, { timeout: 15_000 });
 }
 
 async function onboard(page: Page) {
@@ -104,10 +107,10 @@ test("authorization: ordinary student is denied access to curator workspace", as
 });
 
 test("admin journey: curator workspace, tabs, draft creation, publish guard, and opportunity closing", async ({ page }) => {
-  // Sign in as admin user created in test setup
+  // Sign in as the admin created by backend/scripts/seed_e2e_fixtures.py (run by scripts/e2e.sh)
   await page.goto("/login");
-  await page.fill("#email", "admin@example.org");
-  await page.fill("#password", "AdminPass123!");
+  await page.fill("#email", ADMIN.email);
+  await page.fill("#password", ADMIN.password);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/(discover|eligibility|opportunities)$/, { timeout: 15_000 });
 
@@ -146,12 +149,12 @@ test("admin journey: curator workspace, tabs, draft creation, publish guard, and
   await expect(draftItem).toBeVisible({ timeout: 15_000 });
   await expect(draftItem.getByText("draft").first()).toBeVisible();
 
-  // Attempt to publish without verified sources or verbatim rules:
+  // Attempt to publish without source records or quoted rules:
   // Completeness guard MUST reject publication and show explicit error alert
-  const publishBtn = draftItem.getByRole("button", { name: /Verify & Publish/i });
+  const publishBtn = draftItem.getByRole("button", { name: /Check & publish/i });
   await publishBtn.click();
   await expect(page.getByRole("alert")).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByRole("alert")).toContainText(/verified source/i);
+  await expect(page.getByRole("alert")).toContainText(/source record/i);
 
   // Close an active opportunity: Find CERN or another active opportunity and close it
   const cernItem = page.locator("li", { hasText: "CERN Summer Student Programme" }).first();
@@ -161,7 +164,7 @@ test("admin journey: curator workspace, tabs, draft creation, publish guard, and
   await expect(cernItem.getByText("closed").first()).toBeVisible({ timeout: 15_000 });
 
   // Re-publish the opportunity to restore active state and verify re-opening workflow
-  const republishBtn = cernItem.getByRole("button", { name: /Verify & Publish/i });
+  const republishBtn = cernItem.getByRole("button", { name: /Check & publish/i });
   await republishBtn.click();
   await expect(cernItem.getByText("published").first()).toBeVisible({ timeout: 15_000 });
 });

@@ -13,6 +13,7 @@ if str(BACKEND_DIR) not in sys.path:
 import pytest  # noqa: E402
 from alembic import command  # noqa: E402
 from alembic.config import Config as AlembicConfig  # noqa: E402
+from pydantic import SecretStr  # noqa: E402
 from sqlalchemy import create_engine  # noqa: E402
 from sqlalchemy.engine import make_url  # noqa: E402
 from sqlalchemy.orm import Session  # noqa: E402
@@ -51,6 +52,12 @@ TEST_DATABASE_URL = _test_database_url()
 # Make even application code that imports app.db.session during pytest use the
 # test database. This happens in conftest before test modules are imported.
 settings.DATABASE_URL = TEST_DATABASE_URL
+# Explicit, not implied by an unset variable: most tests make many credential requests from one
+# client in one minute. Tests that exercise the limiter set their own budget with monkeypatch.
+settings.AUTH_RATE_LIMIT_PER_MINUTE = "disabled"
+# Test-only email-token keys (never used outside the test database).
+settings.EMAIL_TOKEN_KEYS = SecretStr("t1:" + "test-email-token-key-" + "0" * 24)
+settings.EMAIL_TOKEN_ACTIVE_KEY = "t1"
 test_engine = create_engine(TEST_DATABASE_URL, pool_pre_ping=True)
 
 

@@ -306,6 +306,10 @@ export interface paths {
         /**
          * Patch Curator Opportunity
          * @description Update opportunity details and metadata.
+         *
+         *     Edits to a published or closed opportunity are re-validated atomically; an edit that would
+         *     leave it incomplete changes nothing, is audited as ``opportunity.update_rejected`` and
+         *     returns 409 (returned, not raised, so the audit entry commits).
          */
         patch: operations["patch_curator_opportunity_curate_opportunities__opportunity_id__patch"];
         trace?: never;
@@ -321,7 +325,14 @@ export interface paths {
         put?: never;
         /**
          * Publish Curator Opportunity
-         * @description Publish an opportunity after checking source and rule verification.
+         * @description Publish an opportunity if it passes the publication completeness checks.
+         *
+         *     The checks are structural (an official URL, an own source record, quoted mandatory rules
+         *     citing it); they do not establish that a source is authentic or that a quote is on the page.
+         *
+         *     Validation runs inside a savepoint: a rejection rolls back any change to the
+         *     opportunity, and the rejection itself is audited and committed (the error is
+         *     returned rather than raised, so the request transaction still commits).
          */
         post: operations["publish_curator_opportunity_curate_opportunities__opportunity_id__publish_post"];
         delete?: never;
@@ -341,7 +352,7 @@ export interface paths {
         put?: never;
         /**
          * Close Curator Opportunity
-         * @description Close an opportunity cycle.
+         * @description Close a published opportunity cycle.
          */
         post: operations["close_curator_opportunity_curate_opportunities__opportunity_id__close_post"];
         delete?: never;
@@ -1425,10 +1436,6 @@ export interface components {
             languages?: string[];
             /** Tags */
             tags?: string[];
-            /** @default draft */
-            status: components["schemas"]["OpportunityStatus"];
-            /** Published At */
-            published_at?: string | null;
         };
         /**
          * OpportunityDetailRead
@@ -1572,7 +1579,6 @@ export interface components {
             languages?: string[] | null;
             /** Tags */
             tags?: string[] | null;
-            status?: components["schemas"]["OpportunityStatus"] | null;
         };
         /** ProfileCreate */
         ProfileCreate: {
@@ -2840,6 +2846,13 @@ export interface operations {
                     "application/json": components["schemas"]["OpportunityRead"];
                 };
             };
+            /** @description The edit would leave a public opportunity incomplete */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -2871,6 +2884,20 @@ export interface operations {
                     "application/json": components["schemas"]["OpportunityRead"];
                 };
             };
+            /** @description Publication validation failed */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not publishable from its status */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -2901,6 +2928,13 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["OpportunityRead"];
                 };
+            };
+            /** @description Only published opportunities can be closed */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {

@@ -19,7 +19,8 @@ be reached the attempt is refused with 503 (fail closed): the limiter is
 never silently switched off. Logs never contain the address, the email or
 their digests.
 
-Disabled entirely unless ``AUTH_RATE_LIMIT_PER_MINUTE`` is set.
+``AUTH_RATE_LIMIT_PER_MINUTE`` (default 10) sets both budgets. It can be switched off only
+outside production, with the explicit value ``disabled``; production refuses to start without it.
 """
 from __future__ import annotations
 
@@ -183,7 +184,7 @@ def client_identity(request: Request) -> ClientIdentity:
 
 
 def _enforce(scope: str, key: str, budget: str) -> None:
-    limit = settings.AUTH_RATE_LIMIT_PER_MINUTE
+    limit = settings.auth_rate_limit
     if not limit:
         return
     try:
@@ -210,7 +211,11 @@ def limit_auth_attempts(request: Request) -> None:
     Without a trustworthy client identity only this budget is skipped; the
     handler still applies :func:`limit_account_attempts`.
     """
-    if not settings.AUTH_RATE_LIMIT_PER_MINUTE:
+    if not settings.auth_rate_limit:
+        return
+    if settings.CLIENT_IP_STRATEGY == "none":
+        # Deliberately no address budget (nothing trustworthy to count); not a per-request degradation.
+        request.state.rate_limit_client_key = None
         return
     identity = client_identity(request)
     if identity.identity is None:
@@ -236,7 +241,7 @@ def _account_key(email: str) -> str:
 
 def record_auth_failure(path: str) -> None:
     """Count a rejected credential attempt (wrong password, unknown account, taken email)."""
-    if settings.AUTH_RATE_LIMIT_PER_MINUTE:
+    if settings.auth_rate_limit:
         auth_telemetry.record("auth_failure", endpoint=path)
 
 
@@ -247,7 +252,7 @@ def record_auth_success(request: Request, path: str, email: str) -> None:
     a user retrying), which is the evidence needed to tune it. Best effort:
     a store error here never affects the sign-in.
     """
-    limit = settings.AUTH_RATE_LIMIT_PER_MINUTE
+    limit = settings.auth_rate_limit
     if not limit:
         return
     limiter = get_limiter()

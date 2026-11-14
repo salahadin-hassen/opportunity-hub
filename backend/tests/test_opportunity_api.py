@@ -7,7 +7,7 @@ import pytest
 from app.core.security import create_access_token
 from app.db.session import get_db
 from app.main import app
-from app.models import User
+from app.models import Opportunity, OpportunityStatus, User
 from app.schemas import OpportunityRead
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.orm import Session
@@ -30,9 +30,14 @@ def opportunity_payload(slug: str | None = None) -> dict[str, object]:
         "countries": ["US"],
         "languages": ["en"],
         "tags": ["research"],
-        "status": "published",
-        "published_at": "2026-09-01T10:00:00Z",
     }
+
+
+def mark_published(db_session: Session, opportunity_id: str) -> None:
+    """Test arrangement only: the API creates drafts, and these tests exercise the public read paths."""
+    row = db_session.get(Opportunity, uuid.UUID(opportunity_id))
+    row.status = OpportunityStatus.PUBLISHED
+    db_session.flush()
 
 
 @pytest.fixture
@@ -66,9 +71,10 @@ async def test_create_opportunity_returns_read_schema_and_uuid(client: AsyncClie
 
 
 @pytest.mark.asyncio
-async def test_list_opportunities_returns_created_opportunity(client: AsyncClient):
+async def test_list_opportunities_returns_created_opportunity(client: AsyncClient, db_session: Session):
     payload = opportunity_payload()
     created = await client.post("/opportunities", json=payload)
+    mark_published(db_session, created.json()["id"])
 
     response = await client.get("/opportunities")
 
@@ -77,9 +83,11 @@ async def test_list_opportunities_returns_created_opportunity(client: AsyncClien
 
 
 @pytest.mark.asyncio
-async def test_list_opportunities_supports_pagination(client: AsyncClient):
+async def test_list_opportunities_supports_pagination(client: AsyncClient, db_session: Session):
     for _ in range(3):
-        assert (await client.post("/opportunities", json=opportunity_payload())).status_code == 201
+        created = await client.post("/opportunities", json=opportunity_payload())
+        assert created.status_code == 201
+        mark_published(db_session, created.json()["id"])
 
     response = await client.get("/opportunities", params={"limit": 2, "offset": 1})
 
@@ -88,9 +96,10 @@ async def test_list_opportunities_supports_pagination(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_get_opportunity_by_id(client: AsyncClient):
+async def test_get_opportunity_by_id(client: AsyncClient, db_session: Session):
     created = await client.post("/opportunities", json=opportunity_payload())
     opportunity_id = created.json()["id"]
+    mark_published(db_session, opportunity_id)
 
     response = await client.get(f"/opportunities/{opportunity_id}")
 

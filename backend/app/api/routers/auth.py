@@ -8,12 +8,10 @@ for the account lookup. Neither is ever reported as a 401 or a 409.
 from __future__ import annotations
 
 import logging
-import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
-from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.exc import TimeoutError as PoolTimeoutError
 from sqlalchemy.orm import Session
@@ -23,6 +21,7 @@ from app.core import auth_telemetry
 from app.core.config import settings
 from app.core.rate_limit import (
     STORE_UNAVAILABLE_RETRY_AFTER,
+    client_identity,
     limit_account_attempts,
     limit_auth_attempts,
     record_auth_failure,
@@ -30,7 +29,7 @@ from app.core.rate_limit import (
 )
 from app.core.security import PasswordHashCapacityExceeded, hash_password
 from app.db.session import get_db
-from app.models import EmailOutbox, EmailToken, Session as SessionModel, User
+from app.models import Session as SessionModel, User
 from app.schemas.auth import (
     ForgotPasswordRequest,
     ResetPasswordRequest,
@@ -41,7 +40,8 @@ from app.schemas.auth import (
     VerifyEmailRequest,
 )
 from app.schemas.user import UserRead
-from app.services import audit
+from app.services import audit, email_tokens
+from app.services.password_reset import request_password_reset
 from app.services.sessions import (
     create_session,
     hash_token,
@@ -130,7 +130,9 @@ def login(
         db=db,
         user_id=user.id,
         user_agent=request.headers.get("user-agent", "")[:255] or None,
-        client_ip=request.client.host if request.client else None,
+        # The rate limiter's identity, not request.client: under --forwarded-allow-ips="*" the latter
+        # is whatever X-Forwarded-For the caller sent. None when no trustworthy address exists.
+        client_ip=client_identity(request).identity,
         ttl=timedelta(minutes=30),
     )
 
@@ -138,7 +140,7 @@ def login(
         key=SESSION_COOKIE_NAME,
         value=raw_token,
         httponly=True,
-        secure=(settings.APP_ENV == "production"),
+        secure=settings.is_production,  # APP_ENV is normalised and validated at startup
         samesite="lax",
         max_age=1800,
         path="/",
@@ -219,28 +221,16 @@ def forgot_password(
     Always returns success to prevent user email enumeration.
     """
     limit_account_attempts("/auth/forgot-password", payload.email)
-    user = db.scalar(select(User).where(func.lower(User.email) == payload.email.lower()))
-    if user is not None and user.is_active:
-        token = secrets.token_urlsafe(32)
-        now = datetime.now(timezone.utc)
-        email_token = EmailToken(
-            user_id=user.id,
-            purpose="reset_password",
-            token_hash=hash_token(token),
-            created_at=now,
-            expires_at=now + timedelta(hours=1),
+    if not settings.email_delivery_enabled:
+        # Same answer for every address (no enumeration), and no token is minted that nobody could receive.
+        logger.warning("Password reset refused: email delivery is not configured")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Password reset is temporarily unavailable. Please try again later.",
         )
-        db.add(email_token)
-        outbox = EmailOutbox(
-            user_id=user.id,
-            to_address=user.email,
-            template="password_reset",
-            params={"token": token},
-            dedupe_key=f"reset:{user.id}:{int(now.timestamp())}",
-            created_at=now,
-        )
-        db.add(outbox)
-        db.flush()
+    # Cooldown, daily cap and queue ceiling are applied per account inside; the answer is the same
+    # whatever the outcome, so it reveals neither the account nor the throttling.
+    request_password_reset(db, payload.email)
 
     return {"status": "ok", "message": "If this email is registered, instructions have been sent."}
 
@@ -252,14 +242,7 @@ def reset_password(
 ) -> dict[str, str]:
     """Complete a password reset with a valid token."""
     now = datetime.now(timezone.utc)
-    token_digest = hash_token(payload.token)
-    stmt = select(EmailToken).where(
-        EmailToken.purpose == "reset_password",
-        EmailToken.token_hash == token_digest,
-        EmailToken.used_at.is_(None),
-        EmailToken.expires_at > now,
-    )
-    email_token = db.scalar(stmt)
+    email_token = email_tokens.consume(db, payload.token, email_tokens.PASSWORD_RESET, now=now)
     if email_token is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -279,6 +262,8 @@ def reset_password(
         raise _hash_capacity_exhausted("/auth/reset-password", "hash", error) from None
 
     email_token.used_at = now
+    # Any other reset link already sent for this account stops working too.
+    email_tokens.revoke_outstanding(db, user.id, email_tokens.PASSWORD_RESET, now=now)
     revoke_all_user_sessions(db, user.id)
     audit.record(
         db,
@@ -298,14 +283,7 @@ def verify_email(
 ) -> dict[str, str]:
     """Verify an email address with a single-use token."""
     now = datetime.now(timezone.utc)
-    token_digest = hash_token(payload.token)
-    stmt = select(EmailToken).where(
-        EmailToken.purpose == "verify_email",
-        EmailToken.token_hash == token_digest,
-        EmailToken.used_at.is_(None),
-        EmailToken.expires_at > now,
-    )
-    email_token = db.scalar(stmt)
+    email_token = email_tokens.consume(db, payload.token, email_tokens.VERIFY_EMAIL, now=now)
     if email_token is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

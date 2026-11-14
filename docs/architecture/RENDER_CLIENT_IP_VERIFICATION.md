@@ -2,6 +2,7 @@
 
 | | |
 | --- | --- |
+| Update 2026-11-14 | `render.yaml` now sets `CLIENT_IP_STRATEGY=none` (no per-address budget; account budget only) and the app **refuses `peer` in production on Render**, so the forgeable address is no longer counted (it previously let anyone reset their own budget *or exhaust someone else's*). `render_cf_connecting_ip` remains the target and stays **unverified**: switch to it only after the §5 black-box check passes. Until then there is no per-address limit on credential endpoints; see `P0_SECURITY_HARDENING_2026-11-14.md` |
 | Status | **Production remains exposed to client-IP spoofing.** A fix is implemented and tested locally (`render_cf_connecting_ip`), not deployed. It rests on Render's published statements, not on evidence from our service. No Render support reply is recorded. Releasing before this is resolved is a temporary accepted risk (`PRODUCTION_READINESS.md` §3.1) |
 | Date | 2026-11-02, updated 2026-11-04 |
 | Service | `opportunity-hub-api` (name from `render.yaml`; not checked against the live dashboard) |
@@ -143,9 +144,9 @@ scheme, and must be tested. **Future session work (M1b) must set `Secure` on coo
 from the scheme.**
 
 **Order matters. Never remove these flags while the strategy is still `peer`:** the proxy's address would become every
-student's bucket.
+student's bucket. (Since 2026-11-14 production on Render refuses to start with `peer` at all.)
 
-**Fallback if assumption 1 or 2 can't be accepted:** there is no explicit "no address budget" mode yet; it would be a small addition needing approval.
+**Fallback if assumption 1 or 2 can't be accepted:** `CLIENT_IP_STRATEGY=none` (added 2026-11-14): no address budget, account budget only. It is the value `render.yaml` ships until the check below passes.
 
 **Black-box check after deployment.** It needs its own authorization, because it is production traffic. Use one machine and an unused email per request:
 

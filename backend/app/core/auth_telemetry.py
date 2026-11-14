@@ -31,7 +31,7 @@ EVENTS = frozenset(
     }
 )
 ENDPOINTS = frozenset({"/auth/login", "/auth/register"})
-STRATEGIES = frozenset({"peer", "xff_rightmost", "header", "render_cf_connecting_ip"})
+STRATEGIES = frozenset({"peer", "xff_rightmost", "header", "render_cf_connecting_ip", "none"})
 #: Values allowed for each label; anything else is recorded as "other".
 LABEL_VALUES: dict[str, frozenset[str]] = {
     "endpoint": ENDPOINTS,
@@ -43,6 +43,7 @@ LABEL_VALUES: dict[str, frozenset[str]] = {
             "untrusted_proxy",
             "ambiguous_forwarded_chain",
             "client_identity_unavailable",
+            "address_budget_disabled",
         }
     ),
     "budget": frozenset({"ip", "account"}),

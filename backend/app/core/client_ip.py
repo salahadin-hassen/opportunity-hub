@@ -11,7 +11,11 @@ Only entries added by proxies we trust are evidence. Strategies (see
 * ``header``: one address from a header the trusted edge sets;
 * ``render_cf_connecting_ip``: the ``CF-Connecting-IP`` value Cloudflare writes
   on public traffic to a Render web service. See :func:`_render_cf_identity`
-  for the assumption it rests on.
+  for the assumption it rests on;
+* ``none``: no address identity at all, so no per-address budget. For a
+  deployment where no trustworthy client address is established yet (Render
+  before the ``CF-Connecting-IP`` check passes): honest, where ``peer`` there
+  would count either a forgeable or a shared address.
 
 The result is a :class:`ClientIdentity`. When no trustworthy client address
 can be established its ``identity`` is ``None`` and ``reason`` says why; the
@@ -44,6 +48,7 @@ Reason = Literal[
     "untrusted_proxy",
     "ambiguous_forwarded_chain",
     "client_identity_unavailable",
+    "address_budget_disabled",
 ]
 REASONS: tuple[Reason, ...] = Reason.__args__  # type: ignore[attr-defined]
 
@@ -51,6 +56,7 @@ REASONS: tuple[Reason, ...] = Reason.__args__  # type: ignore[attr-defined]
 FORWARDING_HEADERS = ("x-forwarded-for", "forwarded", "x-real-ip")
 
 RENDER_CF_CONNECTING_IP = "render_cf_connecting_ip"
+NO_ADDRESS = "none"
 #: Cloudflare's Pseudo IPv4 addresses are Class E; with "Overwrite Headers" the real address is in CF-Connecting-IPv6.
 CLOUDFLARE_PSEUDO_IPV4 = ipaddress.ip_network("240.0.0.0/4")
 #: The fixed value Cloudflare documents for cross-zone Worker subrequests: a constant, so it identifies nobody.
@@ -164,6 +170,8 @@ def select_client_identity(
     client_ip_header: str | None = None,
 ) -> ClientIdentity:
     """Return the client identity for one request under ``strategy`` (``headers`` keys lower-case)."""
+    if strategy == NO_ADDRESS:
+        return ClientIdentity(None, NO_ADDRESS, "address_budget_disabled")
     if strategy == RENDER_CF_CONNECTING_IP:
         return _render_cf_identity(headers)
     if strategy not in ("peer", "xff_rightmost", "header"):

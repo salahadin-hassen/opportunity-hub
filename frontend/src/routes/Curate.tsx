@@ -89,7 +89,6 @@ export function Curate() {
         deadline_type: "fixed",
         location_mode: "unknown",
         deadline_at: deadlineAt ? new Date(deadlineAt).toISOString() : undefined,
-        status: "draft" as any,
       });
       setShowCreateForm(false);
       setSlug("");
@@ -125,7 +124,7 @@ export function Curate() {
             </span>
           </div>
           <p className="mt-2 text-[15px] text-ink-soft">
-            Manage acquisition sources, review verified opportunity drafts, and audit administrative actions.
+            Manage acquisition sources, review opportunity drafts, and audit administrative actions.
           </p>
 
           <div className="mt-6 flex gap-2">
@@ -316,9 +315,9 @@ export function Curate() {
                           onClick={() => handlePublish(opp.id)}
                           disabled={publishOpp.isPending}
                           className="btn btn-ink text-[13px] py-1.5"
-                          title="Requires at least 1 verified source & quoted rule"
+                          title="Publishes only if the completeness checks pass: an official URL, a source record, and quoted mandatory rules citing it. Sources are not independently verified."
                         >
-                          Verify & Publish
+                          Check & publish
                         </button>
                       )}
                       {opp.status === "published" && (

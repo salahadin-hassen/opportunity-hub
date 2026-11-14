@@ -237,11 +237,15 @@ async def test_tracking_applications(client: AsyncClient, auth_headers, sample_o
 
 
 @pytest.mark.asyncio
-async def test_password_reset_and_email_verification(client: AsyncClient, db_session: Session):
+async def test_password_reset_and_email_verification(client: AsyncClient, db_session: Session, monkeypatch):
     """Verify forgot-password token flow and email verification."""
+    import re
     from datetime import timedelta
     from app.models import EmailOutbox, EmailToken
+    from app.services.email_worker import LocalTestEmailAdapter, process_outbox
     from sqlalchemy import select
+
+    monkeypatch.setattr(settings, "EMAIL_DELIVERY", "memory")
 
     user = User(
         email=f"reset_test_{uuid.uuid4().hex[:8]}@example.org",
@@ -257,7 +261,10 @@ async def test_password_reset_and_email_verification(client: AsyncClient, db_ses
 
     outbox = db_session.scalar(select(EmailOutbox).where(EmailOutbox.user_id == user.id))
     assert outbox is not None
-    token = outbox.params["token"]
+    assert "token" not in outbox.params  # only a token id is stored; the token is rebuilt at send time
+    mailbox = LocalTestEmailAdapter()
+    assert process_outbox(db_session, adapter=mailbox) == 1
+    token = re.search(r"#token=([A-Za-z0-9_-]+)", mailbox.latest_for_recipient(user.email).text_content).group(1)
 
     # 2. Reset password
     reset_res = await client.post(
@@ -400,8 +407,9 @@ async def test_cookie_authentication_and_csrf_protection(client: AsyncClient, db
 
 
 @pytest.mark.asyncio
-async def test_transactional_email_worker(client: AsyncClient, db_session: Session):
+async def test_transactional_email_worker(client: AsyncClient, db_session: Session, monkeypatch):
     """Verify transactional email outbox processing, delivery, and retry backoff."""
+    monkeypatch.setattr(settings, "EMAIL_DELIVERY", "memory")
     from app.services.email_worker import LocalTestEmailAdapter, process_outbox
     from app.models.email_outbox import EmailOutbox
     from sqlalchemy import select
@@ -537,6 +545,19 @@ def test_tombstone_retains_no_email_or_pii():
     assert "email_hash" not in column_names
 
 
+def _queued_with_live_token(db_session: Session, template: str, purpose: str) -> dict:
+    """Outbox params in the current format (token id + key version) backed by a live token row."""
+    from datetime import timedelta
+    from app.services import email_tokens
+
+    owner = User(email=f"worker-{uuid.uuid4().hex[:8]}@example.org", password_hash="x", is_active=True)
+    db_session.add(owner)
+    db_session.flush()
+    token, key_id = email_tokens.issue(db_session, user_id=owner.id, purpose=purpose, ttl=timedelta(hours=1))
+    db_session.flush()
+    return {"token_id": str(token.id), "key_id": key_id}
+
+
 def test_email_worker_at_least_once_delivery_semantics_on_crash(db_session: Session):
     """Demonstrate at-least-once delivery: worker crash after provider acceptance causes redelivery."""
     from datetime import timedelta
@@ -557,7 +578,7 @@ def test_email_worker_at_least_once_delivery_semantics_on_crash(db_session: Sess
         user_id=None,
         to_address="student@example.org",
         template="email_verification",
-        params={"token": "tok123"},
+        params=_queued_with_live_token(db_session, "email_verification", "verify_email"),
         status="pending",
         send_after=now,
         dedupe_key=f"verify:{uuid.uuid4().hex}",
@@ -607,7 +628,7 @@ def test_email_worker_retry_backoff_and_permanent_failure(db_session: Session):
         user_id=None,
         to_address="student@example.org",
         template="password_reset",
-        params={"token": "tok456"},
+        params=_queued_with_live_token(db_session, "password_reset", "reset_password"),
         status="pending",
         send_after=now,
         attempts=0,
@@ -624,7 +645,8 @@ def test_email_worker_retry_backoff_and_permanent_failure(db_session: Session):
         process_outbox(db_session, adapter=AlwaysFailingAdapter())
         assert email_row.attempts == expected_attempt
         assert email_row.status == "pending"
-        assert "SMTP relay connection refused" in email_row.last_error
+        # Only the exception type is kept: provider messages can echo recipient addresses.
+        assert email_row.last_error == "ConnectionError"
 
     # 5th attempt reaches MAX_ATTEMPTS -> permanently fails
     email_row.send_after = datetime.now(timezone.utc) - timedelta(seconds=1)

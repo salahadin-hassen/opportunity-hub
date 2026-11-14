@@ -24,10 +24,10 @@ def opportunity(status: str = "published", **overrides) -> Opportunity:
         "slug": f"public-{uuid.uuid4().hex[:10]}",
         "title": "Public Research Call",
         "opportunity_type": "research_program",
-        "status": status,
     }
     payload.update(overrides)
-    return Opportunity(**OpportunityCreate(**payload).model_dump())
+    # Fixture rows are written straight to the ORM: the API itself can only create drafts.
+    return Opportunity(**OpportunityCreate(**payload).model_dump(), status=status)
 
 
 def creation_payload() -> dict[str, object]:
