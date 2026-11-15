@@ -25,8 +25,7 @@ overwrites the dashboard's `CORS_ORIGINS` and `VITE_API_BASE` with the values in
 - **The frontend calls the API cross-origin.** `VITE_API_BASE` is fixed at build time, and the API allows
   exactly that one origin through `CORS_ORIGINS`. There's no wildcard, and no cookies are used: tokens travel
   in the `Authorization` header.
-- **Migrations run before the API starts.** The start command is `alembic upgrade head && uvicorn …`, so the
-  service only becomes healthy on the current schema. `/health` returns 200 only when the database answers.
+- **Migrations run decoupled from the web server start command.** On the Free plan, migrations are run once by the operator prior to deploy (see `architecture/RELEASE_RUNBOOK_2026-11.md` §6.1); on the Starter plan, Render's `preDeployCommand` runs `alembic upgrade head`. The start command runs `uvicorn` cleanly without concurrent migration races or container crash loops. `/health` returns 200 only when the database answers.
 - **Frankfurt** is the closest Render region to an East African audience. Choose Neon's Frankfurt region too,
   to keep the API and the database close.
 
@@ -167,8 +166,7 @@ pg_dump --no-owner --no-privileges '<Neon connection string>' > opportunity-hub-
 
 Restore into an empty database with `psql '<connection string>' < file.sql`.
 
-**Redeploys** keep all data: the database is external and migrations only move forward. A redeploy re-runs
-`alembic upgrade head`, which does nothing when the schema is current.
+**Redeploys** keep all data: the database is external and migrations only move forward. Migrations are executed once prior to promotion (Free plan) or via `preDeployCommand` (Starter plan), preventing migration collisions during container restarts.
 
 **Don't** run the development seed (without `--allow-production`) against production. It refuses in production
 mode. Don't point any production setting at the local `.devdb` cluster.
