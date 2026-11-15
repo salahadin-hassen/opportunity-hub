@@ -361,6 +361,100 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/curate/candidates": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Candidates
+         * @description The review queue: highest quality score first within a state.
+         */
+        get: operations["list_candidates_curate_candidates_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/candidates/runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Runs */
+        get: operations["list_runs_curate_candidates_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/candidates/{candidate_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Candidate */
+        get: operations["get_candidate_curate_candidates__candidate_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/candidates/{candidate_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Review Candidate
+         * @description Approve (creates a draft opportunity, never publishes), reject, or request a correction.
+         */
+        post: operations["review_candidate_curate_candidates__candidate_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/candidates/{candidate_id}/requeue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Requeue
+         * @description Queue a fresh fetch and extraction (the next ``ingest-process`` run picks it up).
+         */
+        post: operations["requeue_curate_candidates__candidate_id__requeue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/audit": {
         parameters: {
             query?: never;
@@ -1123,6 +1217,134 @@ export interface components {
             /** Opportunity Ids */
             opportunity_ids?: string[] | null;
         };
+        /** CandidateDetail */
+        CandidateDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Name */
+            source_name?: string | null;
+            /** Url */
+            url: string;
+            /** Final Url */
+            final_url: string | null;
+            /** State */
+            state: string;
+            /** Quality Score */
+            quality_score: number | null;
+            /** Title */
+            title?: string | null;
+            /** Deadline */
+            deadline?: unknown;
+            /** Problems */
+            problems?: string[];
+            /** Attempts */
+            attempts: number;
+            /** Last Error */
+            last_error: string | null;
+            /** Opportunity Id */
+            opportunity_id: string | null;
+            /** Duplicate Of Candidate Id */
+            duplicate_of_candidate_id: string | null;
+            /** Duplicate Of Opportunity Id */
+            duplicate_of_opportunity_id: string | null;
+            /** Fetched At */
+            fetched_at: string | null;
+            /**
+             * Discovered At
+             * Format: date-time
+             */
+            discovered_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /** Extraction */
+            extraction: {
+                [key: string]: unknown;
+            } | null;
+            /** Validation */
+            validation: {
+                [key: string]: unknown;
+            } | null;
+            /** Extractor Version */
+            extractor_version: string | null;
+            /** Content Hash */
+            content_hash: string | null;
+            /** Http Status */
+            http_status: number | null;
+            /** Reviewed By */
+            reviewed_by: string | null;
+            /** Reviewed At */
+            reviewed_at: string | null;
+            /** Review Notes */
+            review_notes: string | null;
+        };
+        /**
+         * CandidateState
+         * @description Where a candidate is in the pipeline.
+         * @enum {string}
+         */
+        CandidateState: "discovered" | "retry" | "failed" | "needs_review" | "expired" | "duplicate" | "rejected" | "changes_requested" | "approved";
+        /** CandidateSummary */
+        CandidateSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Source Name */
+            source_name?: string | null;
+            /** Url */
+            url: string;
+            /** Final Url */
+            final_url: string | null;
+            /** State */
+            state: string;
+            /** Quality Score */
+            quality_score: number | null;
+            /** Title */
+            title?: string | null;
+            /** Deadline */
+            deadline?: unknown;
+            /** Problems */
+            problems?: string[];
+            /** Attempts */
+            attempts: number;
+            /** Last Error */
+            last_error: string | null;
+            /** Opportunity Id */
+            opportunity_id: string | null;
+            /** Duplicate Of Candidate Id */
+            duplicate_of_candidate_id: string | null;
+            /** Duplicate Of Opportunity Id */
+            duplicate_of_opportunity_id: string | null;
+            /** Fetched At */
+            fetched_at: string | null;
+            /**
+             * Discovered At
+             * Format: date-time
+             */
+            discovered_at: string;
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+        };
         /**
          * Capability
          * @description One supported rule metric and evaluator capability.
@@ -1836,6 +2058,70 @@ export interface components {
             token: string;
             /** New Password */
             new_password: string;
+        };
+        /** ReviewRequest */
+        ReviewRequest: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approve" | "reject" | "request_changes";
+            /** Notes */
+            notes?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Opportunity Type */
+            opportunity_type?: string | null;
+            /** Deadline */
+            deadline?: string | null;
+            /** Deadline Type */
+            deadline_type?: ("fixed" | "rolling" | "none") | null;
+            /** Description */
+            description?: string | null;
+            /** Statements */
+            statements?: number[] | null;
+            /** Countries */
+            countries?: string[] | null;
+            /**
+             * Force
+             * @default false
+             */
+            force: boolean;
+        };
+        /** ReviewResult */
+        ReviewResult: {
+            candidate: components["schemas"]["CandidateDetail"];
+            /** Opportunity Id */
+            opportunity_id?: string | null;
+        };
+        /** RunRead */
+        RunRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Source Id */
+            source_id: string | null;
+            /** Status */
+            status: string;
+            /** Dry Run */
+            dry_run: boolean;
+            /** Stats */
+            stats: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error: string | null;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Finished At */
+            finished_at: string | null;
         };
         /** SavedOpportunityCreate */
         SavedOpportunityCreate: {
@@ -2935,6 +3221,168 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_candidates_curate_candidates_get: {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["CandidateState"] | null;
+                source_id?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_runs_curate_candidates_runs_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_candidate_curate_candidates__candidate_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_candidate_curate_candidates__candidate_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReviewResult"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    requeue_curate_candidates__candidate_id__requeue_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                candidate_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CandidateDetail"];
+                };
             };
             /** @description Validation Error */
             422: {

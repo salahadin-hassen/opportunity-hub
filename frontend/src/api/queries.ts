@@ -34,6 +34,9 @@ export const keys = {
   application: (id: string) => ["me", "applications", id] as const,
   curatorSources: ["curate", "sources"] as const,
   curatorOpportunities: (status?: string) => ["curate", "opportunities", status ?? "all"] as const,
+  curatorCandidates: (state?: string, sourceId?: string) => ["curate", "candidates", state ?? "all", sourceId ?? "all"] as const,
+  candidateDetail: (id: string) => ["curate", "candidates", id] as const,
+  candidateRuns: ["curate", "candidates", "runs"] as const,
   auditLog: ["admin", "audit"] as const,
 };
 
@@ -460,5 +463,83 @@ export function useAuditLog(targetType?: string, action?: string) {
       ),
     enabled: isAuthenticated,
     staleTime: 15_000,
+  });
+}
+
+export function useCuratorCandidates(state?: string, sourceId?: string) {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.curatorCandidates(state, sourceId),
+    queryFn: () =>
+      unwrap(
+        api.GET("/curate/candidates", {
+          params: { query: { state: state === "all" ? undefined : (state as any), source_id: sourceId } },
+        }),
+      ),
+    enabled: isAuthenticated,
+    staleTime: 15_000,
+  });
+}
+
+export function useCandidateDetail(candidateId?: string | null) {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.candidateDetail(candidateId ?? ""),
+    queryFn: () =>
+      unwrap(
+        api.GET("/curate/candidates/{candidate_id}", {
+          params: { path: { candidate_id: candidateId! } },
+        }),
+      ),
+    enabled: isAuthenticated && Boolean(candidateId),
+    staleTime: 15_000,
+  });
+}
+
+export function useCandidateRuns(limit = 20) {
+  const { isAuthenticated } = useAuth();
+  return useQuery({
+    queryKey: keys.candidateRuns,
+    queryFn: () =>
+      unwrap(
+        api.GET("/curate/candidates/runs", {
+          params: { query: { limit } },
+        }),
+      ),
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+}
+
+export function useReviewCandidate() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: Schemas["ReviewRequest"] }) =>
+      unwrap(
+        api.POST("/curate/candidates/{candidate_id}/review", {
+          params: { path: { candidate_id: id } },
+          body,
+        }),
+      ),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["curate", "candidates"] });
+      client.invalidateQueries({ queryKey: ["curate", "opportunities"] });
+      client.invalidateQueries({ queryKey: keys.opportunities });
+    },
+  });
+}
+
+export function useRequeueCandidate() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) =>
+      unwrap(
+        api.POST("/curate/candidates/{candidate_id}/requeue", {
+          params: { path: { candidate_id: id } },
+        }),
+      ),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["curate", "candidates"] });
+    },
   });
 }
