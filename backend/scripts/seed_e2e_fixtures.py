@@ -1,4 +1,5 @@
-"""Create the accounts the Playwright suite needs, in a throwaway end-to-end database only.
+"""Create the accounts and ingestion candidates the Playwright suite needs, in a throwaway end-to-end
+database only (candidates: ``scripts.seed_e2e_candidates``, built without any network access).
 
     E2E_ADMIN_PASSWORD=... python -m scripts.seed_e2e_fixtures
 
@@ -144,7 +145,12 @@ def main() -> None:
         if session.scalar(select(Profile).where(Profile.user_id == user.id)) is None:
             session.add(Profile(user_id=user.id, full_name="E2E Admin", email=ADMIN_EMAIL, degree_level="bachelor"))
         session.commit()
+        from scripts.seed_e2e_candidates import seed_candidates
+
+        states = seed_candidates(session, user)
+        session.commit()
     print(f"E2E fixtures ready: {ADMIN_EMAIL} (role admin; password from ${ADMIN_PASSWORD_ENV} or the e2e default)")
+    print(f"E2E ingestion candidates by state: {states}")
 
 
 if __name__ == "__main__":

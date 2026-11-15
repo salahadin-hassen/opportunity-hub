@@ -12,6 +12,7 @@ from app.api.routers.auth import router as auth_router
 from app.api.routers.curate import admin_router
 from app.api.routers.curate import router as curate_router
 from app.api.routers.education import router as education_router
+from app.api.routers.ingestion import operations_router as ingestion_operations_router
 from app.api.routers.ingestion import router as ingestion_router
 from app.api.routers.matches import capabilities_router, router as matches_router
 from app.api.routers.opportunities import (
@@ -71,6 +72,7 @@ app.include_router(auth_router)
 app.include_router(curate_router)
 app.include_router(curate_opportunities_router)
 app.include_router(ingestion_router)
+app.include_router(ingestion_operations_router)
 app.include_router(admin_router)
 app.include_router(education_router)
 app.include_router(opportunities_router)

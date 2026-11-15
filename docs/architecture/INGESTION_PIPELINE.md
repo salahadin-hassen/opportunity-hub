@@ -137,15 +137,16 @@ The curator workspace in `frontend/src/routes/Curate.tsx` includes an interactiv
 
 ## 6. Operator Workflow & CLI Runbook
 
-### A. Source Management
-1. **Propose and load new sources:**
+### A. Register and Test a Source
+1. **Load source definitions into proposed state:**
    ```bash
-   python -m app.cli ingest-source-load sources.json
+   python -m app.cli ingest-source-load backend/data/ingestion/sources.json
    ```
-2. **Dry-run test discovery on a source:**
+2. **Perform real live test on source (dry-run):**
    ```bash
    python -m app.cli ingest-source-test "Max Planck Institute Official Portal"
    ```
+   *Fetches robots.txt, connector URLs, enforces SSRF/redirect guards, and records the test run in `acquisition_sources`.*
 3. **Record terms-of-use review:**
    ```bash
    python -m app.cli ingest-source-terms "Max Planck Institute Official Portal" acceptable --actor curator@example.org --notes "Public university open access"
@@ -154,45 +155,111 @@ The curator workspace in `frontend/src/routes/Curate.tsx` includes an interactiv
    ```bash
    python -m app.cli ingest-source-status "Max Planck Institute Official Portal" approved --actor curator@example.org
    ```
+   *Enforced by database: approval requires acceptable terms review, robots `allowed`, and a passed test run.*
 
-### B. Discovery and Processing
-1. **Run lead discovery across approved sources:**
+### B. Run Discovery
+1. **Discover leads across all approved sources (or a single source):**
    ```bash
-   python -m app.cli ingest-discover
+   python -m app.cli ingest-discover [--source "<name>"] [--dry-run]
    ```
-2. **Process discovered candidates (fetch, extract, validate, deduplicate):**
-   ```bash
-   python -m app.cli ingest-process --limit 50
-   ```
-3. **Inspect queue statistics:**
-   ```bash
-   python -m app.cli ingest-stats
-   ```
-4. **View recent discovery and processing runs:**
-   ```bash
-   python -m app.cli ingest-runs --limit 10
-   ```
+   *Connector crawls feeds, sitemaps, or HTML indices. Checks allowed hostnames, respects robots.txt, deduplicates via `candidate_key = sha256(source_id, canonical_url)`, and creates candidate records in `discovered` state.*
 
-### C. Curator Review and Opportunity Lifecycle
-1. **Inspect candidate extraction, quality score, and verbatim evidence:**
+### C. Process Candidates
+1. **Process due candidates with conditional-request handling:**
    ```bash
+   python -m app.cli ingest-process --limit 50 [--source "<name>"]
+   ```
+   *Leases candidates (`FOR UPDATE SKIP LOCKED`). Issues conditional HTTP GET with persisted ETag and Last-Modified validators.*
+   - **On HTTP 304 Not Modified:** Updates `last_seen_at`, avoids redundant LLM/HTML extraction, and releases lease.
+   - **On HTTP 200 OK:** Parses HTML, extracts metadata, verifies verbatim rule quotes against stored page text, checks duplicate and cycle status, and advances state (`needs_review`, `duplicate`, `expired`, `retry`, or `failed`).
+   - **On Fetch Failure:** Preserves existing stored page text and validators, applying exponential backoff retry.
+
+### D. Review Candidates
+1. **Via Curator Web UI:**
+   Navigate to the **Candidate Queue** tab in the Curator Workspace (`/curate`).
+   - Filter by queue state (`needs_review`, `all`, `approved`, `expired`, `duplicate`, `rejected`, `changes_requested`).
+   - Inspect quality scores, canonical URLs, warnings, and duplicate matches.
+   - Review and toggle verbatim eligibility statements (at least one must be retained).
+   - Override title, category, deadline date, and deadline type (`fixed`, `rolling`, `none`).
+   - Actions: "Approve as Draft Opportunity", "Request Changes", "Reject Candidate", "Re-queue".
+2. **Via Curator CLI:**
+   ```bash
+   python -m app.cli ingest-candidates --state needs_review
    python -m app.cli ingest-show <CANDIDATE_UUID>
-   ```
-2. **Approve candidate into a draft opportunity (specifying structured countries):**
-   ```bash
    python -m app.cli ingest-review <CANDIDATE_UUID> approve --actor curator@example.org --countries "GB,DE" --notes "Curator verified against source"
-   ```
-3. **Request changes on a candidate:**
-   ```bash
    python -m app.cli ingest-review <CANDIDATE_UUID> request_changes --actor curator@example.org --notes "Verify whether 2027 or 2028 call"
+   python -m app.cli ingest-review <CANDIDATE_UUID> reject --actor curator@example.org --notes "Not student relevant"
+   python -m app.cli ingest-requeue <CANDIDATE_UUID>
    ```
-4. **Re-queue failed or retry candidates:**
+
+### E. Approve and Publish
+1. **Curator Approval:**
+   Approving a candidate creates a **DRAFT** record in `opportunities` containing the source snapshot, verbatim quotes, and ISO-3166-1 alpha-2 country codes. The ingestion pipeline **never publishes automatically**.
+2. **Curator Publication:**
+   Publishing is performed via the curator opportunity editor ("Check & publish" button) or `POST /curate/opportunities/{id}/publish`.
+   - Strict publication checks verify complete title, valid future deadline or rolling status, and syntax-valid requirement rules.
+   - Pipeline code never modifies an already published opportunity.
+
+### F. Refresh Published Opportunities
+1. **Re-check official source pages of published opportunities:**
+   ```bash
+   python -m app.cli ingest-refresh --limit 20 [--opportunity <UUID>] [--min-interval-hours 24]
+   ```
+   *Re-reads canonical source URLs using conditional HTTP requests (ETag / Last-Modified). Detects content drift, deadline changes, cycle rollovers, or removed pages (HTTP 404/410). Records an immutable check in `opportunity_refresh_checks`. Never directly mutates approved/published records.*
+
+### G. Inspect Refresh Findings
+1. **Via CLI:**
+   ```bash
+   python -m app.cli ingest-refresh-checks --state pending --limit 50
+   python -m app.cli ingest-refresh-show <CHECK_UUID>
+   ```
+2. **Via API:**
+   - `GET /curate/candidates/refresh-checks?review_state=pending`
+   - `GET /curate/candidates/refresh-checks/{check_id}`
+3. **Frontend Limitation Notice:**
+   > [!NOTE]
+   > The refresh findings API exists and is fully functional, but there is currently **no dedicated curator frontend screen** for refresh findings in the UI. Operators inspect and resolve refresh findings via CLI (`ingest-refresh-checks`, `ingest-refresh-show`) or directly via API.
+
+### H. Resolve Curator Findings
+1. **Acknowledge or dismiss findings:**
+   ```bash
+   python -m app.cli ingest-refresh-resolve <CHECK_UUID> acknowledge --actor curator@example.org --notes "Noted deadline change, updating opportunity manually"
+   python -m app.cli ingest-refresh-resolve <CHECK_UUID> dismiss --actor curator@example.org --notes "Styling change only, no requirement changes"
+   ```
+2. **Via API:**
+   - `POST /curate/candidates/refresh-checks/{check_id}/resolve` with `{"decision": "acknowledge" | "dismiss", "notes": "..."}`.
+   - If an opportunity has closed or rolled over to a new cycle, curator either marks the opportunity closed or updates the opportunity rules with new verbatim evidence.
+
+### I. Monitor Source Health
+1. **Inspect source operational health metrics:**
+   ```bash
+   python -m app.cli ingest-source-health
+   python -m app.cli ingest-source-health --failed
+   ```
+2. **Via API:**
+   - `GET /curate/candidates/source-health`
+   - Returns real evidence-based counts: registered, tested, test_passed, never_tested, fetchable, parsed, producing, failed, needs_review, untraceable_candidates.
+   - Registration alone confers no operational credit.
+
+### J. Expire Opportunities
+1. **Audit and expire past-deadline records:**
+   ```bash
+   # Dry-run inspection
+   python -m app.cli ingest-expire
+   # Close published opportunities past deadline
+   python -m app.cli ingest-expire --close-published --yes
+   ```
+   *Marks past-deadline candidates as `expired` and sets published opportunities past their fixed deadline to `closed`.*
+
+### K. Recover Workers
+1. **Lease-based automatic recovery:**
+   - Worker leasing uses PostgreSQL `FOR UPDATE SKIP LOCKED` with `lease_until = now() + 10 minutes`.
+   - If an ingestion worker abruptly terminates or crashes, its lease automatically expires after 10 minutes.
+   - Subsequent `ingest-process` workers immediately re-lease and resume due candidates whose `lease_until` has lapsed, without requiring manual DB unlock scripts.
+2. **Re-queue failed or retry candidates:**
    ```bash
    python -m app.cli ingest-requeue --state retry
-   ```
-5. **Expire candidates past deadline:**
-   ```bash
-   python -m app.cli ingest-expire
+   python -m app.cli ingest-requeue --state failed
    ```
 
 ## 7. Scheduling and Monitoring Recommendations
@@ -205,6 +272,7 @@ The curator workspace in `frontend/src/routes/Curate.tsx` includes an interactiv
 |---|---|---|---|
 | **Discovery** | Daily at 02:00 UTC | Single worker | 50 URLs max per run; min 5s delay per domain |
 | **Processing** | Hourly | Concurrent workers safe (`SKIP LOCKED`) | 50 candidates per batch; 10s socket timeout |
+| **Refresh** | Daily at 04:00 UTC | Single worker | 50 opportunities per batch; conditional requests |
 | **Expiry** | Daily at 00:05 UTC | Single worker | Processes all candidates whose deadline < `today` |
 | **Health Audit** | Weekly | Read-only | Generates source error rates and HTTP 304 hit ratios |
 
@@ -218,7 +286,12 @@ The curator workspace in `frontend/src/routes/Curate.tsx` includes an interactiv
 
 ## 8. Reliability, Caching, and Engine Invariants
 
-- **Conditional Requests (HTTP 304 Not Modified) — partially implemented:** `fetcher.fetch_url` and `SafePageReader.read` accept `etag` / `last_modified` and send `If-None-Match` / `If-Modified-Since`, and `pipeline._store_page` handles a 304 by updating `last_seen_at` and releasing the lease without re-extracting. **The pipeline does not yet store a page's validators or pass them to the reader**, so no conditional request is sent in a real run; every re-fetch is a full GET. Storing `ETag` / `Last-Modified` on the candidate needs a follow-up migration.
+- **Conditional Requests (HTTP 304 Not Modified) — Fully Implemented:**
+  - `http_etag` and `http_last_modified` columns added to `ingestion_candidates` and `opportunity_refresh_checks` via migration `15603fdb3a61`.
+  - Stored headers are passed to `SafePageReader.read` and sent as `If-None-Match` and `If-Modified-Since`.
+  - On HTTP 304, `last_seen_at` is updated, previous extracted data is retained, unnecessary re-extraction is avoided, and leases are released cleanly.
+  - Failed network requests preserve existing cached page content and validators (preventing cached data loss during transient network glitches).
+  - Conditional requests lacking prior validators or returning invalid 304s are safely handled without state corruption.
 - **Worker Concurrency Isolation:** Candidate leasing uses PostgreSQL `FOR UPDATE SKIP LOCKED`. Multiple ingestion workers can operate in parallel without double-processing or deadlock contention.
 - **Structured Geographic Integrity:** `Opportunity.countries` is preserved through `ApprovalInput`, `ReviewRequest`, `pipeline.approve_candidate`, and `OpportunityCreate`. Country codes conform strictly to ISO-3166-1 alpha-2 standards.
 - **Eligibility Engine Safety:** Unparsed requirements and ambiguous rules are strictly assigned outcome `needs_review` / `unknown`. Under no circumstance can an unparsed rule evaluate to `eligible`, completely eliminating false-positive matches for students.

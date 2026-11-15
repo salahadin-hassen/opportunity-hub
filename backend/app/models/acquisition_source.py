@@ -13,6 +13,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import (
+    Boolean,
     CheckConstraint,
     DateTime,
     ForeignKey,
@@ -84,6 +85,11 @@ class AcquisitionSource(Base):
     terms_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
     #: Set only by a successful dry run of the connector against the live source.
     test_run_passed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    #: The last source test: when it ran, whether it passed, and what each fetched lead returned.
+    #: ``test_run_passed_at`` (which approval depends on) is set only by a passing test.
+    last_test_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_test_passed: Mapped[bool | None] = mapped_column(Boolean, nullable=True)
+    last_test_report: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)
 
     status: Mapped[str] = mapped_column(
         String(16), nullable=False, default=SourceStatus.PROPOSED, server_default=SourceStatus.PROPOSED.value

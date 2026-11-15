@@ -455,6 +455,80 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/curate/ingestion/source-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read Source Health */
+        get: operations["read_source_health_curate_ingestion_source_health_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/ingestion/refresh-checks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List Refresh Checks
+         * @description Refresh checks, newest first. By default only the findings waiting for a curator.
+         */
+        get: operations["list_refresh_checks_curate_ingestion_refresh_checks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/ingestion/refresh-checks/{check_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Refresh Check */
+        get: operations["get_refresh_check_curate_ingestion_refresh_checks__check_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/ingestion/refresh-checks/{check_id}/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Resolve Refresh Check
+         * @description Record that a finding was handled or is not a real change. Never edits the opportunity.
+         */
+        post: operations["resolve_refresh_check_curate_ingestion_refresh_checks__check_id__resolve_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/audit": {
         parameters: {
             query?: never;
@@ -1287,6 +1361,15 @@ export interface components {
             reviewed_at: string | null;
             /** Review Notes */
             review_notes: string | null;
+            /**
+             * Last Seen At
+             * Format: date-time
+             */
+            last_seen_at: string;
+            /** Etag */
+            etag: string | null;
+            /** Last Modified */
+            last_modified: string | null;
         };
         /**
          * CandidateState
@@ -2021,6 +2104,123 @@ export interface components {
             /** Reason */
             reason?: string | null;
         };
+        /** RefreshCheckDetail */
+        RefreshCheckDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Opportunity Id
+             * Format: uuid
+             */
+            opportunity_id: string;
+            /** Opportunity Title */
+            opportunity_title?: string | null;
+            /** Url */
+            url: string;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /** Outcome */
+            outcome: string;
+            /** Review State */
+            review_state: string;
+            /** Http Status */
+            http_status: number | null;
+            /** Content Changed */
+            content_changed: boolean;
+            /** Findings */
+            findings: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error: string | null;
+            /** Consecutive Failures */
+            consecutive_failures: number;
+            /** Candidate Id */
+            candidate_id: string | null;
+            /** Content Hash */
+            content_hash: string | null;
+            /** Etag */
+            etag: string | null;
+            /** Last Modified */
+            last_modified: string | null;
+            /** Extraction */
+            extraction: {
+                [key: string]: unknown;
+            } | null;
+            /** Reviewed By */
+            reviewed_by: string | null;
+            /** Reviewed At */
+            reviewed_at: string | null;
+            /** Review Notes */
+            review_notes: string | null;
+        };
+        /** RefreshCheckSummary */
+        RefreshCheckSummary: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Opportunity Id
+             * Format: uuid
+             */
+            opportunity_id: string;
+            /** Opportunity Title */
+            opportunity_title?: string | null;
+            /** Url */
+            url: string;
+            /**
+             * Checked At
+             * Format: date-time
+             */
+            checked_at: string;
+            /** Outcome */
+            outcome: string;
+            /** Review State */
+            review_state: string;
+            /** Http Status */
+            http_status: number | null;
+            /** Content Changed */
+            content_changed: boolean;
+            /** Findings */
+            findings: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error: string | null;
+            /** Consecutive Failures */
+            consecutive_failures: number;
+            /** Candidate Id */
+            candidate_id: string | null;
+        };
+        /**
+         * RefreshOutcome
+         * @description What a refresh check concluded. Exactly one per check.
+         * @enum {string}
+         */
+        RefreshOutcome: "unchanged" | "material_update" | "deadline_changed" | "closed" | "new_cycle" | "source_unavailable" | "review_required";
+        /** RefreshResolveRequest */
+        RefreshResolveRequest: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "acknowledge" | "dismiss";
+            /** Notes */
+            notes?: string | null;
+        };
+        /**
+         * RefreshReviewState
+         * @enum {string}
+         */
+        RefreshReviewState: "none" | "pending" | "acknowledged" | "dismissed";
         /**
          * RequirementCategory
          * @description High-level grouping used to organize requirement explanations.
@@ -2243,6 +2443,90 @@ export interface components {
             };
             crawl_policy?: components["schemas"]["CrawlPolicy"];
         };
+        /** SourceHealthRead */
+        SourceHealthRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Status */
+            status: string;
+            /** Connector Key */
+            connector_key: string;
+            /** Robots Status */
+            robots_status: string;
+            /** Tested */
+            tested: boolean;
+            /** Test Passed */
+            test_passed: boolean;
+            /** Fetchable */
+            fetchable: boolean;
+            /** Parsed */
+            parsed: boolean;
+            /** Producing */
+            producing: boolean;
+            /** Failed */
+            failed: boolean;
+            /** Needs Review */
+            needs_review: boolean;
+            /** Stage */
+            stage: string;
+            /** Candidates */
+            candidates: number;
+            /** Fetched */
+            fetched: number;
+            /** Valid */
+            valid: number;
+            /** Awaiting Review */
+            awaiting_review: number;
+            /** Untraceable Candidates */
+            untraceable_candidates: number;
+            /** Problem */
+            problem: string | null;
+        };
+        /**
+         * SourceHealthReport
+         * @description Counts of sources by what recorded evidence proves. Registration alone counts for nothing.
+         */
+        SourceHealthReport: {
+            /** Registered */
+            registered: number;
+            /** Tested */
+            tested: number;
+            /** Test Passed */
+            test_passed: number;
+            /** Never Tested */
+            never_tested: number;
+            /** Fetchable */
+            fetchable: number;
+            /** Parsed */
+            parsed: number;
+            /** Producing */
+            producing: number;
+            /** Failed */
+            failed: number;
+            /** Needs Review */
+            needs_review: number;
+            /** By Stage */
+            by_stage: {
+                [key: string]: number;
+            };
+            /** By Status */
+            by_status: {
+                [key: string]: number;
+            };
+            /** By Connector */
+            by_connector: {
+                [key: string]: number;
+            };
+            /** Untraceable Candidates */
+            untraceable_candidates: number;
+            /** Sources */
+            sources: components["schemas"]["SourceHealthRead"][];
+        };
         /**
          * SourceRead
          * @description Everything a curator needs to judge a source; no secrets are stored on sources.
@@ -2290,6 +2574,14 @@ export interface components {
             terms_notes: string | null;
             /** Test Run Passed At */
             test_run_passed_at: string | null;
+            /** Last Test At */
+            last_test_at?: string | null;
+            /** Last Test Passed */
+            last_test_passed?: boolean | null;
+            /** Last Test Report */
+            last_test_report?: {
+                [key: string]: unknown;
+            } | null;
             /** Status */
             status: string;
             /** Publish Mode */
@@ -3382,6 +3674,127 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CandidateDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_source_health_curate_ingestion_source_health_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceHealthReport"];
+                };
+            };
+        };
+    };
+    list_refresh_checks_curate_ingestion_refresh_checks_get: {
+        parameters: {
+            query?: {
+                review_state?: components["schemas"]["RefreshReviewState"] | null;
+                outcome?: components["schemas"]["RefreshOutcome"] | null;
+                opportunity_id?: string | null;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshCheckSummary"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_refresh_check_curate_ingestion_refresh_checks__check_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                check_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshCheckDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    resolve_refresh_check_curate_ingestion_refresh_checks__check_id__resolve_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                check_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshResolveRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RefreshCheckDetail"];
                 };
             };
             /** @description Validation Error */

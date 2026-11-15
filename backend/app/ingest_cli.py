@@ -3,7 +3,9 @@
 Sources::
 
     ingest-source-load FILE.json          propose sources from a JSON list of SourceDefinition objects
-    ingest-source-test NAME               dry-run discovery (real fetches, nothing stored); records the test run
+    ingest-source-test NAME [--sample N]  dry-run discovery, then fetch the pages it leads to (every URL of a
+                                          url_list source, N leads otherwise); records the result on the source
+    ingest-source-health [--json] [--failed]   what is actually known about each source, from recorded evidence
     ingest-source-terms NAME acceptable|restricted --actor EMAIL [--notes ...]
     ingest-source-status NAME testing|approved|paused|retired --actor EMAIL [--reason ...]
     ingest-sources                        list sources with status and health
@@ -15,6 +17,13 @@ Pipeline::
     ingest-preview --source NAME URL              fetch and extract one page; print it; store nothing
     ingest-expire [--close-published --yes]       expire past-deadline candidates; optionally close published
                                                   opportunities whose deadline has passed (dry run by default)
+
+Refresh of published opportunities (never edits an opportunity; findings wait for a curator)::
+
+    ingest-refresh [--limit N] [--opportunity ID] [--min-interval-hours H]
+    ingest-refresh-checks [--state pending|acknowledged|dismissed|none] [--outcome O] [--limit N]
+    ingest-refresh-show ID
+    ingest-refresh-resolve ID acknowledge|dismiss --actor EMAIL [--notes ...]
 
 Review and inspection::
 
@@ -52,7 +61,8 @@ class IngestCliError(Exception):
 def add_commands(commands: argparse._SubParsersAction) -> None:
     load = commands.add_parser("ingest-source-load", help="propose acquisition sources from a JSON file")
     load.add_argument("file", type=Path)
-    test = commands.add_parser("ingest-source-test", help="dry-run discovery for a source and record the test run")
+    test = commands.add_parser("ingest-source-test", help="discover, fetch the leads, and record the test run")
+    test.add_argument("--sample", type=int, default=5, help="leads to fetch for a crawling connector")
     test.add_argument("name")
     terms = commands.add_parser("ingest-source-terms", help="record a terms-of-use review")
     terms.add_argument("name")
@@ -65,6 +75,24 @@ def add_commands(commands: argparse._SubParsersAction) -> None:
     status.add_argument("--actor", required=True)
     status.add_argument("--reason")
     commands.add_parser("ingest-sources", help="list acquisition sources")
+    health = commands.add_parser("ingest-source-health", help="source counts by what recorded evidence proves")
+    health.add_argument("--json", action="store_true")
+    health.add_argument("--failed", action="store_true", help="list failed sources with the reason")
+    refresh = commands.add_parser("ingest-refresh", help="re-read published opportunities' official pages")
+    refresh.add_argument("--limit", type=int, default=20)
+    refresh.add_argument("--opportunity", type=uuid.UUID)
+    refresh.add_argument("--min-interval-hours", type=float, default=24.0)
+    checks = commands.add_parser("ingest-refresh-checks", help="list refresh checks")
+    checks.add_argument("--state", choices=["pending", "acknowledged", "dismissed", "none"], default="pending")
+    checks.add_argument("--outcome")
+    checks.add_argument("--limit", type=int, default=50)
+    check_show = commands.add_parser("ingest-refresh-show", help="show one refresh check")
+    check_show.add_argument("id", type=uuid.UUID)
+    resolve = commands.add_parser("ingest-refresh-resolve", help="acknowledge or dismiss a refresh finding")
+    resolve.add_argument("id", type=uuid.UUID)
+    resolve.add_argument("decision", choices=["acknowledge", "dismiss"])
+    resolve.add_argument("--actor", required=True)
+    resolve.add_argument("--notes")
 
     discover = commands.add_parser("ingest-discover", help="discover candidate pages on approved sources")
     discover.add_argument("--source")
@@ -155,26 +183,30 @@ def run(db: Session, args: argparse.Namespace) -> int:
             db.commit()
             print(f"{created} source(s) proposed.")
         elif command == "ingest-source-test":
+            from app.intelligence.source_test import run_source_test
+
             source = _source(db, args.name)
             if source.status == SourceStatus.PROPOSED:
                 registry.change_status(db, source, SourceStatus.TESTING)
                 db.commit()
-            reader = pipeline.default_reader(source)
-            report = pipeline.run_discovery(db, source, reader=reader, dry_run=True)
-            robots = pipeline.robots_status_for(source, reader)
-            passed = report.error is None and bool(report.accepted)
-            from app.models.enums import RobotsStatus
-
-            registry.record_test_run(db, source, passed=passed, robots_status=robots or RobotsStatus.UNKNOWN)
+            report = run_source_test(db, source, sample=getattr(args, "sample", 5))
             db.commit()
-            print(f"robots.txt: {robots}; pages read: {report.pages_read}; leads: {len(report.accepted)}; "
-                  f"rejected: {len(report.rejected)}; error: {report.error}")
-            for url in report.accepted[:25]:
-                print(f"  lead {url}")
-            for url, reason in report.rejected[:10]:
-                print(f"  rejected {url}: {reason}")
-            print("test run PASSED" if passed else "test run FAILED")
-            return 0 if passed else 2
+            print(f"robots.txt: {report.robots_status}; leads: {report.leads}; index pages read: {report.pages_read}; "
+                  f"pages fetched: {report.fetched_ok} ok, {report.fetched_failed} failed")
+            for check in report.checks[:50]:
+                status_code = f" HTTP {check.status_code}" if check.status_code else ""
+                if check.ok:
+                    print(f"  ok{status_code} {check.url} ({check.text_chars} characters of text)")
+                else:
+                    print(f"  FAILED {check.result}{status_code} {check.url}: {check.detail}")
+            for item in report.rejected[:10]:
+                print(f"  rejected {item['url']}: {item['reason']}")
+            for warning in report.warnings:
+                print(f"  warning: {warning}")
+            for problem in report.problems:
+                print(f"  problem: {problem}")
+            print("test run PASSED" if report.passed else "test run FAILED")
+            return 0 if report.passed else 2
         elif command == "ingest-source-terms":
             source = _source(db, args.name)
             actor = _actor(db, args.actor, Permission.SOURCE_REVIEW)
@@ -193,6 +225,88 @@ def run(db: Session, args: argparse.Namespace) -> int:
             for source in db.scalars(select(AcquisitionSource).order_by(AcquisitionSource.name)):
                 print(f"{source.name}\t{source.status}\t{source.connector_key}\trobots={source.robots_status}\t"
                       f"terms={source.terms_status}\tfailures={source.consecutive_failures}\tlast_ok={source.last_success_at}")
+        elif command == "ingest-source-health":
+            from app.intelligence.health import source_health
+
+            report = source_health(db)
+            if args.json:
+                _print_json(report.as_dict())
+            else:
+                print(f"registered                      {report.registered}")
+                print(f"tested (a source test ran)      {report.tested}")
+                print(f"  test passed                   {report.test_passed}")
+                print(f"never tested                    {report.never_tested}")
+                print(f"fetchable (proved by a fetch)   {report.fetchable}")
+                print(f"parsed (opportunity page read)  {report.parsed}")
+                print(f"producing valid candidates      {report.producing}")
+                print(f"failed                          {report.failed}")
+                print(f"candidates awaiting review      {report.needs_review} source(s)")
+                print(f"furthest stage: {report.by_stage}")
+                print(f"status: {report.by_status}; connector: {report.by_connector}")
+                if report.untraceable_candidates:
+                    print(f"ignored: {report.untraceable_candidates} candidate(s) with no discovery run (not fetched by the pipeline)")
+                if args.failed:
+                    for item in report.sources:
+                        if item.failed:
+                            print(f"  FAILED {item.name}: {item.problem}")
+        elif command == "ingest-refresh":
+            from datetime import timedelta
+
+            from app.intelligence import refresh
+
+            report = refresh.refresh_opportunities(
+                db, limit=args.limit, opportunity_id=args.opportunity,
+                min_interval=timedelta(hours=args.min_interval_hours),
+            )
+            if report.busy:
+                print("Another refresh run is in progress; nothing checked.")
+                return 2
+            for result in report.results:
+                flag = " [REVIEW]" if result.review_state == "pending" else ""
+                print(f"{result.outcome}{flag}\t{result.title}\t{result.summary}\t{result.check_id}")
+            for skipped in report.skipped:
+                print(f"skipped\t{skipped.title}\t{skipped.reason}")
+            for error in report.errors:
+                print(f"error\t{error}")
+            print(f"checked={report.checked} by_outcome={report.by_outcome} pending_review={report.pending_review} "
+                  f"skipped={len(report.skipped)} errors={len(report.errors)}")
+        elif command == "ingest-refresh-checks":
+            from app.models import OpportunityRefreshCheck
+
+            statement = (
+                select(OpportunityRefreshCheck, Opportunity.title)
+                .join(Opportunity, Opportunity.id == OpportunityRefreshCheck.opportunity_id)
+                .where(OpportunityRefreshCheck.review_state == args.state)
+                .order_by(OpportunityRefreshCheck.checked_at.desc()).limit(args.limit)
+            )
+            if args.outcome:
+                statement = statement.where(OpportunityRefreshCheck.outcome == args.outcome)
+            for check, title in db.execute(statement).all():
+                print(f"{check.id}\t{check.checked_at:%Y-%m-%d %H:%M}\t{check.outcome}\t{check.review_state}\t{title}")
+        elif command == "ingest-refresh-show":
+            from app.models import OpportunityRefreshCheck
+
+            check = db.get(OpportunityRefreshCheck, args.id)
+            if check is None:
+                raise IngestCliError("Refresh check not found.")
+            _print_json({
+                "opportunity_id": check.opportunity_id, "url": check.url, "checked_at": check.checked_at,
+                "outcome": check.outcome, "review_state": check.review_state, "http_status": check.http_status,
+                "content_changed": check.content_changed, "content_hash": check.content_hash, "etag": check.etag,
+                "last_modified": check.last_modified, "findings": check.findings, "error": check.error,
+                "consecutive_failures": check.consecutive_failures, "candidate_id": check.candidate_id,
+                "review_notes": check.review_notes,
+            })
+        elif command == "ingest-refresh-resolve":
+            from app.intelligence import refresh
+
+            actor = _actor(db, args.actor, Permission.OPPORTUNITY_EDIT)
+            try:
+                check = refresh.resolve_check(db, args.id, actor_id=actor.id, decision=args.decision, notes=args.notes)
+            except refresh.RefreshError as error:
+                raise IngestCliError(str(error)) from None
+            db.commit()
+            print(f"Refresh check {check.id}: {check.review_state}")
         elif command == "ingest-discover":
             if args.source:
                 sources = [_source(db, args.source)]

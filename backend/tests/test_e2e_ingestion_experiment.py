@@ -248,8 +248,11 @@ def test_complete_13_stage_ingestion_lifecycle(db_session: Session, curator: Use
 
     refresh_report = pipeline.process_candidates(db_session, reader_factory=lambda s: Reader304(), now=NOW + timedelta(days=1), source_id=source.id)
     db_session.refresh(candidate)
-    assert candidate.state == CandidateState.RETRY
-    assert candidate.attempts == 0
+    # A 304 takes the candidate out of the processing queue with its stored content untouched.
+    # (It used to be left in ``retry``, so every later run fetched it again.)
+    assert refresh_report.processed == 1
+    assert candidate.state == CandidateState.NEEDS_REVIEW
+    assert candidate.attempts == 0 and candidate.lease_until is None
 
     # =========================================================================
     # STAGE 11: Change Detection & Duplicate Identification

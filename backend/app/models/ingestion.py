@@ -69,6 +69,8 @@ PROCESSABLE_STATES = (CandidateState.DISCOVERED, CandidateState.RETRY)
 class RunKind(StrEnum):
     DISCOVER = "discover"
     PROCESS = "process"
+    #: A refresh of published opportunities (``app.intelligence.refresh``).
+    REFRESH = "refresh"
 
 
 class RunStatus(StrEnum):
@@ -132,6 +134,13 @@ class IngestionCandidate(Base):
     content_hash: Mapped[str | None] = mapped_column(String(64), nullable=True)
     page_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     fetched_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    #: Validators of the response ``page_text`` came from, sent as If-None-Match / If-Modified-Since
+    #: on the next fetch. Replaced on every 200, kept on a 304 and on a failed request.
+    etag: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    last_modified: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    #: The state a re-queued candidate was in. A 304 on the re-fetch puts it back there (nothing
+    #: changed, so the earlier outcome stands); a 200 clears it.
+    resume_state: Mapped[str | None] = mapped_column(String(24), nullable=True)
 
     #: ``{field: {status, value, evidence}}`` (see ``app.intelligence.extract``).
     extraction: Mapped[dict[str, Any] | None] = mapped_column(JSONB, nullable=True)

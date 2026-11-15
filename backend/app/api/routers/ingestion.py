@@ -1,9 +1,12 @@
-"""Curator review of ingestion candidates.
+"""Curator review of ingestion candidates, refresh findings and source health.
 
 Candidates are what the pipeline found; nothing here publishes. Approval creates a **draft**
 opportunity, which a curator then publishes through ``POST /curate/opportunities/{id}/publish`` (with
-its publication checks). Discovery and processing are operator commands (``python -m app.cli
-ingest-*``), not API calls, so a web request can never trigger outbound fetching.
+its publication checks). Discovery, processing, source tests and refreshes are operator commands
+(``python -m app.cli ingest-*``), not API calls, so a web request can never trigger outbound fetching.
+
+Refresh findings (``/curate/ingestion/refresh-checks``) are what re-reading a published opportunity's
+page found. Resolving one only records the curator's decision; it never edits the opportunity.
 """
 from __future__ import annotations
 
@@ -19,11 +22,14 @@ from sqlalchemy.orm import Session
 from app.api.deps import require_permission
 from app.core.permissions import Permission
 from app.db.session import get_db
-from app.intelligence import pipeline
-from app.models import AcquisitionSource, IngestionCandidate, IngestionRun, User
+from app.intelligence import pipeline, refresh
+from app.intelligence.health import source_health
+from app.models import AcquisitionSource, IngestionCandidate, IngestionRun, Opportunity, OpportunityRefreshCheck, User
 from app.models.ingestion import CandidateState
+from app.models.refresh import RefreshOutcome, RefreshReviewState
 
 router = APIRouter(prefix="/curate/candidates", tags=["curate"])
+operations_router = APIRouter(prefix="/curate/ingestion", tags=["curate"])
 
 
 class CandidateSummary(BaseModel):
@@ -58,6 +64,10 @@ class CandidateDetail(CandidateSummary):
     reviewed_by: uuid.UUID | None
     reviewed_at: datetime | None
     review_notes: str | None
+    #: When the page was last confirmed (a 200 or a 304), and the validators held for the next fetch.
+    last_seen_at: datetime
+    etag: str | None
+    last_modified: str | None
 
 
 class ReviewRequest(BaseModel):
@@ -201,3 +211,160 @@ def requeue(
         code = status.HTTP_404_NOT_FOUND if str(error) == "Candidate not found." else status.HTTP_409_CONFLICT
         raise HTTPException(status_code=code, detail=str(error)) from None
     return _detail(db, candidate)
+
+
+# --- source health ---------------------------------------------------------------------------------------
+
+
+class SourceHealthRead(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    status: str
+    connector_key: str
+    robots_status: str
+    tested: bool
+    test_passed: bool
+    fetchable: bool
+    parsed: bool
+    producing: bool
+    failed: bool
+    needs_review: bool
+    stage: str
+    candidates: int
+    fetched: int
+    valid: int
+    awaiting_review: int
+    untraceable_candidates: int
+    problem: str | None
+
+
+class SourceHealthReport(BaseModel):
+    """Counts of sources by what recorded evidence proves. Registration alone counts for nothing."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    registered: int
+    tested: int
+    test_passed: int
+    never_tested: int
+    fetchable: int
+    parsed: int
+    producing: int
+    failed: int
+    needs_review: int
+    by_stage: dict[str, int]
+    by_status: dict[str, int]
+    by_connector: dict[str, int]
+    untraceable_candidates: int
+    sources: list[SourceHealthRead]
+
+
+@operations_router.get("/source-health", response_model=SourceHealthReport)
+def read_source_health(
+    db: Session = Depends(get_db, scope="function"),
+    _: User = Depends(require_permission(Permission.SOURCE_READ)),
+) -> SourceHealthReport:
+    return SourceHealthReport.model_validate(source_health(db), from_attributes=True)
+
+
+# --- refresh findings ------------------------------------------------------------------------------------
+
+
+class RefreshCheckSummary(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    opportunity_id: uuid.UUID
+    opportunity_title: str | None = None
+    url: str
+    checked_at: datetime
+    outcome: str
+    review_state: str
+    http_status: int | None
+    content_changed: bool
+    findings: dict[str, Any]
+    error: str | None
+    consecutive_failures: int
+    candidate_id: uuid.UUID | None
+
+
+class RefreshCheckDetail(RefreshCheckSummary):
+    content_hash: str | None
+    etag: str | None
+    last_modified: str | None
+    extraction: dict[str, Any] | None
+    reviewed_by: uuid.UUID | None
+    reviewed_at: datetime | None
+    review_notes: str | None
+
+
+class RefreshResolveRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    decision: Literal["acknowledge", "dismiss"]
+    notes: str | None = Field(default=None, max_length=2000)
+
+
+def _check_detail(db: Session, check: OpportunityRefreshCheck) -> RefreshCheckDetail:
+    title = db.scalar(select(Opportunity.title).where(Opportunity.id == check.opportunity_id))
+    return RefreshCheckDetail.model_validate(check, from_attributes=True).model_copy(update={"opportunity_title": title})
+
+
+@operations_router.get("/refresh-checks", response_model=list[RefreshCheckSummary])
+def list_refresh_checks(
+    review_state: RefreshReviewState | None = Query(default=RefreshReviewState.PENDING),
+    outcome: RefreshOutcome | None = Query(default=None),
+    opportunity_id: uuid.UUID | None = Query(default=None),
+    limit: int = Query(default=50, ge=1, le=200),
+    offset: int = Query(default=0, ge=0),
+    db: Session = Depends(get_db, scope="function"),
+    _: User = Depends(require_permission(Permission.SOURCE_READ)),
+) -> list[RefreshCheckSummary]:
+    """Refresh checks, newest first. By default only the findings waiting for a curator."""
+    statement = (
+        select(OpportunityRefreshCheck, Opportunity.title)
+        .join(Opportunity, Opportunity.id == OpportunityRefreshCheck.opportunity_id)
+        .order_by(OpportunityRefreshCheck.checked_at.desc(), OpportunityRefreshCheck.id)
+        .limit(limit)
+        .offset(offset)
+    )
+    if review_state is not None:
+        statement = statement.where(OpportunityRefreshCheck.review_state == review_state)
+    if outcome is not None:
+        statement = statement.where(OpportunityRefreshCheck.outcome == outcome)
+    if opportunity_id is not None:
+        statement = statement.where(OpportunityRefreshCheck.opportunity_id == opportunity_id)
+    return [
+        RefreshCheckSummary.model_validate(check, from_attributes=True).model_copy(update={"opportunity_title": title})
+        for check, title in db.execute(statement).all()
+    ]
+
+
+@operations_router.get("/refresh-checks/{check_id}", response_model=RefreshCheckDetail)
+def get_refresh_check(
+    check_id: uuid.UUID,
+    db: Session = Depends(get_db, scope="function"),
+    _: User = Depends(require_permission(Permission.SOURCE_READ)),
+) -> RefreshCheckDetail:
+    check = db.get(OpportunityRefreshCheck, check_id)
+    if check is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Refresh check not found.")
+    return _check_detail(db, check)
+
+
+@operations_router.post("/refresh-checks/{check_id}/resolve", response_model=RefreshCheckDetail)
+def resolve_refresh_check(
+    check_id: uuid.UUID,
+    payload: RefreshResolveRequest,
+    db: Session = Depends(get_db, scope="function"),
+    curator: User = Depends(require_permission(Permission.OPPORTUNITY_EDIT)),
+) -> RefreshCheckDetail:
+    """Record that a finding was handled or is not a real change. Never edits the opportunity."""
+    try:
+        check = refresh.resolve_check(db, check_id, actor_id=curator.id, decision=payload.decision, notes=payload.notes)
+    except refresh.RefreshError as error:
+        code = status.HTTP_404_NOT_FOUND if str(error) == "Refresh check not found." else status.HTTP_409_CONFLICT
+        raise HTTPException(status_code=code, detail=str(error)) from None
+    return _check_detail(db, check)
