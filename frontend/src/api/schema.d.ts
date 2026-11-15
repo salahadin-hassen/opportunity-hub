@@ -166,6 +166,114 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/auth/providers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Providers */
+        get: operations["providers_auth_providers_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/google/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Start
+         * @description Begin signing in with Google. Signing in creates an account only for a new, verified address.
+         */
+        post: operations["start_auth_google_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/google/link/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Link Start
+         * @description Begin connecting Google to the signed-in account (the only way an existing account gains Google).
+         */
+        post: operations["link_start_auth_google_link_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/google/exchange": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Exchange */
+        post: operations["exchange_auth_google_exchange_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/identities": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Identities */
+        get: operations["identities_auth_identities_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/google/link": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unlink */
+        delete: operations["unlink_auth_google_link_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/curate/sources": {
         parameters: {
             query?: never;
@@ -1589,6 +1697,35 @@ export interface components {
             /** Is Primary */
             is_primary?: boolean;
         };
+        /** ExchangeRequest */
+        ExchangeRequest: {
+            /** Code */
+            code: string;
+        };
+        /** ExchangeResponse */
+        ExchangeResponse: {
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "signed_in" | "linked";
+            /** Access Token */
+            access_token?: string | null;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
+            /** Email */
+            email?: string | null;
+            /**
+             * Is New User
+             * @default false
+             */
+            is_new_user: boolean;
+            /** Next */
+            next?: string | null;
+        };
         /**
          * ForgotPasswordRequest
          * @description Password reset request.
@@ -1604,6 +1741,17 @@ export interface components {
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /** IdentitiesResponse */
+        IdentitiesResponse: {
+            /** Has Password */
+            has_password: boolean;
+            /** Google Available */
+            google_available: boolean;
+            /** Google Linked */
+            google_linked: boolean;
+            /** Google Email */
+            google_email?: string | null;
         };
         /**
          * LocationMode
@@ -2030,6 +2178,16 @@ export interface components {
             name: string;
             /** Aliases */
             aliases: string[];
+        };
+        /** ProvidersResponse */
+        ProvidersResponse: {
+            /**
+             * Password
+             * @default true
+             */
+            password: boolean;
+            /** Google */
+            google: boolean;
         };
         /**
          * PublicRequirementRead
@@ -2619,6 +2777,16 @@ export interface components {
          * @enum {string}
          */
         SourceType: "official_page" | "partner_api" | "manual_entry" | "scraped" | "mirror";
+        /** StartRequest */
+        StartRequest: {
+            /** Next */
+            next?: string | null;
+        };
+        /** StartResponse */
+        StartResponse: {
+            /** Authorization Url */
+            authorization_url: string;
+        };
         /** StatusChange */
         StatusChange: {
             status: components["schemas"]["SourceStatus"];
@@ -3094,6 +3262,163 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
+            };
+        };
+    };
+    providers_auth_providers_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProvidersResponse"];
+                };
+            };
+        };
+    };
+    start_auth_google_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    link_start_auth_google_link_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["StartRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StartResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    exchange_auth_google_exchange_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ExchangeRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ExchangeResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    identities_auth_identities_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IdentitiesResponse"];
+                };
+            };
+        };
+    };
+    unlink_auth_google_link_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

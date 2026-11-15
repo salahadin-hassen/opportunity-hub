@@ -9,6 +9,7 @@ import { FieldError, Spinner } from "../components/ui/States";
 import { Credit } from "../components/ui/Plate";
 import { PHOTOS } from "../lib/photos";
 import { ThemeToggle } from "../components/ui/ThemeToggle";
+import { GoogleSignIn, googleErrorMessage } from "../auth/google";
 
 /** Only same-site relative paths are honoured as a post-login destination. */
 function safeNext(value: string | null): string | null {
@@ -124,6 +125,7 @@ export function Login() {
   const state = useCredentials();
   const next = safeNext(params.get("next"));
   const expired = params.get("expired") === "1";
+  const googleError = googleErrorMessage(params.get("google_error"));
 
   if (isAuthenticated && !state.busy) return <Navigate to={next ?? "/discover"} replace />;
 
@@ -167,6 +169,12 @@ export function Login() {
             Your session expired after 30 minutes. Sign in again to pick up where you left off.
           </div>
         )}
+        {googleError && (
+          <p role="alert" className="mb-5 rounded-[10px] border border-ineligible/30 bg-ineligible-wash px-3.5 py-3 text-[13.5px] text-ineligible-ink">
+            {googleError}
+          </p>
+        )}
+        <GoogleSignIn next={next} />
         <form onSubmit={submit} noValidate>
           <CredentialFields state={state} autoCompletePassword="current-password" />
           {state.errors.form && (
@@ -237,6 +245,7 @@ export function Register() {
           </>
         }
       >
+        <GoogleSignIn label="Sign up with Google" />
         <form onSubmit={submit} noValidate>
           <CredentialFields state={state} passwordHint="At least 8 characters." autoCompletePassword="new-password" />
           {state.errors.form && (

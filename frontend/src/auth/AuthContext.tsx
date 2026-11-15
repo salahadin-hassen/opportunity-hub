@@ -8,6 +8,8 @@ type AuthState = {
   email: string | null;
   login: (email: string, password: string) => Promise<void>;
   register: (email: string, password: string) => Promise<void>;
+  /** Take over a session the API issued another way (Sign in with Google). */
+  adopt: (token: string, email: string) => void;
   logout: () => void | Promise<void>;
   /** Present only in development builds whose env defines a demo account. */
   demo: { email: string; password: string } | null;
@@ -70,16 +72,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [login],
   );
 
+  const adopt = useCallback(
+    (token: string, email: string) => {
+      client.removeQueries({ queryKey: ["me"] });
+      setCurrent(setSession({ token, email }));
+    },
+    [client],
+  );
+
   const value = useMemo<AuthState>(
     () => ({
       isAuthenticated: current !== null,
       email: current?.email ?? null,
       login,
       register,
+      adopt,
       logout: clear,
       demo: DEMO,
     }),
-    [current, login, register, clear],
+    [current, login, register, adopt, clear],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

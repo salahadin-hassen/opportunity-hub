@@ -436,3 +436,19 @@
 :root[data-theme="dark"] .plate-img {
   filter: brightness(0.92);
 }
+
+/* Sign in with Google: Google's published button colours (light and dark), not the app palette. */
+.google-btn {
+  background: #ffffff;
+  border-color: #747775;
+  color: #1f1f1f;
+  font-family: "Roboto", var(--font-sans);
+}
+.google-btn:hover:not(:disabled) { background: #f8f9fa; }
+.google-btn:focus-visible { outline: 2px solid var(--color-cobalt, #4058e8); outline-offset: 2px; }
+:root[data-theme="dark"] .google-btn {
+  background: #131314;
+  border-color: #8e918f;
+  color: #e3e3e3;
+}
+:root[data-theme="dark"] .google-btn:hover:not(:disabled) { background: #1f1f20; }

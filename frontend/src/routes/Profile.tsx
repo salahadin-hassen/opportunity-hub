@@ -24,6 +24,7 @@ import { useEligibility } from "../features/eligibility";
 import { countryOptions } from "../lib/countries";
 import { formatPlainDate } from "../lib/format";
 import { FACT_LABELS, type Fact } from "../lib/rules";
+import { SignInMethods } from "../auth/google";
 
 function Section({ id, title, description, children }: { id: string; title: string; description: ReactNode; children: ReactNode }) {
   return (
@@ -482,6 +483,9 @@ export function Profile() {
             }
           >
             <TestScores />
+          </Section>
+          <Section id="sign-in" title="Sign-in methods" description="How you get into this account. Google is connected only when you choose to.">
+            <SignInMethods />
           </Section>
         </div>
       </Content>

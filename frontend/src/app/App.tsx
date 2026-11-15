@@ -13,6 +13,7 @@ import { ToastProvider } from "../components/ui/Toast";
 import { EligibilityProvider } from "../features/eligibility";
 import { ThemeProvider } from "./theme";
 import { Landing } from "../routes/Landing";
+import { GoogleComplete } from "../auth/google";
 
 // The landing page ships first; application routes load on demand.
 const Login = lazy(() => import("../routes/Auth").then((module) => ({ default: module.Login })));
@@ -149,6 +150,7 @@ export function App() {
                   <Route path="/opportunities/:id" element={<Frame><OpportunityDetail /></Frame>} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/auth/google/complete" element={<GoogleComplete />} />
                   <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
                   <Route path="/discover" element={app(<Discover />)} />
                   <Route path="/eligibility" element={app(<Eligibility />)} />

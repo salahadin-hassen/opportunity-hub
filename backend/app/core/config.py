@@ -126,6 +126,17 @@ class Settings(BaseSettings):
     #: Queue ceiling: with this many reset emails already pending, new requests queue nothing.
     PASSWORD_RESET_MAX_PENDING: int = Field(default=1000, ge=10, le=100000)
 
+    # --- Google Sign-In (OpenID Connect, Authorization Code + PKCE; app.services.google_oauth) ----------
+    #: OAuth 2.0 client of type "Web application" from Google Cloud Console. Sign-in with Google is
+    #: offered only when all three are set; otherwise its endpoints answer 404 and the UI hides it.
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: SecretStr | None = None
+    #: The API's callback, registered verbatim as an "Authorized redirect URI" in the Google client,
+    #: e.g. https://api.opportunities.sahelyon.com/auth/google/callback
+    GOOGLE_REDIRECT_URI: str | None = None
+    #: Where the browser is sent after Google: the web app's origin. Defaults to the first CORS origin.
+    FRONTEND_URL: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=_ENV_FILE,
         env_file_encoding="utf-8",
@@ -156,6 +167,29 @@ class Settings(BaseSettings):
         if value and value.startswith("postgres://"):
             return "postgresql://" + value[len("postgres://"):]
         return value
+
+    @property
+    def google_enabled(self) -> bool:
+        return bool(self.GOOGLE_CLIENT_ID and self.GOOGLE_CLIENT_SECRET and self.GOOGLE_REDIRECT_URI)
+
+    @property
+    def frontend_url(self) -> str | None:
+        """The web app's origin, without a trailing slash."""
+        value = self.FRONTEND_URL or (self.cors_origins[0] if self.cors_origins else None)
+        return value.rstrip("/") if value else None
+
+    @model_validator(mode="after")
+    def check_google_sign_in(self) -> "Settings":
+        """Half a Google configuration is a deployment mistake; in production the callback must be https."""
+        given = [self.GOOGLE_CLIENT_ID, self.GOOGLE_CLIENT_SECRET, self.GOOGLE_REDIRECT_URI]
+        if any(given) and not all(given):
+            raise ValueError("Set GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET and GOOGLE_REDIRECT_URI together (or none)")
+        if self.google_enabled and self.is_production:
+            if not str(self.GOOGLE_REDIRECT_URI).startswith("https://"):
+                raise ValueError("GOOGLE_REDIRECT_URI must use https in production")
+            if not self.frontend_url or not self.frontend_url.startswith("https://"):
+                raise ValueError("Google Sign-In in production needs an https FRONTEND_URL (or CORS origin)")
+        return self
 
     @field_validator("CORS_ORIGINS")
     @classmethod

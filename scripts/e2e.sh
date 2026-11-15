@@ -38,6 +38,12 @@ export JWT_SECRET="${JWT_SECRET:-e2e-only-jwt-secret-not-used-anywhere-else}"
 export AUTH_RATE_LIMIT_PER_MINUTE=10
 export CLIENT_IP_STRATEGY=none
 export EMAIL_DELIVERY=disabled
+# Sign in with Google switched on with placeholder credentials, so its UI and the redirect to Google
+# can be tested. The specs intercept accounts.google.com; no real Google sign-in happens in e2e.
+export GOOGLE_CLIENT_ID="${E2E_GOOGLE_CLIENT_ID:-e2e-placeholder.apps.googleusercontent.com}"
+export GOOGLE_CLIENT_SECRET="${E2E_GOOGLE_CLIENT_SECRET:-e2e-placeholder-secret}"
+export GOOGLE_REDIRECT_URI="${E2E_GOOGLE_REDIRECT_URI:-http://127.0.0.1:${E2E_API_PORT:-8000}/auth/google/callback}"
+export CORS_ORIGINS="${CORS_ORIGINS:-http://localhost:${E2E_WEB_PORT:-5173}}"
 unset TRUSTED_PROXY_CIDRS CLIENT_IP_HEADER RENDER
 
 groups=()   # process-group ids of everything started in the background
