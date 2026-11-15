@@ -32,9 +32,31 @@ MAX_HORIZON = timedelta(days=548)  # a deadline beyond ~18 months is not "the cu
 
 _EM = re.compile(r"erasmus\s+mundus|\bEMJM\b|\bEM\s+scholarship", re.IGNORECASE)
 _SCHOLARSHIP = re.compile(r"scholarships?|grants?\b|fellowships?", re.IGNORECASE)
+# Availability: scholarships are offered/awarded/available now, or the applicant "can apply for" one.
+# ("applying for a scholarship" alone, e.g. in a document rule, is not a statement of availability.)
 _AVAILABLE = re.compile(
-    r"\b(available|offer(s|ed|ing)?|award(s|ed|ing)?|grant(s|ed)?|provid(es|ed|ing)|fund(s|ed|ing)?|"
-    r"apply for|applying for|eligible for|receive|benefit from|will be (?:given|allocated)|cover(s|ing)?)\b",
+    r"\b(are available|is available|available for|offer(s|ed|ing)?|award(s|ed|ing)?|provid(es|ing)|"
+    r"can apply for|may apply for|can receive|may receive|will receive|will be awarded|are awarded|"
+    r"grants?\s+(?:full|partial))\b",
+    re.IGNORECASE,
+)
+# Funding not secured, or only for later cohorts: never availability for the current intake.
+_UNSECURED = re.compile(
+    r"\b(will apply for|to secure (?:funding|a grant)|grant renewal|subject to (?:funding|approval|renewal)|"
+    r"pending (?:funding|approval)|if (?:funding|the grant) is)\b",
+    re.IGNORECASE,
+)
+# A deadline quote about places without a scholarship is not the scholarship deadline.
+_NON_SCHOLARSHIP_DEADLINE = re.compile(
+    r"\b(self-funded|self funded|fee-paying|fee paying|non-scholarship|without (?:a )?scholarship|"
+    r"on a non-scholarship basis|eu students|european candidates)\b",
+    re.IGNORECASE,
+)
+# An eligibility statement must state a condition on the applicant, not describe the programme.
+_CONDITION = re.compile(
+    r"\b(applicants?|candidates?|students?|degree|bachelor|master|diploma|gpa|grade|english|proficien|"
+    r"ielts|toefl|language|nationality|citizen|resident|eligib|requir|must hold|transcript|certificate|"
+    r"years? of|age|work experience)\b",
     re.IGNORECASE,
 )
 _NEGATION = re.compile(
@@ -81,7 +103,7 @@ def scholarship_evidence(text: str) -> tuple[str | None, str | None]:
     for sentence in _sentences(text):
         if len(sentence) > 600 or not _EM.search(sentence):
             continue
-        if negation is None and _NEGATION.search(sentence):
+        if negation is None and (_NEGATION.search(sentence) or (_SCHOLARSHIP.search(sentence) and _UNSECURED.search(sentence))):
             negation = sentence
         elif available is None and _SCHOLARSHIP.search(sentence) and _AVAILABLE.search(sentence):
             available = sentence
@@ -122,12 +144,14 @@ def assess(candidate: Any, *, today: date) -> Assessment:
             result.reasons.append(f"deadline {when} has passed (not the current intake)")
         elif when - today > MAX_HORIZON:
             result.reasons.append(f"deadline {when} is too far ahead to be the current intake")
+        elif _NON_SCHOLARSHIP_DEADLINE.search(dq):
+            result.reasons.append(f"the quoted deadline is for places without a scholarship: {dq[:120]!r}")
         else:
             result.deadline, result.deadline_type, result.deadline_quote = when.isoformat(), "fixed", dq
     elif deadline.get("status") in ("conflicting", "ambiguous"):
         result.reasons.append(f"deadline is {deadline.get('status')} on the page; needs a person to choose")
     else:
-        rolling = next((s for s in _sentences(text) if _ROLLING.search(s)), None)
+        rolling = next((s for s in _sentences(text) if _ROLLING.search(s) and not _NON_SCHOLARSHIP_DEADLINE.search(s)), None)
         if rolling and deadline_type.get("value") == "rolling":
             result.deadline_type, result.deadline_quote = "rolling", rolling
         else:
@@ -137,11 +161,12 @@ def assess(candidate: Any, *, today: date) -> Assessment:
     eligibility = extraction.get("eligibility") or {}
     statements = eligibility.get("value") if eligibility.get("status") == "explicit" else None
     if statements:
-        kept = [(i, s) for i, s in enumerate(statements) if isinstance(s, str) and s in text]
+        kept = [(i, s) for i, s in enumerate(statements)
+                if isinstance(s, str) and s in text and _CONDITION.search(s) and not _EM.search(s)]
         result.eligibility_indexes = [i for i, _ in kept]
         result.eligibility_quotes = [s for _, s in kept]
     if not result.eligibility_quotes:
-        result.reasons.append("no eligibility statement quoted from the page")
+        result.reasons.append("no eligibility condition quoted from the page")
 
     result.approvable = not result.reasons
     return result
@@ -161,6 +186,29 @@ def evidence_record(assessment: Assessment, *, catalogue_title: str, checked_at:
         "deadline_quote": assessment.deadline_quote,
         "eligibility_quotes": assessment.eligibility_quotes,
     }
+
+
+def recheck_evidence(evidence: dict, page_text: str) -> list[str]:
+    """Re-apply the current standard to a stored approval. Returns the unmet criteria (empty: still meets it)."""
+    problems: list[str] = []
+    available, negation = scholarship_evidence(page_text or "")
+    quote = evidence.get("scholarship_quote")
+    if negation:
+        problems.append("page states scholarships are not available or not yet secured")
+    if not quote or quote not in (page_text or "") or available is None or not (
+            _EM.search(quote) and _SCHOLARSHIP.search(quote) and _AVAILABLE.search(quote) and not _UNSECURED.search(quote)):
+        problems.append("no quotable statement that Erasmus Mundus scholarships are available")
+    dq = evidence.get("deadline_quote") or ""
+    if not dq or dq not in (page_text or ""):
+        problems.append("deadline quote missing from the page")
+    elif _NON_SCHOLARSHIP_DEADLINE.search(dq):
+        problems.append("the deadline quoted is for places without a scholarship")
+    elif evidence.get("deadline_type") == "rolling" and not _ROLLING.search(dq):
+        problems.append("no explicit rolling-admission statement")
+    conditions = [q for q in evidence.get("eligibility_quotes") or [] if _CONDITION.search(q) and not _EM.search(q)]
+    if not conditions:
+        problems.append("no eligibility condition quoted from the page")
+    return problems
 
 
 def page_mentions_programme(text: str, title: str) -> bool:
@@ -252,5 +300,5 @@ def run_review(db: Any, sources_payload: dict, *, actor_id: Any, today: date, ap
     return decisions
 
 
-__all__ = ["Assessment", "ProgrammeDecision", "run_review", "REVIEW_BASIS", "STANDARD", "assess", "evidence_record", "page_mentions_programme",
+__all__ = ["Assessment", "ProgrammeDecision", "recheck_evidence", "run_review", "REVIEW_BASIS", "STANDARD", "assess", "evidence_record", "page_mentions_programme",
            "scholarship_evidence"]
