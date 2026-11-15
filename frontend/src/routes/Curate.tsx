@@ -476,7 +476,7 @@ export function Curate() {
             ) : (candidates.data ?? []).length === 0 ? (
               <div className="rounded-panel border border-rule bg-paper p-8 text-center text-muted">
                 <p className="text-[15px] font-medium text-ink">No candidates in &ldquo;{candFilter.replace("_", " ")}&rdquo; state</p>
-                <p className="mt-1 text-[13px]">Run discovery or ingestion to discover opportunities from verified sources.</p>
+                <p className="mt-1 text-[13px]">Run discovery or ingestion to find opportunities on registered sources.</p>
               </div>
             ) : (
               <div className="overflow-x-auto rounded-panel border border-rule bg-paper shadow-card">

@@ -54,6 +54,10 @@ app = FastAPI(
     description="Personalized opportunity discovery platform",
     version="0.1.0",
     lifespan=lifespan,
+    # Interactive docs and the schema are for development; production doesn't publish a map of its API.
+    docs_url=None if settings.is_production else "/docs",
+    redoc_url=None if settings.is_production else "/redoc",
+    openapi_url=None if settings.is_production else "/openapi.json",
 )
 app.add_middleware(RequestCorrelationMiddleware)
 if settings.allowed_hosts:

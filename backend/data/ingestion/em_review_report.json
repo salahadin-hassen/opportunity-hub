@@ -1,0 +1,2368 @@
+{
+ "standard": "erasmus-mundus-evidence-v1",
+ "review_basis": "rule-based review with spot-checks (not human curation)",
+ "evaluated_on": "2026-11-15",
+ "applied": true,
+ "decisions": [
+  {
+   "source": "Erasmus Mundus — www.quanteem.eu (Erasmus Mundus programmes)",
+   "catalogue_title": "Quantum Technologies and Engineering Erasmus Mundus Master Plus",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page names this programme"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — www.quanteem.eu (Erasmus Mundus programmes)",
+   "catalogue_title": "Quantum Technologies and Engineering Erasmus Mundus Master",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page names this programme"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — www.eu-conexus.eu (Erasmus Mundus programmes)",
+   "catalogue_title": "EU-CONEXUS Joint Master Programme in Marine Biotechnology: Learning Community",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page names this programme"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — www.eu-conexus.eu (Erasmus Mundus programmes)",
+   "catalogue_title": "EU-CONEXUS Joint Master Programme in Marine Biotechnology",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "5cb72766-faaf-422d-95b8-13001bc10c12",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master Degree in Advanced Microscopy with Artificial Intelligence",
+   "catalogue_title": "Erasmus Mundus Joint Master Degree in Advanced Microscopy with Artificial Intelligence",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "3bbb6ff0-3ef7-49ec-988d-dfcbcd8aefea",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Innovative Bioinspired Materials for Sustainable Applications",
+   "catalogue_title": "Innovative Bioinspired Materials for Sustainable Applications",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "9c9522e4-b88e-47a4-888c-0e1731043189",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Joint MSc Water Vulnerability Engineering in Spatial Sciences",
+   "catalogue_title": "Joint MSc Water Vulnerability Engineering in Spatial Sciences",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "61b0af0c-a0b9-4394-81ca-5d900cf0e8ab",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — emildai.eu (Erasmus Mundus programmes)",
+   "catalogue_title": "European Master in Law, Data and Artificial Intelligence",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "7edbae8e-fdae-4398-9171-434ee13106df",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — emildai.eu (Erasmus Mundus programmes)",
+   "catalogue_title": "European Master in Law, Data and Artificial Intelligence",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "7edbae8e-fdae-4398-9171-434ee13106df",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — Joint International Master in Semiconductor ChipS Integration and Innovation",
+   "catalogue_title": "Joint International Master in Semiconductor ChipS Integration and Innovation",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Master in Nuclear Decommissioning and Environmental Remediation",
+   "catalogue_title": "Master in Nuclear Decommissioning and Environmental Remediation",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'The Erasmus Mundus grant considers the award of 15 scholarships in each edition, with the restriction that no more than 10% of the scholarships will be awarded '",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "2728b7b4-0fb6-44df-8271-c6cac5620dfe",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — www.emmir.org (Erasmus Mundus programmes)",
+   "catalogue_title": "European Master in Migration and Intercultural Relations",
+   "decision": "approved",
+   "reasons": [],
+   "candidate_id": "52768111-b7b1-4f33-bc1a-e34f10d04606",
+   "opportunity_id": "06a4ecce-7850-480e-aa62-e1988296a31d",
+   "evidence": {
+    "standard": "erasmus-mundus-evidence-v1",
+    "review_basis": "rule-based review with spot-checks (not human curation)",
+    "catalogue_title": "European Master in Migration and Intercultural Relations",
+    "programme_page": "https://www.emmir.org/post/applications-for-emmir-edition-14-are-now-open-here-s-what-you-need-to-know",
+    "checked_at": "2026-11-15T18:00:11.036437+00:00",
+    "scholarship_quote": "Applicants for Edition 14 can apply for an Erasmus Mundus scholarship, which provides funding to selected students.",
+    "deadline": "2027-07-15",
+    "deadline_type": "fixed",
+    "deadline_quote": "Applications for fee-paying self-funded study places remain open longer, with a final deadline of: 15 July 2027.",
+    "eligibility_quotes": [
+     "There is no single path to becoming an EMMIRian.",
+     "Students come to the programme from different countries, disciplines, and professional backgrounds, united by an interest in understanding migration and intercultural relations.",
+     "Applicants should have a first degree in a relevant field, demonstrate proficiency in English, and be able to show how their academic background, experience, and interests prepare them for graduate-level study of migration and intercultural relations.",
+     "The full entry requirements should be reviewed carefully before applying.",
+     "Learn more about entry requirements here."
+    ]
+   },
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — www.emmir.org (Erasmus Mundus programmes)",
+   "catalogue_title": "European Master in Migration and Intercultural Relations",
+   "decision": "not_approved",
+   "reasons": [
+    "already in the catalogue under this title (duplicate)"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Responsible Leadership in Cultural and Religious Heritage",
+   "catalogue_title": "Responsible Leadership in Cultural and Religious Heritage",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "6f34613f-83e0-487e-bb71-1e8b7147caec",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — mastergeotech.info (Erasmus Mundus programmes)",
+   "catalogue_title": "Master of Science in Geospatial Technologies",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "deadline is ambiguous on the page; needs a person to choose"
+   ],
+   "candidate_id": "08b75902-c16e-4356-b2b5-3f91612fbdcc",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — mastergeotech.info (Erasmus Mundus programmes)",
+   "catalogue_title": "Master of Science in Geospatial Technologies",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "deadline is ambiguous on the page; needs a person to choose"
+   ],
+   "candidate_id": "08b75902-c16e-4356-b2b5-3f91612fbdcc",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Applied Biodiversity Management and Resilient Ecosystem Transitions",
+   "catalogue_title": "Applied Biodiversity Management and Resilient Ecosystem Transitions",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Master in Infectious Diseases and One Health-IDOHNext",
+   "catalogue_title": "Master in Infectious Diseases and One Health-IDOHNext",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "b5012b72-2c82-4fd6-a58f-231974108bf6",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Food Innovation and Product Design",
+   "catalogue_title": "Erasmus Mundus Joint Master in Food Innovation and Product Design",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "10d4576b-389e-4c11-9315-3793d820594b",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 9
+  },
+  {
+   "source": "Erasmus Mundus — European master in Advanced Solid Mechanics",
+   "catalogue_title": "European master in Advanced Solid Mechanics",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Chemical Nano-Engineering",
+   "catalogue_title": "Chemical Nano-Engineering",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "bd4c6678-d66d-4627-84e6-b8ceef0f76b6",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Navigating AI Business Transformation in the EU",
+   "catalogue_title": "Navigating AI Business Transformation in the EU",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available"
+   ],
+   "candidate_id": "f852d215-fb74-4670-9b81-957bd37da3ee",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — sustainable ocean services and Marine EnviRonment",
+   "catalogue_title": "sustainable ocean services and Marine EnviRonment",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "924d006c-7c85-4765-95ba-de82d5a776cf",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Multilingualism and Cultural Diversity",
+   "catalogue_title": "Erasmus Mundus Joint Master in Multilingualism and Cultural Diversity",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: \"Step 3: Consideration of the candidate's nationality in line with the Erasmus Mundus programme guidelines that not more than 10% of the scholarships can be allo\"",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "96c98d5e-6329-45c9-98c4-df7ee54cbc8e",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Law and Gender, Intersectionality and Diversity",
+   "catalogue_title": "Law and Gender, Intersectionality and Diversity",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "b5e3c54d-5654-4ee6-84f3-e777957636ce",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Contemporary Challenges in the World of Work",
+   "catalogue_title": "International Master in Contemporary Challenges in the World of Work",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — InterCultural Leadership in Digital Era International Master",
+   "catalogue_title": "InterCultural Leadership in Digital Era International Master",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Each year, we aim to accept approximately 20-30 candidates (including approximately 12 Erasmus Mundus scholarship holders and 18 free-tuition applicants who do '",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "7901b8bd-3343-4d07-acaf-28c57a9e2fde",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Sustainable Transportation and Electric Power Systems",
+   "catalogue_title": "Erasmus Mundus Joint Master in Sustainable Transportation and Electric Power Systems",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is ambiguous on the page; needs a person to choose"
+   ],
+   "candidate_id": "52602d49-7c8e-4c9f-8798-c430b56367c2",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — European Politics and Society: Václav Havel Joint Master Degree",
+   "catalogue_title": "European Politics and Society: Václav Havel Joint Master Degree",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "dce8e9cb-fa74-4ce2-93c5-32a1372800b4",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Insects as Solutions for a Sustainable Future",
+   "catalogue_title": "Erasmus Mundus Joint Master in Insects as Solutions for a Sustainable Future",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Renewable Energy and Sustainable COnstruction, RESCO",
+   "catalogue_title": "Renewable Energy and Sustainable COnstruction, RESCO",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "a2f16fd2-a300-480a-bc17-c66b10259886",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master Degree in Sports Ethics and Integrity",
+   "catalogue_title": "Erasmus Mundus Joint Master Degree in Sports Ethics and Integrity",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "8fa47b59-89c4-4942-a1c7-1d1a6634dd3f",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Masters in Journalism, Media and Globalisation (Mundus Journalism)",
+   "catalogue_title": "Erasmus Mundus Masters in Journalism, Media and Globalisation (Mundus Journalism)",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — European Masters in Earthen Architecture and Construction",
+   "catalogue_title": "European Masters in Earthen Architecture and Construction",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "9a832c07-50bd-4615-92ad-c73da5eb3dd3",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Transfers-Fluids-Materials Aeronautical Sustainable Applications",
+   "catalogue_title": "Transfers-Fluids-Materials Aeronautical Sustainable Applications",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "02d62276-8b21-4697-b26e-de63e22c7777",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master Programme on the Engineering of Data-intensive Intelligent Software Systems",
+   "catalogue_title": "Erasmus Mundus Joint Master Programme on the Engineering of Data-intensive Intelligent Software Systems",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "e7331169-cdf9-40ba-a94c-05bde830c614",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Radiation and its Effects on MicroElectronics and Photonics Technologies",
+   "catalogue_title": "Radiation and its Effects on MicroElectronics and Photonics Technologies",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Bio and Pharmaceutical Materials Science",
+   "catalogue_title": "Bio and Pharmaceutical Materials Science",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Master's Programme in Cybersecurity and Assurance",
+   "catalogue_title": "Master's Programme in Cybersecurity and Assurance",
+   "decision": "approved",
+   "reasons": [],
+   "candidate_id": "abe988fc-0da6-4770-929e-8853565f34c0",
+   "opportunity_id": "6fe3d65f-1524-4336-864c-0932d82e2ea4",
+   "evidence": {
+    "standard": "erasmus-mundus-evidence-v1",
+    "review_basis": "rule-based review with spot-checks (not human curation)",
+    "catalogue_title": "Master's Programme in Cybersecurity and Assurance",
+    "programme_page": "https://www.cybersure-master.eu/admission",
+    "checked_at": "2026-11-15T18:02:01.805084+00:00",
+    "scholarship_quote": "CYBERSURE is a prestigious Erasmus Mundus Joint Master Degree programme offering full scholarships and partial scholarships to exceptional candidates from around the world.",
+    "deadline": "2027-01-18",
+    "deadline_type": "fixed",
+    "deadline_quote": "●Final deadline: January 18, 2027",
+    "eligibility_quotes": [
+     "In Computer Science, Information Technology, or related field",
+     "Strong academic record with minimum GPA requirements",
+     "TOEFL, IELTS, or equivalent certification required",
+     "Two academic or professional recommendation letters",
+     "Your previous degree needs to meet our requirements.",
+     "Applicants whose higher education degree has been taken at an English medium programme requiring physical on-site presence at a university in Australia, Canada, New Zealand, the United Kingdom, the United States, an EU/EEA country and Switzerland.",
+     "• A minimum of one half of the degree must be completed in a country and higher education institution that meets the requirements for exempting the applicant from taking an English test.",
+     "Degree students form the CYBERSURE Consortium universities (NTNU, Aalto, DTU, UT, EURECOM, KTH, TU Graz).",
+     "• A minimum of one half of the degree must be completed at a Consortium university.",
+     "Applicants who have attended CYBERSURE Consortium universities (NTNU, Aalto, DTU, UT, EURECOM, KTH, TU Graz) as exchange students.",
+     "•English Proficiency:",
+     "English Proficiency",
+     "Applicants should hold a Bachelor degree* awarded by a university or a higher education institution.",
+     "The scope of a relevant degree awarded by a higher education institution must be equivalent to 180 ECTS credits or at least three years of full-time study.",
+     "application deadline and are eligible to"
+    ]
+   },
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Data Engineering and Artificial Intelligence",
+   "catalogue_title": "Data Engineering and Artificial Intelligence",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "ab0c371e-c50f-4849-9276-b92a71da121c",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Renewable Energy in the Marine environment",
+   "catalogue_title": "Renewable Energy in the Marine environment",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "9ead8d39-58ab-4ac2-b54e-f6bfc0fca6f3",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Sustainable Catalysis",
+   "catalogue_title": "Sustainable Catalysis",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — International Law of Security, Peace and Sustainable Development",
+   "catalogue_title": "International Law of Security, Peace and Sustainable Development",
+   "decision": "not_approved",
+   "reasons": [
+    "candidate is duplicate, not reviewable"
+   ],
+   "candidate_id": "625a911c-2235-4339-ab87-0c8ba7d12468",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Transnational Migrations",
+   "catalogue_title": "International Master in Transnational Migrations",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Engineering for Environmental Sustainability and International Cooperation",
+   "catalogue_title": "Engineering for Environmental Sustainability and International Cooperation",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have previously obtained an EMJM scholarship are not eligible to apply for a scholarship under the EMJM.'",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "3d78b6c9-4066-4884-8ce9-093cfcbc35fe",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — Joint master in Applied security and defense - Networks for Unified Strategies",
+   "catalogue_title": "Joint master in Applied security and defense - Networks for Unified Strategies",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "667319b7-033a-4cce-9e44-d0854da29117",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Large Scale Accelerators and Lasers",
+   "catalogue_title": "Large Scale Accelerators and Lasers",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "dd0ce42b-3701-40d0-9ba4-50ce6cfc0d91",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — NOHA Erasmus Mundus Joint Master in International Humanitarian Action (NOHA)",
+   "catalogue_title": "NOHA Erasmus Mundus Joint Master in International Humanitarian Action (NOHA)",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Teaching, designing, managing, foreign Language learning for a Multicultural and inclusive Environment",
+   "catalogue_title": "Teaching, designing, managing, foreign Language learning for a Multicultural and inclusive Environment",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'There is no separate scholarship application: every applicant is considered for an Erasmus Mundus scholarship on the same file.'"
+   ],
+   "candidate_id": "3e5692f3-eaea-418a-81ff-688393858136",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Data Science of Human Multimodal Communication: European and International Joint Masters Degree",
+   "catalogue_title": "Data Science of Human Multimodal Communication: European and International Joint Masters Degree",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Under the published Erasmus Mundus nationality rule, no more than 10% of scholarships awarded over the project implementation period should go to applicants of '",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "02907bf0-356c-4e86-a9a7-f681a5f23d60",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Theatre in Social, Participatory Art, Community and Educational contexts",
+   "catalogue_title": "Theatre in Social, Participatory Art, Community and Educational contexts",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have benefited from an EMJM scholarship before cannot apply for a scholarship.'"
+   ],
+   "candidate_id": "cdd7076c-7f9c-4723-907f-c3d36c1e684f",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — Joint European Master Degree in Nuclear Physics",
+   "catalogue_title": "Joint European Master Degree in Nuclear Physics",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'There are 8 extra places in the master for self-financed students, The candidates who have not been awarded with the Erasmus Mundus Scholarship fulfil the NUCPH'",
+    "deadline 2019-05-03 has passed (not the current intake)"
+   ],
+   "candidate_id": "699ce29d-924e-4859-a18f-17fdd4eac165",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — European Master in Biological and Chemical Engineering for a Sustainable Bioeconomy",
+   "catalogue_title": "European Master in Biological and Chemical Engineering for a Sustainable Bioeconomy",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — DocNomadsPlus, Joint Master in Documentary Filmmaking",
+   "catalogue_title": "DocNomadsPlus, Joint Master in Documentary Filmmaking",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master Programme in Neuroscience",
+   "catalogue_title": "Erasmus Mundus Joint Master Programme in Neuroscience",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "70393f9d-58fa-45d4-9a7d-51010e9e8e53",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 9
+  },
+  {
+   "source": "Erasmus Mundus — Geo-Information Science and Earth Observation for Environmental Modelling and Management",
+   "catalogue_title": "Geo-Information Science and Earth Observation for Environmental Modelling and Management",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "10109311-6744-409a-9cd5-14d9c885ea14",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Interdisciplinary Mathematics",
+   "catalogue_title": "Interdisciplinary Mathematics",
+   "decision": "not_approved",
+   "reasons": [
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "0757d2c5-2e1f-4260-bcdf-fb4acfb82aec",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Security, Intelligence and Strategic Studies",
+   "catalogue_title": "International Master in Security, Intelligence and Strategic Studies",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "99fa87bd-4763-4d93-86ee-4c62634a0f05",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 9
+  },
+  {
+   "source": "Erasmus Mundus — Choreomundus – Erasmus Mundus Master in Dance and Movement as Practical Knowledge and Heritage",
+   "catalogue_title": "Choreomundus – Erasmus Mundus Master in Dance and Movement as Practical Knowledge and Heritage",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "c521df62-7988-461e-b70f-4343b0829686",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — European Master's in Clinical Linguistics 25",
+   "catalogue_title": "European Master's in Clinical Linguistics 25",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is ambiguous on the page; needs a person to choose"
+   ],
+   "candidate_id": "bb661135-9875-40b7-a9bb-5284246f7f82",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Master of Science in European Forestry",
+   "catalogue_title": "Master of Science in European Forestry",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Excellence in Analytical Chemistry",
+   "catalogue_title": "Excellence in Analytical Chemistry",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — European Master in Animal Biodiversity and Genomics",
+   "catalogue_title": "European Master in Animal Biodiversity and Genomics",
+   "decision": "approved",
+   "reasons": [],
+   "candidate_id": "b62f2c2d-a0c3-4c25-b8f1-d35843a2106e",
+   "opportunity_id": "084019c5-8416-4026-acc1-ad224c5a28a3",
+   "evidence": {
+    "standard": "erasmus-mundus-evidence-v1",
+    "review_basis": "rule-based review with spot-checks (not human curation)",
+    "catalogue_title": "European Master in Animal Biodiversity and Genomics",
+    "programme_page": "https://www.emabg.eu/application/application-procedure",
+    "checked_at": "2026-11-15T18:03:41.453626+00:00",
+    "scholarship_quote": "The document must have been issued within 12 months before the submission deadline of applying for an EMJM student scholarship.",
+    "deadline": "2027-01-15",
+    "deadline_type": "fixed",
+    "deadline_quote": "(and will remain open until January 15th, 2027)",
+    "eligibility_quotes": [
+     "Documents must be submitted in .pdf format.",
+     "BSc or BSc merged with MSc (if applicable) certificate providing the obtained degree – must be issued by the university where the degree was obtained, and dated, signed and stamped, otherwise it will not be considered valid.",
+     "Must be issued by the university, stating in detail all courses taken and grades obtained, as well as a grading scale and average grade.",
+     "This document must be dated, signed and stamped, otherwise it will not be considered valid.",
+     "Please note that you must upload the transcript of records regarding all the years of your course.",
+     "The certificate of residence must be in English language or translated to English and can be any of the following:",
+     "your national ID, which must be dated and state your current address or merged with a document (e.g. electricity bill) that lists your name and address",
+     "The document must have been issued within 12 months before the submission deadline of applying for an EMJM student scholarship."
+    ]
+   },
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — RESOUND - Joint Master of Arts in Sound Design for Media Arts",
+   "catalogue_title": "RESOUND - Joint Master of Arts in Sound Design for Media Arts",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "ac35582c-e37f-4aec-a647-46b1d5cb33d1",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — EMJM ENVIRONMENTAL CONTAMINATION AND TOXICOLOGY + ONE HEALTH",
+   "catalogue_title": "EMJM ENVIRONMENTAL CONTAMINATION AND TOXICOLOGY + ONE HEALTH",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "8502ea39-d936-490e-bfd9-a1aa662707a7",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Quaternary and Prehistory",
+   "catalogue_title": "International Master in Quaternary and Prehistory",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have already benefitted from an Erasmus Mundus Master scholarship are not eligible to apply for an additional scholarship.'",
+    "deadline 2026-02-27 has passed (not the current intake)"
+   ],
+   "candidate_id": "1a28833c-99a6-4701-9aae-3401009282ba",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — Europubhealth+│European Master in Public Health",
+   "catalogue_title": "Europubhealth+│European Master in Public Health",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "f52504e2-51c8-4152-adde-79d7bd194b64",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — European Master in Linguistic Data Science",
+   "catalogue_title": "European Master in Linguistic Data Science",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "5f55a03d-e870-4b1c-943c-629c92d2d410",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Education, Migration, and Diversity",
+   "catalogue_title": "Education, Migration, and Diversity",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "57b57e29-a9e3-496d-a100-4c26b4533200",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — Master International en Sciences de l'Education Inclusive",
+   "catalogue_title": "Master International en Sciences de l'Education Inclusive",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "c2688fb6-6d3e-4497-b034-8f16a5e8bbce",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Master Course in Mechatronics",
+   "catalogue_title": "Erasmus Mundus Master Course in Mechatronics",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Digital Creativity Art&Science European Master",
+   "catalogue_title": "Digital Creativity Art&Science European Master",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "8a13ef5a-dae3-4ce5-8f38-7889b5b8a2f4",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — Mathematical Modelling, Simulation and Data Science for Industrial and Societal Challenges",
+   "catalogue_title": "Mathematical Modelling, Simulation and Data Science for Industrial and Societal Challenges",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — life.univ-cotedazur.fr (Erasmus Mundus programmes)",
+   "catalogue_title": "International Master degree on the biology of Ageing",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page names this programme"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — life.univ-cotedazur.fr (Erasmus Mundus programmes)",
+   "catalogue_title": "From Membrane Biology to Neuroscience and Experimental Medicine",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page names this programme"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Leading International Vaccinology Education for Innovation",
+   "catalogue_title": "Leading International Vaccinology Education for Innovation",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "5a356b33-7d0f-416c-a675-0756a0a0f781",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Greening Energy Market and Finance",
+   "catalogue_title": "Greening Energy Market and Finance",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Global Markets, Local Creativities",
+   "catalogue_title": "Global Markets, Local Creativities",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Erasmus Mundus scholarships can be offered to students from any region of the world; however, in order to ensure geographical balance, no more than 6 scholarshi'"
+   ],
+   "candidate_id": "3fc66b2b-7bbe-48b3-8492-8770f1551224",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Master in European Environmental Economics and Policy",
+   "catalogue_title": "Erasmus Mundus Master in European Environmental Economics and Policy",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Health and Wellbeing across the Lifespan",
+   "catalogue_title": "Health and Wellbeing across the Lifespan",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have previously obtained an EMJM scholarship are not eligible to apply for an additional scholarship under the EMJM.'"
+   ],
+   "candidate_id": "ee3205df-1c00-4aa6-9e3b-9c186659a122",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus - Master of Science in Imaging and Light in Extended Reality",
+   "catalogue_title": "Erasmus Mundus - Master of Science in Imaging and Light in Extended Reality",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Economic POlicies for the Global bifurcation - Joint Master",
+   "catalogue_title": "Economic POlicies for the Global bifurcation - Joint Master",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'A second call might been opened also later for self-paying students (i.e. without Erasmus Mundus scholarship).'"
+   ],
+   "candidate_id": "fc72f6aa-3092-4cc3-bb4b-9365283f9a26",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — Intelligent Photonics for Security Reliability Sustainability and Safety",
+   "catalogue_title": "Intelligent Photonics for Security Reliability Sustainability and Safety",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Coordinated Humanitarian Response, Health and Displacement",
+   "catalogue_title": "Coordinated Humanitarian Response, Health and Displacement",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Note: students who have already benefitted from an Erasmus Mundus Joint Master (EMJM) scholarship are not eligible to apply for an additional scholarship'",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "de41e56d-43ce-4e29-8760-fdb52676be2f",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — MASTER IN INTELLECTUAL PROPERTY AND DATA LAW",
+   "catalogue_title": "MASTER IN INTELLECTUAL PROPERTY AND DATA LAW",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "33c0e75c-968b-4365-9539-94f6e3b2bfac",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Response_Able Futures; A European Joint Masters in Design and Care",
+   "catalogue_title": "Response_Able Futures; A European Joint Masters in Design and Care",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have already obtained an EMJM scholarship or an Erasmus Mundus Master Course / Joint Doctorate scholarship are not eligible to apply for an additio'",
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "3cf3221f-1570-434e-b0f9-cfc986f49d0a",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — EUropean master on COntrol of Renewable Energy systems",
+   "catalogue_title": "EUropean master on COntrol of Renewable Energy systems",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "190fc440-6fda-4281-b4a1-267e4002f085",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Cutting-Edge Technologies for Sustainable Agriculture",
+   "catalogue_title": "Erasmus Mundus Joint Master in Cutting-Edge Technologies for Sustainable Agriculture",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master's programme in Surface, Electro, Radiation, and Photo-chemistry",
+   "catalogue_title": "Erasmus Mundus Joint Master's programme in Surface, Electro, Radiation, and Photo-chemistry",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "be5526a5-7367-4c50-ac0b-3d74c994ab01",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Theoretical Chemistry and Computational Modeling",
+   "catalogue_title": "Theoretical Chemistry and Computational Modeling",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Social Psychology of Transformation: Understanding and Mastering Social Change",
+   "catalogue_title": "Social Psychology of Transformation: Understanding and Mastering Social Change",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "8b77b92b-18d3-4399-9e54-5072dbc31e53",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 7
+  },
+  {
+   "source": "Erasmus Mundus — Research and Innovation in Higher Education",
+   "catalogue_title": "Research and Innovation in Higher Education",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "8a590c92-d75b-447f-a4ec-76d8098ec815",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — Electric vehicle PropulsIon & COntrol Plus",
+   "catalogue_title": "Electric vehicle PropulsIon & COntrol Plus",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "764b9ea9-fbe3-4b4f-954c-a03ff1056ed1",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — International Master's in Advanced Research in Criminology",
+   "catalogue_title": "International Master's in Advanced Research in Criminology",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Decentralised Smart Energy Systems 2.0",
+   "catalogue_title": "Decentralised Smart Energy Systems 2.0",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "a0986765-5394-4e4a-8370-ed04a262d114",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Innovative Medicine",
+   "catalogue_title": "International Master in Innovative Medicine",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "5bd916c7-29ca-4906-af45-3df4048538ee",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Mechanics of Sustainable Materials and Structures",
+   "catalogue_title": "Mechanics of Sustainable Materials and Structures",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "9d3c422d-6bac-4ecb-b01a-13efdce8fabd",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Global Change Ecology and Biodiversity Management",
+   "catalogue_title": "Erasmus Mundus Joint Master in Global Change Ecology and Biodiversity Management",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have already benefited from an EMJM scholarship in the past are not eligible to apply for additional EMJM scholarships.'"
+   ],
+   "candidate_id": "ee274dcd-94f9-4c1e-bece-1c57d4eacf2a",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — EMerald Master in Georesources Engineering",
+   "catalogue_title": "EMerald Master in Georesources Engineering",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — FilmMemory - Joint Master of Arts in European Film Heritage, History and Cultures",
+   "catalogue_title": "FilmMemory - Joint Master of Arts in European Film Heritage, History and Cultures",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — MSc in Smart Cities and Communities",
+   "catalogue_title": "MSc in Smart Cities and Communities",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "03d48b98-8903-4d58-8924-5919a7e90078",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — European Master For Industry in Microwave Electronics and Photonics",
+   "catalogue_title": "European Master For Industry in Microwave Electronics and Photonics",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "309952a5-2d38-4d62-97e6-613fc6eddc3b",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 9
+  },
+  {
+   "source": "Erasmus Mundus — Multiphase Systems for Sustainable Engineering",
+   "catalogue_title": "Multiphase Systems for Sustainable Engineering",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Safe and Reliable Nuclear Applications",
+   "catalogue_title": "Safe and Reliable Nuclear Applications",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "38b63621-4a3f-4ad1-a3b3-fbe749707813",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 9
+  },
+  {
+   "source": "Erasmus Mundus — Education Policies for Global Development",
+   "catalogue_title": "Education Policies for Global Development",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Communications Engineering and Data Science",
+   "catalogue_title": "Communications Engineering and Data Science",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: '(EMJM) scholarship cannot apply for an additional scholarship through'",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "b37e99fa-09dc-4ee6-96d8-9a6b915ee256",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Masters Program in Public Policy",
+   "catalogue_title": "Erasmus Mundus Masters Program in Public Policy",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline 2026-05-15 has passed (not the current intake)"
+   ],
+   "candidate_id": "82613443-f77d-416d-b65c-c0f66de12455",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 9
+  },
+  {
+   "source": "Erasmus Mundus — PlantHealth - European Master Degree in PLANT HEALTH IN SUSTAINABLE CROPPING SYSTEMS",
+   "catalogue_title": "PlantHealth - European Master Degree in PLANT HEALTH IN SUSTAINABLE CROPPING SYSTEMS",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Physiology and Medicine of Humans in Space and Extreme Environment",
+   "catalogue_title": "Erasmus Mundus Joint Master in Physiology and Medicine of Humans in Space and Extreme Environment",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available"
+   ],
+   "candidate_id": "b17eb7b1-3568-4fbb-97b9-a2a0aae09292",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master Programme in Imaging",
+   "catalogue_title": "Erasmus Mundus Joint Master Programme in Imaging",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — International Masters in Risk Assessment and Management of Civil Infrastructures",
+   "catalogue_title": "International Masters in Risk Assessment and Management of Civil Infrastructures",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "8d05e3f6-6309-49bc-9e2f-a8e910eac13e",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Interdisciplinarity in Materials for Energy Storage and Conversion",
+   "catalogue_title": "Interdisciplinarity in Materials for Energy Storage and Conversion",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "a7aa711a-631a-44c3-a03e-083115a40e08",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Master in 'Global Studies'",
+   "catalogue_title": "Erasmus Mundus Master in 'Global Studies'",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "340aad1a-78d3-404c-be75-ed460541315d",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — European Master of Science in Skin Health and Care",
+   "catalogue_title": "European Master of Science in Skin Health and Care",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "e1537c5b-2cfd-40eb-af3d-44ba655cd5cd",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Image Processing and Computer Vision ai",
+   "catalogue_title": "Image Processing and Computer Vision ai",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "08c8affa-3d45-4644-a4ac-78249b333882",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — Master Erasmus Mundus in Lexicography",
+   "catalogue_title": "Master Erasmus Mundus in Lexicography",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Groundwater and Global Change - Impacts and Adaptation",
+   "catalogue_title": "Groundwater and Global Change - Impacts and Adaptation",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "0465de6d-78bd-441a-a43e-edb331c74046",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Children’s Literature, Media and Cultural Entrepreneurship",
+   "catalogue_title": "Children’s Literature, Media and Cultural Entrepreneurship",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master Redesigning the Post-Industrial City",
+   "catalogue_title": "Erasmus Mundus Joint Master Redesigning the Post-Industrial City",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — RE_PLAY: EUROPEAN JOINT MASTERS IN GAMES",
+   "catalogue_title": "RE_PLAY: EUROPEAN JOINT MASTERS IN GAMES",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have already obtained an EMJM scholarship or an Erasmus Mundus Master Course / Joint Doctorate scholarship are not eligible to apply for an additio'",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "5488cb65-94dc-4d95-a2fe-68ddcb1d73c0",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — Joint Master's in Nanomaterials for Green and Digital Transitions",
+   "catalogue_title": "Joint Master's in Nanomaterials for Green and Digital Transitions",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "229b23ec-e968-41a1-9c84-e11a8e93cca6",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master Degree on Public Health in Disaster",
+   "catalogue_title": "Erasmus Mundus Joint Master Degree on Public Health in Disaster",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "1ca717fa-f5c3-4993-9394-47a7ce4e9bf7",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Advanced Design of Sustainable Ships and Offshore Structures",
+   "catalogue_title": "International Master in Advanced Design of Sustainable Ships and Offshore Structures",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — EUROPHOTONICS",
+   "catalogue_title": "EUROPHOTONICS",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "003015e2-c5f5-44be-b3d6-13b1971ffb7c",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — Sustainable Information Technologies for Societies Joint Masters",
+   "catalogue_title": "Sustainable Information Technologies for Societies Joint Masters",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "b6471bc1-6764-4939-9b3e-583823816ed6",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Sustainable Forest and Nature Management",
+   "catalogue_title": "Sustainable Forest and Nature Management",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Soils and Global Change",
+   "catalogue_title": "International Master in Soils and Global Change",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "0e5367e3-da94-431e-8f54-32976c41852f",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Flood Risk Management",
+   "catalogue_title": "Flood Risk Management",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available"
+   ],
+   "candidate_id": "bfc8451e-c7cc-4fb1-b556-07f5659526ef",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — European Master in Sustainable Systems Engineering",
+   "catalogue_title": "European Master in Sustainable Systems Engineering",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — European Master on Embedded Intelligence Nanosystems Engineering – from Nanoscale Technologies to Ubiquitous Smart Sensors",
+   "catalogue_title": "European Master on Embedded Intelligence Nanosystems Engineering – from Nanoscale Technologies to Ubiquitous Smart Sensors",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "d726a5a0-544d-4ff1-8ed3-5af458a62d1c",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Copernicus Master in Digital Earth",
+   "catalogue_title": "Copernicus Master in Digital Earth",
+   "decision": "approved",
+   "reasons": [],
+   "candidate_id": "85e237d5-9940-4aab-8388-547c42210b40",
+   "opportunity_id": "e87f609c-1042-437d-8a61-831cd73c3b8e",
+   "evidence": {
+    "standard": "erasmus-mundus-evidence-v1",
+    "review_basis": "rule-based review with spot-checks (not human curation)",
+    "catalogue_title": "Copernicus Master in Digital Earth",
+    "programme_page": "https://master-cde.eu/admission/procedures-deadlines/calls",
+    "checked_at": "2026-11-15T18:07:30.281534+00:00",
+    "scholarship_quote": "Erasmus Mundus Scholarship: A scholarship for eligible candidates that provides financial support according to the programme’s scholarship conditions.",
+    "deadline": null,
+    "deadline_type": "rolling",
+    "deadline_quote": "The March to May application period is specifically for European candidates, who can apply on a non-scholarship basis on a rolling admission procedure.",
+    "eligibility_quotes": [
+     "Erasmus Mundus Scholarship: A scholarship for eligible candidates that provides financial support according to the programme’s scholarship conditions.",
+     "The call is open to applicants from all over the world, including those within and outside Europe.",
+     "The November to January application period is open to candidates worldwide, offering the opportunity to apply for Erasmus+ EMJM scholarships or to join the programme on a self-funded basis.",
+     "However, supporting evidence on EO*GI experience, including academic transcripts, certificates, or other relevant documentation, must be submitted with the application."
+    ]
+   },
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — International Master on Wine Tourism Transitions and Innovations",
+   "catalogue_title": "International Master on Wine Tourism Transitions and Innovations",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "12576ea5-81ce-4f35-ad39-e9d5629b223a",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Manufacturing 4.0 by intElligent and susTAinable technologies - META 4.0",
+   "catalogue_title": "Manufacturing 4.0 by intElligent and susTAinable technologies - META 4.0",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "2ac00e03-5b9f-41dc-861b-90932b8ef22d",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Human Diseases Models Morphological Phenotyping",
+   "catalogue_title": "Human Diseases Models Morphological Phenotyping",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "e9c9d584-6642-4568-bfc5-1e0232dda5c5",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Master in Biomedical Engineering",
+   "catalogue_title": "Erasmus Mundus Master in Biomedical Engineering",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Euro-Asian Joint Master Programme in Medical Technology and Healthcare Business",
+   "catalogue_title": "Euro-Asian Joint Master Programme in Medical Technology and Healthcare Business",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is ambiguous on the page; needs a person to choose"
+   ],
+   "candidate_id": "8124c2a3-f923-49e6-b14d-594553606dfa",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Hydrogen Systems and Enabling Technologies",
+   "catalogue_title": "Hydrogen Systems and Enabling Technologies",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Master of Science (MSc) in Global Environment and Development",
+   "catalogue_title": "Master of Science (MSc) in Global Environment and Development",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "d0bfad48-bf8b-4803-8e28-2e45b5315846",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 7
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master In Artificial Intelligence",
+   "catalogue_title": "Erasmus Mundus Joint Master In Artificial Intelligence",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — EMJM AQUACULTURE, ENVIRONMENT AND SOCIETY – STAR",
+   "catalogue_title": "EMJM AQUACULTURE, ENVIRONMENT AND SOCIETY – STAR",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "32e7a0fd-5045-4055-a36c-1feade3aca03",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — International Master of Advanced Methods in Particle Physics",
+   "catalogue_title": "International Master of Advanced Methods in Particle Physics",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "8b2776d1-6e3d-49b8-93f0-680bb0fd22ac",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Architectural and Urban Contemporary Heritage",
+   "catalogue_title": "Architectural and Urban Contemporary Heritage",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "eca422cf-7b5b-481d-8e53-c77c20ec9561",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Masters degree in Environmental Sciences, Policy and Management",
+   "catalogue_title": "Masters degree in Environmental Sciences, Policy and Management",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available"
+   ],
+   "candidate_id": "2d5864aa-5f4c-4db8-9ad4-fc2ff1ccc6f6",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Master in Membrane Engineering for Sustainable Development",
+   "catalogue_title": "Master in Membrane Engineering for Sustainable Development",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'According to the Erasmus+ Guide, students who have already received an EMJM scholarship are not eligible to apply for another scholarship'",
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "e42c8196-b56a-4059-a87d-d69328d9eded",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — EMJM in Global Forestry",
+   "catalogue_title": "EMJM in Global Forestry",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Joint Master Programme in Resilience in Educational Contexts",
+   "catalogue_title": "Joint Master Programme in Resilience in Educational Contexts",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "71927e73-1bcb-4210-8f9a-b8ec67e3179e",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master on “Climate Change and Diversity: Sustainable Territorial Development”",
+   "catalogue_title": "Erasmus Mundus Joint Master on “Climate Change and Diversity: Sustainable Territorial Development”",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available"
+   ],
+   "candidate_id": "b951898a-3269-4d16-8108-ec2ec073abf6",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — ERASMUS MUNDUS JOINT MASTER in ARCHAEOLOGICAl MATERIALS SCIENCE",
+   "catalogue_title": "ERASMUS MUNDUS JOINT MASTER in ARCHAEOLOGICAl MATERIALS SCIENCE",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Applicants cannot have benefited previously from an EMJM scholarship.'",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "d26b6344-b894-433f-85dc-39a0987cb299",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Master of Applied Cybersecurity",
+   "catalogue_title": "Master of Applied Cybersecurity",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "dedb56da-565f-4ab6-a16b-b33c8a8de9fe",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — European Master in Law and Economics",
+   "catalogue_title": "European Master in Law and Economics",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Functional Advanced Materials Engineering with Artificial Intelligence for Sustainability",
+   "catalogue_title": "Functional Advanced Materials Engineering with Artificial Intelligence for Sustainability",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "19828a52-1c24-414a-a003-ab02e02049b4",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 7
+  },
+  {
+   "source": "Erasmus Mundus — Global MINDS European Master in the Psychology of Global Mobility, Inclusion and Diversity in Society",
+   "catalogue_title": "Global MINDS European Master in the Psychology of Global Mobility, Inclusion and Diversity in Society",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "2771346c-8b09-4330-9cd5-7065c0f60cc2",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Public Sector Innovation and eGovernance",
+   "catalogue_title": "Public Sector Innovation and eGovernance",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Keep in mind that the programme no longer provides EM scholarships.'"
+   ],
+   "candidate_id": "b710d3e1-ef7a-406f-9043-fdbfe824d55d",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Technology and Management for Circular Economy",
+   "catalogue_title": "International Master in Technology and Management for Circular Economy",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Joint Master's Degree Programme in Service Design Strategies and Innovations",
+   "catalogue_title": "Joint Master's Degree Programme in Service Design Strategies and Innovations",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "65099122-ca75-486e-9ba7-5db2730302d6",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — Education in Museums and Heritage",
+   "catalogue_title": "Education in Museums and Heritage",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "3d7fe1a0-9b82-400e-af7a-70ac77c2fee2",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Brain and Data Science",
+   "catalogue_title": "International Master in Brain and Data Science",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "de41b36f-9943-4b4d-8f87-77dfb6b989d9",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Religious Diversity in a Globalised World",
+   "catalogue_title": "Religious Diversity in a Globalised World",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Note that there are no Erasmus Mundus scholarships available for this application round.'",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "404ba4ba-b83c-4b71-9ef6-444f26113b0d",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — International Master of Science in Fire Safety Engineering",
+   "catalogue_title": "International Master of Science in Fire Safety Engineering",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "19e93bde-9b54-4aca-85da-433b94f4ba11",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Planetary Geosciences",
+   "catalogue_title": "Erasmus Mundus Joint Master in Planetary Geosciences",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "4938677d-ad07-4d36-91c2-2ec88bbccb1d",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Managing Art and Cultural Heritage in Global Markets",
+   "catalogue_title": "Managing Art and Cultural Heritage in Global Markets",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Governance & Administration of Leisure and Sports International Master",
+   "catalogue_title": "Governance & Administration of Leisure and Sports International Master",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline 2026-05-15 has passed (not the current intake)"
+   ],
+   "candidate_id": "94804626-84bb-4860-9f68-177754636f90",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Coastal Hazards – Risks, Climate Change Impacts and Adaptation",
+   "catalogue_title": "Coastal Hazards – Risks, Climate Change Impacts and Adaptation",
+   "decision": "approved",
+   "reasons": [],
+   "candidate_id": "45606e56-684b-488c-a4cc-fb0f92ebb4ba",
+   "opportunity_id": "2ee72c06-ce96-477c-b169-03fa373312d2",
+   "evidence": {
+    "standard": "erasmus-mundus-evidence-v1",
+    "review_basis": "rule-based review with spot-checks (not human curation)",
+    "catalogue_title": "Coastal Hazards – Risks, Climate Change Impacts and Adaptation",
+    "programme_page": "https://www.coasthazar.eu/application",
+    "checked_at": "2026-11-15T18:09:47.305343+00:00",
+    "scholarship_quote": "The COASTHazar programme will apply for a grant renewal in 2027 to secure funding for a new set of Erasmus Mundus scholarships accross 4 cohorts (2028 - 2033).",
+    "deadline": "2027-04-30",
+    "deadline_type": "fixed",
+    "deadline_quote": "Applications have opened in November 2026 and will be open until 30 April 2027. ​EU students can apply until 1 July 2027.",
+    "eligibility_quotes": [
+     "English proficiency test",
+     "English proficiency test results (see relevant notes for exempted countries); and",
+     "English proficiency test:",
+     "Applicants holding citizenship from specific counties (see here) are exempted from taking the English proficiency language test.",
+     "Applicants from countries where English is the preferred language in higher education, but are not included in the list of exempted countries, are still required to submit their English proficiency language test result.",
+     "Detailed information about the English proficiency test can be found at IHE Delft here.",
+     "No separate application procedure is required for Erasmus Mundus reduced tuition fee scholarships: during the application submission process, when asked how the studies will be funded, applicants should select that option additionally."
+    ]
+   },
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Master of Science in Coastal and Marine Engineering and Management",
+   "catalogue_title": "Master of Science in Coastal and Marine Engineering and Management",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Students who have already obtained an Erasmus Mundus Joint Master Degrees (EMJMD) scholarship or are former Erasmus Mundus Master/Doctoral Course scholarship ho'",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "8a75c9ba-6354-4621-aab8-cc6c5eed89d1",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Cartography - Mapping for a sustainable world",
+   "catalogue_title": "Cartography - Mapping for a sustainable world",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "dce44e04-ba66-4de4-ac17-4581dc750b42",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Sustainable Mineral and Metal Processing Engineering",
+   "catalogue_title": "Erasmus Mundus Joint Master in Sustainable Mineral and Metal Processing Engineering",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "eca24ae3-087b-4fbb-a8e2-ab0619b5323b",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — Techniques, Patrimoine, Territoires de l'Industrie : Histoire, Valorisation, Didactique",
+   "catalogue_title": "Techniques, Patrimoine, Territoires de l'Industrie : Histoire, Valorisation, Didactique",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "c23b08b5-86a4-48f7-a704-956957082192",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 6
+  },
+  {
+   "source": "Erasmus Mundus — Islands and Sustainability",
+   "catalogue_title": "Islands and Sustainability",
+   "decision": "not_approved",
+   "reasons": [
+    "page states scholarships are not available: 'Note: No Erasmus Mundus scholarships will be available for the September 2027 intake.'",
+    "deadline is ambiguous on the page; needs a person to choose"
+   ],
+   "candidate_id": "4f71dba2-7b23-4b2d-90b2-2dfc8fa17b4f",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Sustainable Biomass and Bioproducts Engineering",
+   "catalogue_title": "Sustainable Biomass and Bioproducts Engineering",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "419e098d-f4cc-4ad1-a856-e82023cc31e0",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — Sustainability in Agriculture, Food Production and Food Technology in the Danube Region - Danube AgriFood Master",
+   "catalogue_title": "Sustainability in Agriculture, Food Production and Food Technology in the Danube Region - Danube AgriFood Master",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — ChEMoinformaticsplus - Artificial Intelligence in Chemistry",
+   "catalogue_title": "ChEMoinformaticsplus - Artificial Intelligence in Chemistry",
+   "decision": "approved",
+   "reasons": [],
+   "candidate_id": "680f5d15-4196-480d-9c0a-9e33675d121a",
+   "opportunity_id": "6706755a-0c29-4b12-9dd1-ab79797f4258",
+   "evidence": {
+    "standard": "erasmus-mundus-evidence-v1",
+    "review_basis": "rule-based review with spot-checks (not human curation)",
+    "catalogue_title": "ChEMoinformaticsplus - Artificial Intelligence in Chemistry",
+    "programme_page": "https://masterchemoinfo.u-strasbg.fr/",
+    "checked_at": "2026-11-15T18:10:39.684589+00:00",
+    "scholarship_quote": "From Septembre 2022, the ChEMoinformaticsPlus program offers about 20 Erasmus Mundus scholarships and 25 places per edition.",
+    "deadline": "2027-03-15",
+    "deadline_type": "fixed",
+    "deadline_quote": "Applications are open until March 15, 2027 !",
+    "eligibility_quotes": [
+     "“Chemicals are at the centre of the economy (energy, materials, agrochemicals, pharmaceuticals...) and ... they must be adapted to achieve a sustainable future."
+    ]
+   },
+   "pages_checked": 9
+  },
+  {
+   "source": "Erasmus Mundus — Transnational German Studies Erasmus Mundus Joint Master",
+   "catalogue_title": "Transnational German Studies Erasmus Mundus Joint Master",
+   "decision": "not_approved",
+   "reasons": [
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "ffdb00be-74d7-4fbf-8259-d2be8fa7616a",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — QUAntum Research Master-level Education Network",
+   "catalogue_title": "QUAntum Research Master-level Education Network",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "9ff6026e-02c7-4c04-ba12-dc7b11b3059e",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 1
+  },
+  {
+   "source": "Erasmus Mundus — Master Degree in Sustainable Design, Construction and Management of the Built Environment",
+   "catalogue_title": "Master Degree in Sustainable Design, Construction and Management of the Built Environment",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — Master in Astrophysics and Space Science",
+   "catalogue_title": "Master in Astrophysics and Space Science",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline 2025-02-14 has passed (not the current intake)"
+   ],
+   "candidate_id": "2383c256-c955-4f41-b301-fd74c24541a9",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 8
+  },
+  {
+   "source": "Erasmus Mundus — Master Program in Advanced Materials Innovative Recycling AMIR EM",
+   "catalogue_title": "Master Program in Advanced Materials Innovative Recycling AMIR EM",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "18b3d4b4-64c4-4d2a-86ed-bfc9f541d144",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 5
+  },
+  {
+   "source": "Erasmus Mundus — International Master in Sustainable Drug Discovery",
+   "catalogue_title": "International Master in Sustainable Drug Discovery",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "c66d2830-25fe-4722-88e7-a3f9575a6188",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Joint Master in Cybersecurity",
+   "catalogue_title": "Erasmus Mundus Joint Master in Cybersecurity",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  },
+  {
+   "source": "Erasmus Mundus — European Master in Dynamics of Renewables-based Power Systems",
+   "catalogue_title": "European Master in Dynamics of Renewables-based Power Systems",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "0e41a4ab-c845-4595-8273-959b12dade7f",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 10
+  },
+  {
+   "source": "Erasmus Mundus — Erasmus Mundus Master Impact Entrepreneurship",
+   "catalogue_title": "Erasmus Mundus Master Impact Entrepreneurship",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement"
+   ],
+   "candidate_id": "fb718b88-e58e-45f9-9b02-d1ad92f0365b",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 4
+  },
+  {
+   "source": "Erasmus Mundus — International Masters in Environmental Technology and Engineering – Consolidation phase",
+   "catalogue_title": "International Masters in Environmental Technology and Engineering – Consolidation phase",
+   "decision": "not_approved",
+   "reasons": [
+    "no quotable statement that Erasmus Mundus scholarships are available",
+    "no specific future deadline and no explicit rolling-admission statement",
+    "no eligibility statement quoted from the page"
+   ],
+   "candidate_id": "debbe655-19d8-4cb9-9fa7-135056649ef7",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 2
+  },
+  {
+   "source": "Erasmus Mundus — European Master in Advanced Structural Analysis and Design using Composite Materials",
+   "catalogue_title": "European Master in Advanced Structural Analysis and Design using Composite Materials",
+   "decision": "not_approved",
+   "reasons": [
+    "deadline is conflicting on the page; needs a person to choose"
+   ],
+   "candidate_id": "978dd849-903b-4952-a50a-48b64b75851a",
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 3
+  },
+  {
+   "source": "Erasmus Mundus — CYBER: Joint Master in CYberspace, Behavior and E-theRapy",
+   "catalogue_title": "CYBER: Joint Master in CYberspace, Behavior and E-theRapy",
+   "decision": "no_pages",
+   "reasons": [
+    "no fetched page from this programme's site"
+   ],
+   "candidate_id": null,
+   "opportunity_id": null,
+   "evidence": null,
+   "pages_checked": 0
+  }
+ ]
+}

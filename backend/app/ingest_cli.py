@@ -75,6 +75,12 @@ def add_commands(commands: argparse._SubParsersAction) -> None:
     status.add_argument("--actor", required=True)
     status.add_argument("--reason")
     commands.add_parser("ingest-sources", help="list acquisition sources")
+    em = commands.add_parser("ingest-em-review",
+                             help="apply the Erasmus Mundus evidence standard (rule-based review with spot-checks)")
+    em.add_argument("sources", type=Path, help="the Erasmus Mundus source definitions JSON (with catalogue titles)")
+    em.add_argument("--actor", required=True, help="the admin or curator account the approvals are recorded under")
+    em.add_argument("--apply", action="store_true", help="approve and publish what meets the standard (default: report only)")
+    em.add_argument("--report", type=Path, help="write every programme's decision and evidence as JSON")
     health = commands.add_parser("ingest-source-health", help="source counts by what recorded evidence proves")
     health.add_argument("--json", action="store_true")
     health.add_argument("--failed", action="store_true", help="list failed sources with the reason")
@@ -169,7 +175,35 @@ def run(db: Session, args: argparse.Namespace) -> int:
 
     command = args.command
     try:
-        if command == "ingest-source-load":
+        if command == "ingest-em-review":
+            from dataclasses import asdict
+
+            from app.intelligence import em_review
+
+            actor = _actor(db, args.actor, Permission.OPPORTUNITY_PUBLISH if args.apply else Permission.SOURCE_READ)
+            payload = json.loads(args.sources.read_text())
+            today = datetime.now(timezone.utc).date()
+            decisions = em_review.run_review(db, payload, actor_id=actor.id, today=today, apply=args.apply)
+            if args.apply:
+                db.commit()
+            else:
+                db.rollback()
+            counts: dict[str, int] = {}
+            reasons: dict[str, int] = {}
+            for d in decisions:
+                counts[d.decision] = counts.get(d.decision, 0) + 1
+                for r in d.reasons[:1]:
+                    key = r.split(":")[0][:70]
+                    reasons[key] = reasons.get(key, 0) + 1
+            print(f"{em_review.STANDARD} ({em_review.REVIEW_BASIS}); {'APPLIED' if args.apply else 'report only'}")
+            print(f"programmes: {len(decisions)}; by decision: {counts}")
+            for r, n in sorted(reasons.items(), key=lambda kv: -kv[1]):
+                print(f"  first unmet reason: {n:4d}  {r}")
+            if args.report:
+                args.report.write_text(json.dumps({"standard": em_review.STANDARD, "review_basis": em_review.REVIEW_BASIS,
+                                                   "evaluated_on": today.isoformat(), "applied": args.apply,
+                                                   "decisions": [asdict(d) for d in decisions]}, indent=1, ensure_ascii=False))
+        elif command == "ingest-source-load":
             definitions = json.loads(args.file.read_text())
             created = 0
             for raw in definitions:
