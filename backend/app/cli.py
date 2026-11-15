@@ -107,11 +107,16 @@ def main(argv: list[str] | None = None) -> int:
     )
     revoke_cmd.add_argument("--yes", action="store_true", help="required: confirm revoking for all accounts")
 
+    from app import ingest_cli
+
+    ingest_cli.add_commands(commands)
     args = parser.parse_args(argv)
 
     from app.db.session import SessionLocal
 
     with SessionLocal() as db:
+        if args.command.startswith("ingest-"):
+            return ingest_cli.run(db, args)
         try:
             if args.command == "grant-role":
                 user, previous = grant_role(db, args.email, args.role)
