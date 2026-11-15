@@ -45,7 +45,7 @@ def list_curator_opportunities(
     status: OpportunityStatus | None = Query(default=None),
     limit: int = Query(default=100, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     _: User = Depends(require_permission(Permission.OPPORTUNITY_CREATE)),
 ) -> list[OpportunityRead]:
     """List opportunities across all statuses for curators."""
@@ -60,7 +60,7 @@ def list_curator_opportunities(
 def patch_curator_opportunity(
     opportunity_id: uuid.UUID,
     payload: OpportunityUpdate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     curator: User = Depends(require_permission(Permission.OPPORTUNITY_EDIT)),
 ):
     """Update opportunity details and metadata.
@@ -102,7 +102,7 @@ def patch_curator_opportunity(
 )
 def publish_curator_opportunity(
     opportunity_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     curator: User = Depends(require_permission(Permission.OPPORTUNITY_PUBLISH)),
 ):
     """Publish an opportunity if it passes the publication completeness checks.
@@ -150,7 +150,7 @@ def publish_curator_opportunity(
 )
 def close_curator_opportunity(
     opportunity_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     curator: User = Depends(require_permission(Permission.OPPORTUNITY_EDIT)),
 ):
     """Close a published opportunity cycle."""
@@ -188,7 +188,7 @@ def close_curator_opportunity(
 )
 def create(
     payload: OpportunityCreate,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     curator: User = Depends(require_permission(Permission.OPPORTUNITY_CREATE)),
 ) -> OpportunityRead:
     """Create an opportunity (curators and admins only); audited in the same transaction."""
@@ -214,14 +214,14 @@ def create(
 def list_all(
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[OpportunityRead]:
     """List published opportunities with simple offset pagination."""
     return list_opportunities(db, limit, offset)
 
 
 @router.get("/{opportunity_id}", response_model=OpportunityDetailRead)
-def get_one(opportunity_id: uuid.UUID, db: Session = Depends(get_db)) -> OpportunityDetailRead:
+def get_one(opportunity_id: uuid.UUID, db: Session = Depends(get_db, scope="function")) -> OpportunityDetailRead:
     """Return one public opportunity with its eligibility rules and sources."""
     opportunity = get_public_opportunity(db, opportunity_id)
     if opportunity is None:

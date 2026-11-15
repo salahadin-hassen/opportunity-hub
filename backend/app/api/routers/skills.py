@@ -32,7 +32,7 @@ def _skill_not_attached() -> HTTPException:
 
 
 @catalog_router.get("", response_model=list[SkillRead])
-def list_catalog(db: Session = Depends(get_db)) -> list[SkillRead]:
+def list_catalog(db: Session = Depends(get_db, scope="function")) -> list[SkillRead]:
     """Return the canonical skill vocabulary a profile can attach from.
 
     Read-only and public: the vocabulary is curated (no HTTP route creates
@@ -44,7 +44,7 @@ def list_catalog(db: Session = Depends(get_db)) -> list[SkillRead]:
 @router.get("", response_model=list[SkillRead])
 def list_my_skills(
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[SkillRead]:
     """Return the owned profile's canonical skills ordered by key."""
     return list_profile_skills(db, profile.id)
@@ -54,7 +54,7 @@ def list_my_skills(
 def attach_my_skill(
     payload: ProfileSkillCreate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> SkillRead:
     """Attach one existing canonical skill to the owned profile."""
     try:
@@ -74,7 +74,7 @@ def attach_my_skill(
 def detach_my_skill(
     skill_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Remove one skill association; the canonical skill survives."""
     try:

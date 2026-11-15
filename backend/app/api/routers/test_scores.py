@@ -31,7 +31,7 @@ def _test_score_not_found() -> HTTPException:
 @router.get("", response_model=list[TestScoreRead])
 def list_my_test_scores(
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[TestScoreRead]:
     """Return the owned profile's test scores in deterministic order."""
     return list_test_scores(db, profile.id)
@@ -43,7 +43,7 @@ def list_my_test_scores(
 def create_my_test_score(
     payload: TestScoreCreate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> TestScoreRead:
     """Add one test score to the owned profile."""
     return create_test_score(db, profile.id, payload)
@@ -54,7 +54,7 @@ def patch_my_test_score(
     test_score_id: uuid.UUID,
     payload: TestScoreUpdate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> TestScoreRead:
     """Apply a partial update to one owned test score."""
     score = get_test_score(db, profile.id, test_score_id)
@@ -72,7 +72,7 @@ def patch_my_test_score(
 def delete_my_test_score(
     test_score_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Delete one owned test score."""
     score = get_test_score(db, profile.id, test_score_id)
