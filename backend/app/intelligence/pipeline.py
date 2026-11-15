@@ -13,6 +13,10 @@ Guarantees:
   back off exponentially up to ``MAX_ATTEMPTS`` before the candidate is marked ``failed``.
 * **Evidence first.** Every extracted claim carries a quote that must be on the fetched page
   (``validate.enforce_evidence``); missing or uncertain values stay missing or uncertain.
+* **Conditional re-fetches.** A candidate keeps the ``ETag`` / ``Last-Modified`` of the response its
+  page text came from and sends them on the next fetch. A 304 keeps the stored text, hash, extraction
+  and validators, and returns the candidate to the state it was re-queued from; a failed request
+  changes none of them.
 """
 from __future__ import annotations
 
@@ -37,7 +41,13 @@ from app.intelligence.extract import DeterministicExtractor, Extraction, Extract
 from app.intelligence.fetcher import FetchError, OffAllowListError, SSRFBlockedError
 from app.intelligence.lifecycle import is_discoverable
 from app.intelligence.normalize import canonical_url, normalise_title
-from app.intelligence.reader import HTTPStatusError, RobotsDisallowedError, SafePageReader, UnsupportedContentTypeError
+from app.intelligence.reader import (
+    HTTPStatusError,
+    RobotsDisallowedError,
+    SafePageReader,
+    UnsupportedContentTypeError,
+    read_page,
+)
 from app.intelligence.text import parse_html
 from app.intelligence.validate import validate
 from app.models import AcquisitionSource, Opportunity, Requirement, Source
@@ -322,8 +332,14 @@ def _process_one(
     if reader is None:
         reader = readers[source.id] = reader_factory(source)
 
+    # Validators are only meaningful for the page text we still hold.
+    conditional = bool(candidate.page_text)
     try:
-        page = reader.read(candidate.url)
+        page = read_page(
+            reader, candidate.url,
+            etag=candidate.etag if conditional else None,
+            last_modified=candidate.last_modified if conditional else None,
+        )
     except HTTPStatusError as exc:
         if exc.permanent:
             return _finish(db, candidate, CandidateState.REJECTED, error=f"page gone: HTTP {exc.status_code}")
@@ -353,12 +369,11 @@ def _store_page(
     db: Session, candidate: IngestionCandidate, source: AcquisitionSource, page: PageContent,
     extractor: Extractor, now: datetime,
 ) -> str:
-    if page.status_code == 304 and candidate.page_text:
-        candidate.last_seen_at = now
-        candidate.lease_until = None
-        candidate.attempts = 0
-        db.flush()
-        return candidate.state
+    if page.status_code == 304:
+        if not candidate.page_text:
+            # A 304 with nothing stored to stand for it: treat as a failed fetch, never as content.
+            return _apply_failure(candidate, "HTTP 304 for a page that has no stored content", now)
+        return _not_modified(db, candidate, page, now)
     if page.content_type not in _HTML_TYPES:
         return _finish(db, candidate, CandidateState.REJECTED, error=f"not an HTML page ({page.content_type})")
     previous = candidate.extraction
@@ -368,6 +383,11 @@ def _store_page(
     candidate.content_hash = hashlib.sha256(text.encode()).hexdigest()
     candidate.page_text = text
     candidate.fetched_at = now
+    candidate.last_seen_at = now
+    # The validators belong to this response; a server that stops sending them clears ours.
+    candidate.etag = page.etag
+    candidate.last_modified = page.last_modified
+    candidate.resume_state = None
     candidate.extractor_version = extractor.version
     candidate.attempts = 0
     candidate.extraction = extraction.model_dump(mode="json")
@@ -398,6 +418,39 @@ def _store_page(
     if duplicate.is_duplicate:
         return _finish(db, candidate, CandidateState.DUPLICATE)
     if validation.expired:
+        return _finish(db, candidate, CandidateState.EXPIRED)
+    return _finish(db, candidate, CandidateState.NEEDS_REVIEW)
+
+
+#: Outcomes that stand when a re-queued candidate's page turns out to be unchanged.
+_RESUMABLE = (CandidateState.REJECTED, CandidateState.DUPLICATE)
+
+
+def _not_modified(db: Session, candidate: IngestionCandidate, page: PageContent, now: datetime) -> str:
+    """The server confirmed the stored page is current: keep everything, leave the processing queue.
+
+    The stored text, hash, extraction and validation are untouched. A candidate that was rejected or
+    marked duplicate before it was re-queued stays so; otherwise the stored validation decides, and a
+    deadline that has passed in the meantime expires it.
+    """
+    candidate.last_seen_at = now
+    candidate.attempts = 0
+    if page.etag:
+        candidate.etag = page.etag
+    if page.last_modified:
+        candidate.last_modified = page.last_modified
+    previous, candidate.resume_state = candidate.resume_state, None
+    validation = candidate.validation or {}
+    deadline = (candidate.extraction or {}).get("deadline") or {}
+    passed = (
+        deadline.get("status") == "explicit" and isinstance(deadline.get("value"), str)
+        and deadline["value"] < now.date().isoformat()
+    )
+    if previous in _RESUMABLE:
+        return _finish(db, candidate, CandidateState(previous), error=candidate.last_error)
+    if validation.get("irrelevant"):
+        return _finish(db, candidate, CandidateState.REJECTED, error="not an opportunity page")
+    if passed or validation.get("expired"):
         return _finish(db, candidate, CandidateState.EXPIRED)
     return _finish(db, candidate, CandidateState.NEEDS_REVIEW)
 
@@ -685,6 +738,9 @@ def requeue_candidate(db: Session, candidate_id: uuid.UUID, *, actor_id: uuid.UU
     if candidate.state not in REQUEUEABLE:
         raise PipelineError(f"A {candidate.state} candidate cannot be re-queued.")
     before = candidate.state
+    # Re-queueing twice in a row must not forget where the candidate originally was.
+    if before not in PROCESSABLE_STATES:
+        candidate.resume_state = before
     candidate.state = CandidateState.DISCOVERED
     candidate.attempts = 0
     candidate.next_attempt_at = now or now_utc()

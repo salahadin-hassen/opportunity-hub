@@ -36,6 +36,10 @@ class SourceRead(BaseModel):
     terms_reviewed_at: datetime | None
     terms_notes: str | None
     test_run_passed_at: datetime | None
+    #: The last source test: every lead it fetched and why any of them failed.
+    last_test_at: datetime | None = None
+    last_test_passed: bool | None = None
+    last_test_report: dict[str, Any] | None = None
     status: str
     publish_mode: str
     status_changed_at: datetime | None

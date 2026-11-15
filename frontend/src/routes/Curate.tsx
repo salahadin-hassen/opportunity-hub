@@ -476,7 +476,7 @@ export function Curate() {
             ) : (candidates.data ?? []).length === 0 ? (
               <div className="rounded-panel border border-rule bg-paper p-8 text-center text-muted">
                 <p className="text-[15px] font-medium text-ink">No candidates in &ldquo;{candFilter.replace("_", " ")}&rdquo; state</p>
-                <p className="mt-1 text-[13px]">Run discovery or ingestion to discover opportunities from verified sources.</p>
+                <p className="mt-1 text-[13px]">Run discovery or ingestion to find opportunities on registered sources.</p>
               </div>
             ) : (
               <div className="overflow-x-auto rounded-panel border border-rule bg-paper shadow-card">
@@ -585,7 +585,12 @@ export function Curate() {
             {/* Review Candidate Modal / Panel */}
             {selectedCandidateId && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4 backdrop-blur-xs">
-                <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-panel border border-rule bg-paper p-6 shadow-2xl space-y-6">
+                <div
+                  role="dialog"
+                  aria-modal="true"
+                  aria-labelledby="candidate-review-heading"
+                  className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-panel border border-rule bg-paper p-6 shadow-2xl space-y-6"
+                >
                   <div className="flex items-start justify-between gap-4 border-b border-rule pb-4">
                     <div>
                       <div className="flex items-center gap-2">
@@ -596,7 +601,7 @@ export function Curate() {
                           Source: {candidateDetail.data?.source_name ?? "—"}
                         </span>
                       </div>
-                      <h2 className="mt-1 text-[20px] font-bold text-ink">
+                      <h2 id="candidate-review-heading" className="mt-1 text-[20px] font-bold text-ink">
                         Review Ingestion Candidate
                       </h2>
                       <a
@@ -612,6 +617,7 @@ export function Curate() {
                     <button
                       type="button"
                       onClick={() => setSelectedCandidateId(null)}
+                      aria-label="Close review"
                       className="rounded-full p-1.5 text-muted hover:bg-cream hover:text-ink transition-colors"
                     >
                       <X size={20} />
@@ -644,13 +650,17 @@ export function Curate() {
                         </div>
                       )}
 
+                      {/* What was fetched, and what the pipeline could and could not support with a quote */}
+                      <CandidateEvidence candidate={candidateDetail.data} />
+
                       {/* Extracted Fields */}
                       <div className="space-y-4 rounded-panel border border-rule bg-cream/20 p-5">
                         <h3 className="text-[15px] font-bold text-ink">1. Extracted Details</h3>
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                           <div className="sm:col-span-2">
-                            <label className="block text-[12.5px] font-medium text-ink">Title</label>
+                            <label htmlFor="cand-title" className="block text-[12.5px] font-medium text-ink">Title</label>
                             <input
+                              id="cand-title"
                               required
                               type="text"
                               value={reviewTitle}
@@ -661,8 +671,9 @@ export function Curate() {
                           </div>
 
                           <div>
-                            <label className="block text-[12.5px] font-medium text-ink">Opportunity Type</label>
+                            <label htmlFor="cand-type" className="block text-[12.5px] font-medium text-ink">Opportunity Type</label>
                             <select
+                              id="cand-type"
                               value={reviewType}
                               onChange={(e) => setReviewType(e.target.value)}
                               className="input mt-1 w-full text-[13.5px]"
@@ -679,8 +690,9 @@ export function Curate() {
                           </div>
 
                           <div>
-                            <label className="block text-[12.5px] font-medium text-ink">Deadline Type</label>
+                            <label htmlFor="cand-deadline-type" className="block text-[12.5px] font-medium text-ink">Deadline Type</label>
                             <select
+                              id="cand-deadline-type"
                               value={reviewDeadlineType}
                               onChange={(e) => setReviewDeadlineType(e.target.value as any)}
                               className="input mt-1 w-full text-[13.5px]"
@@ -693,8 +705,9 @@ export function Curate() {
 
                           {reviewDeadlineType === "fixed" && (
                             <div>
-                              <label className="block text-[12.5px] font-medium text-ink">Deadline Date (YYYY-MM-DD)</label>
+                              <label htmlFor="cand-deadline" className="block text-[12.5px] font-medium text-ink">Deadline Date (YYYY-MM-DD)</label>
                               <input
+                                id="cand-deadline"
                                 required
                                 type="date"
                                 value={reviewDeadline}
@@ -705,8 +718,9 @@ export function Curate() {
                           )}
 
                           <div className="sm:col-span-2">
-                            <label className="block text-[12.5px] font-medium text-ink">Description</label>
+                            <label htmlFor="cand-description" className="block text-[12.5px] font-medium text-ink">Description</label>
                             <textarea
+                              id="cand-description"
                               rows={3}
                               value={reviewDescription}
                               onChange={(e) => setReviewDescription(e.target.value)}
@@ -767,8 +781,9 @@ export function Curate() {
                       <div className="space-y-3 rounded-panel border border-rule bg-cream/20 p-5">
                         <h3 className="text-[15px] font-bold text-ink">3. Review Audit & Decisions</h3>
                         <div>
-                          <label className="block text-[12.5px] font-medium text-ink">Curator Review Notes</label>
+                          <label htmlFor="cand-notes" className="block text-[12.5px] font-medium text-ink">Curator Review Notes</label>
                           <input
+                            id="cand-notes"
                             type="text"
                             value={reviewNotes}
                             onChange={(e) => setReviewNotes(e.target.value)}
@@ -950,5 +965,78 @@ export function Curate() {
         )}
       </Content>
     </Page>
+  );
+}
+
+type CandidateEvidenceProps = { candidate: ReturnType<typeof useCandidateDetail>["data"] };
+
+/** The fetch record and the quotes behind the extracted deadline and title, with every validation finding. */
+function CandidateEvidence({ candidate }: CandidateEvidenceProps) {
+  if (!candidate) return null;
+  const extraction = (candidate.extraction ?? {}) as Record<string, { status?: string; value?: unknown; evidence?: { quote: string }[]; note?: string | null }>;
+  const validation = (candidate.validation ?? {}) as { problems?: string[]; warnings?: string[] };
+  const quote = (field: string) => extraction[field]?.evidence?.[0]?.quote;
+  const when = (value?: string | null) => (value ? new Date(value).toLocaleString() : "—");
+  const problems = validation.problems ?? [];
+  const warnings = validation.warnings ?? [];
+  return (
+    <section aria-label="Source evidence" className="space-y-3 rounded-panel border border-rule bg-cream/20 p-5">
+      <h3 className="text-[15px] font-bold text-ink">Source evidence</h3>
+      <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-[12.5px] sm:grid-cols-2">
+        <div>
+          <dt className="text-muted">Fetched</dt>
+          <dd className="text-ink">
+            {when(candidate.fetched_at)}
+            {candidate.http_status ? ` · HTTP ${candidate.http_status}` : ""}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted">Last confirmed unchanged or re-read</dt>
+          <dd className="text-ink">{when(candidate.last_seen_at)}</dd>
+        </div>
+        <div>
+          <dt className="text-muted">Page content hash (SHA-256)</dt>
+          <dd className="font-mono text-ink" title={candidate.content_hash ?? undefined}>
+            {candidate.content_hash ? `${candidate.content_hash.slice(0, 16)}…` : "—"}
+          </dd>
+        </div>
+        <div>
+          <dt className="text-muted">Extractor</dt>
+          <dd className="font-mono text-ink">{candidate.extractor_version ?? "—"}</dd>
+        </div>
+      </dl>
+      <div className="space-y-2 text-[13px]">
+        <p>
+          <span className="font-medium text-ink">Deadline quote: </span>
+          {quote("deadline") ? (
+            <q className="font-serif italic text-ink">{quote("deadline")}</q>
+          ) : (
+            <span className="text-muted">
+              none found on the page{extraction.deadline?.note ? ` (${extraction.deadline.note})` : ""}
+            </span>
+          )}
+        </p>
+        <p>
+          <span className="font-medium text-ink">Title quote: </span>
+          {quote("title") ? <q className="font-serif italic text-ink">{quote("title")}</q> : <span className="text-muted">none found on the page</span>}
+        </p>
+      </div>
+      {problems.length === 0 && warnings.length === 0 ? (
+        <p className="text-[12.5px] font-medium text-emerald-700">No validation problems or warnings.</p>
+      ) : (
+        <ul className="space-y-1 text-[12.5px]">
+          {problems.map((problem) => (
+            <li key={`p-${problem}`} className="text-persimmon-deep">
+              <span className="font-semibold">Problem:</span> {problem}
+            </li>
+          ))}
+          {warnings.map((warning) => (
+            <li key={`w-${warning}`} className="text-amber-800">
+              <span className="font-semibold">Warning:</span> {warning}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   );
 }

@@ -144,6 +144,11 @@ detail page, and confirm direct links and refreshes work.
 | `ADMIN_API_TOKEN` | *(unset)* | Unset disables `POST /opportunities` entirely (HTTP 403) |
 | `PYTHON_VERSION` | `3.12.7` | |
 
+| `GOOGLE_CLIENT_ID` | *(unset until configured)* | Sign in with Google. Set all three Google variables together, or none (startup refuses a partial set). |
+| `GOOGLE_CLIENT_SECRET` | *(secret, from Google Cloud Console)* | Never committed; set in the Render dashboard only. |
+| `GOOGLE_REDIRECT_URI` | `https://api.opportunities.sahelyon.com/auth/google/callback` | Must match the Google client's "Authorized redirect URI" exactly; https in production. |
+| `FRONTEND_URL` | `https://opportunities.sahelyon.com` | Optional: where Google sign-in returns the browser. Unset means the first `CORS_ORIGINS` entry. |
+
 ### Frontend (Render static site, build time)
 
 | Variable | Value |
@@ -155,6 +160,36 @@ detail page, and confirm direct links and refreshes work.
 `frontend/.env.production.example`.
 
 ---
+
+### Sign in with Google (one-time setup)
+
+The app implements Google's OpenID Connect Authorization Code flow with PKCE, server-side: the API
+exchanges the code, verifies the ID token (signature against Google's keys, issuer, audience, expiry,
+nonce, verified email) and identifies people by Google's stable subject, never by email alone. An
+existing email/password account is never linked automatically; its owner connects Google from
+Profile → Sign-in methods while signed in. The button appears only when the API reports Google as
+configured (`GET /auth/providers`).
+
+1. Google Cloud Console → *APIs & Services → OAuth consent screen*: user type **External**; app name
+   "Opportunity Hub"; support email; authorized domain `sahelyon.com`; links to the privacy policy
+   (`https://opportunities.sahelyon.com/privacy`). Scopes: `openid`, `email`, `profile` only (non-sensitive,
+   no verification review needed). Publish the app ("In production") or add testers while it is in testing.
+2. *Credentials → Create credentials → OAuth client ID*, type **Web application**:
+   - Authorized JavaScript origins: `https://opportunities.sahelyon.com`
+   - Authorized redirect URIs: `https://api.opportunities.sahelyon.com/auth/google/callback`
+   (For local development add `http://localhost:8000/auth/google/callback`, with
+   `GOOGLE_REDIRECT_URI` set to it and `CORS_ORIGINS=http://localhost:5173`.)
+3. Render → `opportunity-hub-api` → Environment: add `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`,
+   `GOOGLE_REDIRECT_URI` (above) and `FRONTEND_URL=https://opportunities.sahelyon.com`, then redeploy.
+4. Apply migration `7d3d9fa091ad` before deploying the code (it adds `external_identities`,
+   `oauth_states`, `oauth_handoffs` and makes `users.password_hash` nullable).
+5. Verify with a real Google account: `/login` → Continue with Google → back signed in; a second
+   sign-in reaches the same account; signing in with Google using the email of an existing password
+   account shows "sign in with your password, then connect Google"; Profile → Connect Google works.
+   Google Sign-In is live only once this real test has passed.
+
+Rollback: removing the three variables hides the button and disables the endpoints (404). The
+migration's downgrade refuses while any Google-only account (no password) exists.
 
 ## 5. Operations
 

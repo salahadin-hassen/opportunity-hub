@@ -344,22 +344,34 @@ def record_test_run(
     passed: bool,
     robots_status: RobotsStatus,
     actor_id: uuid.UUID | None = None,
+    report: dict[str, Any] | None = None,
 ) -> AcquisitionSource:
-    """Record a dry run of the connector; only possible while the source is ``testing``."""
+    """Record a source test; only possible while the source is ``testing``.
+
+    ``report`` is what the test found (``app.intelligence.source_test``): it is kept on the source so
+    a curator can see why a test failed, and summarised in the audit entry.
+    """
     if SourceStatus(source.status) != SourceStatus.TESTING:
         raise SourceStateError("Test runs are recorded only while a source is in testing.")
     before = snapshot(source)
+    passed = passed and robots_status == RobotsStatus.ALLOWED
     source.robots_status = robots_status
     source.robots_checked_at = _now()
-    source.test_run_passed_at = _now() if passed and robots_status == RobotsStatus.ALLOWED else None
+    source.test_run_passed_at = _now() if passed else None
+    source.last_test_at = _now()
+    source.last_test_passed = passed
+    source.last_test_report = report
     db.flush()
+    summary = {
+        key: report[key] for key in ("leads", "fetched_ok", "fetched_failed", "problems") if report and key in report
+    }
     audit.record(
         db,
         action="source.test_run_recorded",
         target_type=TARGET_TYPE,
         target_id=source.id,
         actor_id=actor_id,
-        changes={**audit.diff(before, snapshot(source)), "passed": passed},
+        changes={**audit.diff(before, snapshot(source)), "passed": passed, **summary},
     )
     return source
 

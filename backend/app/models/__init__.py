@@ -18,7 +18,9 @@ from app.models.deletion_tombstone import DeletionTombstone
 from app.models.education import Education
 from app.models.email_outbox import EmailOutbox
 from app.models.email_token import EmailToken
+from app.models.external_identity import ExternalIdentity, OAuthHandoff, OAuthState
 from app.models.ingestion import CandidateState, IngestionCandidate, IngestionRun
+from app.models.refresh import OpportunityRefreshCheck, RefreshOutcome, RefreshReviewState
 from app.models.match import Match
 from app.models.match_requirement import MatchRequirement
 from app.models.opportunity import Opportunity
@@ -34,9 +36,15 @@ from app.models.test_score import TestScore
 from app.models.user import User
 
 __all__ = [
+    "ExternalIdentity",
+    "OAuthHandoff",
+    "OAuthState",
     "CandidateState",
     "IngestionCandidate",
     "IngestionRun",
+    "OpportunityRefreshCheck",
+    "RefreshOutcome",
+    "RefreshReviewState",
     "Opportunity",
     "Requirement",
     "Source",

@@ -550,8 +550,12 @@ def test_pipeline_handles_304_not_modified(db_session):
     report = pipeline.process_candidates(db_session, reader_factory=lambda s: Reader304(), source_id=source.id, now=NOW)
     assert report.processed == 1
     db_session.refresh(cand)
-    assert cand.state == CandidateState.RETRY
-    assert cand.attempts == 0
+    # The page is unchanged, so the candidate leaves the processing queue and goes back to review.
+    # (It used to stay in ``retry``, which had every later run fetch it again for the same 304.)
+    assert cand.state == CandidateState.NEEDS_REVIEW
+    assert cand.attempts == 0 and cand.lease_until is None
+    again = pipeline.process_candidates(db_session, reader_factory=lambda s: Reader304(), source_id=source.id, now=NOW)
+    assert again.processed == 0
 
 
 def test_approve_candidate_preserves_countries(db_session, curator):

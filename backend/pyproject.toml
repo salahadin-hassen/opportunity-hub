@@ -13,7 +13,8 @@ dependencies = [
     "pydantic-settings>=2.1.0",
     "python-dotenv>=1.0.0",
     "email-validator>=2.1.0",
-    "pyjwt>=2.8.0",
+    # [crypto] adds `cryptography`: RS256 verification of Google ID tokens (app.services.google_oauth).
+    "pyjwt[crypto]>=2.8.0",
     "argon2-cffi>=23.1.0",
     # The ingestion fetcher (app.intelligence.fetcher) runs in production; pinned in constraints.txt.
     "httpx>=0.26.0",

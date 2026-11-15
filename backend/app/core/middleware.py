@@ -1,6 +1,8 @@
 """Observability, request correlation, and security middleware."""
 from __future__ import annotations
 
+from app.core.config import settings
+
 import logging
 import time
 import uuid
@@ -43,6 +45,10 @@ class RequestCorrelationMiddleware(BaseHTTPMiddleware):
 
         duration_ms = (time.monotonic() - start_time) * 1000
         response.headers["X-Request-ID"] = request_id
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        if settings.is_production:
+            # The API is served only over https (Render and Cloudflare redirect http); pin that for a year.
+            response.headers.setdefault("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
 
         # Skip spamming access logs on health check polls
         if request.url.path != "/health":

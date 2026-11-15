@@ -8,9 +8,13 @@
 * Requests to one host are spaced by at least the source's ``min_delay_seconds``.
 * Only HTML, XML/feeds, JSON and plain text are accepted; anything else is an error.
 * Non-2xx responses raise ``HTTPStatusError`` (404/410 are marked permanent).
+* A request is conditional when the caller passes the validators of a page it already holds; a 304
+  comes back as a ``PageContent`` with ``status_code == 304`` and an empty body. A 304 to a request
+  that sent no validator is an error, never "unchanged".
 """
 from __future__ import annotations
 
+import inspect
 import time
 from collections.abc import Callable
 from urllib import robotparser
@@ -44,6 +48,39 @@ class HTTPStatusError(FetchError):
 
 
 FetchFunction = Callable[..., FetchedDocument]
+
+MAX_VALIDATOR_LENGTH = 512
+
+
+def _accepts_validators(function: Callable[..., object]) -> bool:
+    """Whether ``function`` takes ``etag`` and ``last_modified`` keyword arguments."""
+    try:
+        parameters = inspect.signature(function).parameters
+    except (TypeError, ValueError):
+        return False
+    if any(parameter.kind is inspect.Parameter.VAR_KEYWORD for parameter in parameters.values()):
+        return True
+    return "etag" in parameters and "last_modified" in parameters
+
+
+def _header(headers: dict[str, str] | None, name: str) -> str | None:
+    """A response header by case-insensitive name; None when absent, empty or implausibly long."""
+    for key, value in (headers or {}).items():
+        if key.lower() == name:
+            value = (value or "").strip()
+            return value if value and len(value) <= MAX_VALIDATOR_LENGTH else None
+    return None
+
+
+def read_page(reader: object, url: str, *, etag: str | None = None, last_modified: str | None = None) -> PageContent:
+    """Read ``url``, conditionally when validators are given and ``reader`` supports them.
+
+    A reader that only implements ``read(url)`` gets a plain request, so it can never return a 304.
+    """
+    read = reader.read  # type: ignore[attr-defined]
+    if (etag or last_modified) and _accepts_validators(read):
+        return read(url, etag=etag, last_modified=last_modified)
+    return read(url)
 
 
 class SafePageReader:
@@ -120,18 +157,24 @@ class SafePageReader:
             delay = max(delay, float(crawl_delay))
         self._wait_turn(host, delay)
         self.requests_made += 1
-        try:
+        conditional = bool(etag or last_modified) and _accepts_validators(self._fetch)
+        if conditional:
             document = self._fetch(url, allowed_hosts=self._allowed, etag=etag, last_modified=last_modified)
-        except TypeError:
-            # In case a test mock or custom fetch function does not accept etag/last_modified
+        else:
             document = self._fetch(url, allowed_hosts=self._allowed)
+        headers = getattr(document, "headers", None)
         if document.status_code == 304:
+            if not conditional:
+                # Nothing we hold corresponds to this response, so it cannot mean "unchanged".
+                raise HTTPStatusError(304, url)
             return PageContent(
                 url=url,
                 final_url=document.url,
                 status_code=304,
                 content_type="text/html",
                 body=b"",
+                etag=_header(headers, "etag"),
+                last_modified=_header(headers, "last-modified"),
             )
         if not 200 <= document.status_code < 300:
             raise HTTPStatusError(document.status_code, url)
@@ -144,6 +187,8 @@ class SafePageReader:
             status_code=document.status_code,
             content_type=content_type,
             body=document.body.encode("utf-8"),
+            etag=_header(headers, "etag"),
+            last_modified=_header(headers, "last-modified"),
         )
 
 
@@ -154,4 +199,5 @@ __all__ = [
     "SafePageReader",
     "USER_AGENT_TOKEN",
     "UnsupportedContentTypeError",
+    "read_page",
 ]

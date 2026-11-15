@@ -60,10 +60,18 @@ class PageContent:
     status_code: int
     content_type: str
     body: bytes
+    #: The response's validators, for a later conditional request. On a 304 the body is empty and
+    #: these are the validators the server repeated (if any).
+    etag: str | None = None
+    last_modified: str | None = None
 
 
 class PageReader(Protocol):
-    """The only way a connector can read a page; the pipeline supplies a source-scoped implementation."""
+    """The only way a connector can read a page; the pipeline supplies a source-scoped implementation.
+
+    A reader may also accept ``etag`` and ``last_modified`` keyword arguments to make the request
+    conditional; ``app.intelligence.reader.read_page`` passes them only to readers that do.
+    """
 
     def read(self, url: str) -> PageContent: ...
 
