@@ -9,9 +9,11 @@ from sqlalchemy import Boolean, DateTime, String, Uuid, func, text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.models.enums import UserRole, enum_check_constraint
 
 if TYPE_CHECKING:
     from app.models.profile import Profile
+    from app.models.session import Session
 
 
 class User(Base):
@@ -30,6 +32,19 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default=text("true")
     )
+    #: Read from the database on every request; changed only through ``app.cli`` (audited).
+    role: Mapped[str] = mapped_column(
+        String(16), nullable=False, default=UserRole.STUDENT, server_default=UserRole.STUDENT.value
+    )
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    deletion_requested_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    deletion_due_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -45,6 +60,12 @@ class User(Base):
         uselist=False,
         viewonly=True,
     )
+    sessions: Mapped[list[Session]] = relationship(
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+
+    __table_args__ = (enum_check_constraint("users", "role", UserRole),)
 
     def __repr__(self) -> str:
         return f"<User {self.email!r} active={self.is_active}>"

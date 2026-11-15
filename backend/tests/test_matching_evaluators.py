@@ -42,15 +42,15 @@ def make_requirement(**overrides):
 def make_numeric_requirement(**overrides):
     values = {
         "kind": "numeric_threshold",
-        "params": {"metric": "gpa", "operator": ">=", "value": 3.5},
+        "params": {"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0},
         "is_ambiguous": False,
     }
     values.update(overrides)
     return SimpleNamespace(**values)
 
 
-def make_education(gpa=Decimal("3.7"), is_primary=True):
-    return SimpleNamespace(gpa=gpa, is_primary=is_primary)
+def make_education(gpa=Decimal("3.7"), is_primary=True, gpa_scale=Decimal("4")):
+    return SimpleNamespace(gpa=gpa, gpa_scale=gpa_scale if gpa is not None else None, is_primary=is_primary)
 
 
 def make_set_membership_requirement(**overrides):
@@ -102,7 +102,7 @@ def make_profile_with_skills(*keys):
 
 
 ENROLLED_CHILD = {"kind": "boolean_flag", "params": {"metric": "is_currently_enrolled", "expected": True}}
-GPA_CHILD = {"kind": "numeric_threshold", "params": {"metric": "gpa", "operator": ">=", "value": 3.5}}
+GPA_CHILD = {"kind": "numeric_threshold", "params": {"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0}}
 CITIZEN_CHILD = {"kind": "set_membership", "params": {"metric": "citizenship", "operator": "in", "allowed": ["Ethiopia"]}}
 SKILL_CHILD = {"kind": "skill_set", "params": {"metric": "skills", "operator": "contains_any", "required": ["python"]}}
 UNPARSED_CHILD = {"kind": "unparsed", "params": {"reason": "free form requirement"}}
@@ -281,8 +281,66 @@ def test_numeric_threshold_contains_expected_and_actual_evidence():
         make_profile(education=[make_education(Decimal("3.7"))]), make_numeric_requirement()
     )
 
-    assert result.expected == {"metric": "gpa", "operator": ">=", "value": 3.5}
-    assert result.actual == {"value": 3.7}
+    assert result.expected == {"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0}
+    assert result.actual == {"value": 3.7, "scale": 4.0}
+
+
+def test_numeric_threshold_without_declared_scale_needs_review():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education()]),
+        make_numeric_requirement(params={"metric": "gpa", "operator": ">=", "value": 3.5}),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "gpa_threshold_scale_unspecified"
+
+
+def test_numeric_threshold_on_a_different_scale_needs_review_instead_of_comparing_raw():
+    # 8.0 on a 10-point scale is numerically above 3.5 but must not be read as passing a 4.0 rule.
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education(Decimal("8.0"), gpa_scale=Decimal("10"))]),
+        make_numeric_requirement(),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "gpa_scale_mismatch"
+    assert result.expected["scale"] == 4.0
+    assert result.actual == {"value": 8.0, "scale": 10.0}
+
+
+def test_numeric_threshold_low_gpa_on_larger_scale_is_not_marked_failed():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[make_education(Decimal("3.0"), gpa_scale=Decimal("100"))]),
+        make_numeric_requirement(),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "gpa_scale_mismatch"
+
+
+def test_numeric_threshold_matching_scale_compares_directly():
+    requirement = make_numeric_requirement(
+        params={"metric": "gpa", "operator": ">=", "value": 85, "scale": 100}
+    )
+
+    met = evaluate_numeric_threshold(
+        make_profile(education=[make_education(Decimal("85"), gpa_scale=Decimal("100"))]), requirement
+    )
+    not_met = evaluate_numeric_threshold(
+        make_profile(education=[make_education(Decimal("84.99"), gpa_scale=Decimal("100"))]), requirement
+    )
+
+    assert met.outcome == RequirementOutcome.MET
+    assert not_met.outcome == RequirementOutcome.NOT_MET
+
+
+def test_numeric_threshold_missing_gpa_is_unknown_even_before_scale_check():
+    result = evaluate_numeric_threshold(
+        make_profile(education=[]), make_numeric_requirement()
+    )
+
+    assert result.outcome == RequirementOutcome.UNKNOWN
+    assert result.reason_code == "profile_fact_unavailable"
 
 
 def test_registry_dispatches_numeric_threshold_evaluator():
@@ -378,7 +436,7 @@ def test_set_membership_contains_expected_and_actual_evidence():
         make_profile(citizenships=["Ethiopia", "Kenya"]), make_set_membership_requirement()
     )
 
-    assert result.expected == {"metric": "citizenship", "value": "Ethiopia"}
+    assert result.expected == {"metric": "citizenship", "operator": "in", "value": "Ethiopia"}
     assert result.actual == {"values": ["Ethiopia", "Kenya"]}
 
 
@@ -533,7 +591,7 @@ def test_orchestrated_boolean_result_contains_requirement_id():
 def test_orchestrated_numeric_result_contains_requirement_id():
     requirement = make_orchestration_requirement(
         kind="numeric_threshold",
-        params={"metric": "gpa", "operator": ">=", "value": 3.5},
+        params={"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0},
     )
 
     result = evaluate_requirements(
@@ -889,17 +947,75 @@ def test_date_gate_unsupported_metric_needs_review():
     assert result.reason_code == "unsupported_date_metric"
 
 
-@pytest.mark.parametrize("operator", ["<", ">=", ">", "==", "!="])
-def test_date_gate_unsupported_operator_needs_review(operator):
+@pytest.mark.parametrize(
+    ("operator", "born", "outcome"),
+    [
+        ("<", date(1999, 12, 31), RequirementOutcome.MET),
+        ("<", date(2000, 1, 1), RequirementOutcome.NOT_MET),
+        (">=", date(2000, 1, 1), RequirementOutcome.MET),
+        (">=", date(1999, 12, 31), RequirementOutcome.NOT_MET),
+        (">", date(2000, 1, 2), RequirementOutcome.MET),
+        (">", date(2000, 1, 1), RequirementOutcome.NOT_MET),
+        ("==", date(2000, 1, 1), RequirementOutcome.MET),
+        ("==", date(2000, 1, 2), RequirementOutcome.NOT_MET),
+        ("!=", date(2000, 1, 2), RequirementOutcome.MET),
+        ("!=", date(2000, 1, 1), RequirementOutcome.NOT_MET),
+    ],
+)
+def test_date_gate_supports_every_schema_operator(operator, born, outcome):
     result = evaluate_date_gate(
-        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_profile(date_of_birth=born),
         make_date_gate_requirement(
             params={"metric": "date_of_birth", "operator": operator, "value": "2000-01-01"}
         ),
     )
 
+    assert result.outcome == outcome
+    assert result.expected["operator"] == operator
+
+
+def test_date_gate_unsupported_operator_needs_review():
+    result = evaluate_date_gate(
+        make_profile(date_of_birth=date(1998, 5, 15)),
+        make_date_gate_requirement(
+            params={"metric": "date_of_birth", "operator": "between", "value": "2000-01-01"}
+        ),
+    )
+
     assert result.outcome == RequirementOutcome.NEEDS_REVIEW
     assert result.reason_code == "unsupported_date_operator"
+
+
+@pytest.mark.parametrize(
+    ("citizenships", "outcome"),
+    [
+        (["Kenya"], RequirementOutcome.MET),
+        (["Kenya", "Ethiopia"], RequirementOutcome.NOT_MET),
+        ([], RequirementOutcome.MET),
+    ],
+)
+def test_set_membership_not_in_excludes_one_citizenship(citizenships, outcome):
+    result = evaluate_set_membership(
+        make_profile(citizenships=citizenships),
+        make_set_membership_requirement(
+            params={"metric": "citizenship", "operator": "not_in", "allowed": ["Ethiopia"]}
+        ),
+    )
+
+    assert result.outcome == outcome
+    assert result.expected == {"metric": "citizenship", "operator": "not_in", "value": "Ethiopia"}
+
+
+def test_set_membership_taxonomy_operator_still_needs_review():
+    result = evaluate_set_membership(
+        make_profile(citizenships=["Ethiopia"]),
+        make_set_membership_requirement(
+            params={"metric": "citizenship", "operator": "within_taxonomy", "allowed": ["Ethiopia"]}
+        ),
+    )
+
+    assert result.outcome == RequirementOutcome.NEEDS_REVIEW
+    assert result.reason_code == "unsupported_set_operator"
 
 
 def test_date_gate_missing_expected_date_needs_review():

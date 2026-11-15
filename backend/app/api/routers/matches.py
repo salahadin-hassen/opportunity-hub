@@ -23,30 +23,61 @@ from sqlalchemy.orm import Session
 from app.api.deps import get_my_profile
 from app.db.session import get_db
 from app.models import Opportunity, Profile
-from app.schemas import MatchRead
+from app.schemas import BatchEvaluateRequest, MatchRead
+from app.services.matching import Capability, get_capabilities
 from app.services.matches import (
+    batch_evaluate_and_persist_matches_for_user,
     evaluate_and_persist_match_for_user,
     get_match_for_user,
     list_matches_for_user,
 )
+from app.services.opportunities import is_public
 
 router = APIRouter(prefix="/me", tags=["matches"])
+capabilities_router = APIRouter(prefix="/eligibility", tags=["eligibility"])
+
+
+@capabilities_router.get("/capabilities", response_model=list[Capability])
+def list_capabilities() -> list[Capability]:
+    """Public registry of deterministic rule capabilities supported by the engine."""
+    return get_capabilities()
 
 
 def _opportunity_or_match_not_found(db: Session, opportunity_id: uuid.UUID) -> HTTPException:
     """Build the read-only 404 for a Match lookup.
 
-    Opportunities are shared, so their existence is not a secret and the
-    existing ``Opportunity not found.`` convention applies. A Match that
-    belongs to someone else is reported exactly like one that does not
-    exist — the query is scoped to the caller's profile, so there is
-    nothing further to reveal.
+    Public opportunities are shared, so their existence is not a secret and
+    the existing ``Opportunity not found.`` convention applies; drafts and
+    archived rows are reported as missing. A Match that belongs to someone
+    else is reported exactly like one that does not exist — the query is
+    scoped to the caller's profile, so there is nothing further to reveal.
     """
-    if db.get(Opportunity, opportunity_id) is None:
+    opportunity = db.get(Opportunity, opportunity_id)
+    if opportunity is None or not is_public(opportunity):
         detail = "Opportunity not found."
     else:
         detail = "Match not found."
     return HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=detail)
+
+
+@router.post(
+    "/matches/batch-evaluate",
+    response_model=list[MatchRead],
+    status_code=status.HTTP_200_OK,
+)
+def batch_evaluate_for_me(
+    payload: BatchEvaluateRequest | None = None,
+    profile: Profile = Depends(get_my_profile),
+    db: Session = Depends(get_db, scope="function"),
+) -> list[MatchRead]:
+    """Evaluate the owned profile against multiple opportunities in a single transaction.
+
+    Accepts an optional list of opportunity UUIDs. When omitted or empty, every
+    published public opportunity is evaluated. Returns the complete updated Match
+    and evidence rows in a single response, eliminating client-side concurrency storms.
+    """
+    opp_ids = payload.opportunity_ids if payload else None
+    return batch_evaluate_and_persist_matches_for_user(db, profile, opp_ids)
 
 
 @router.post(
@@ -57,7 +88,7 @@ def _opportunity_or_match_not_found(db: Session, opportunity_id: uuid.UUID) -> H
 def evaluate_for_me(
     opportunity_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> MatchRead:
     """Evaluate the owned profile against one shared opportunity.
 
@@ -79,7 +110,7 @@ def evaluate_for_me(
 def get_one_for_me(
     opportunity_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> MatchRead:
     """Return the owned profile's persisted Match for one opportunity.
 
@@ -88,7 +119,7 @@ def get_one_for_me(
     user's Match is indistinguishable from a missing one (404).
     """
     match = get_match_for_user(db, profile, opportunity_id)
-    if match is None:
+    if match is None or not is_public(match.opportunity):
         raise _opportunity_or_match_not_found(db, opportunity_id)
     return match
 
@@ -98,7 +129,7 @@ def list_my_matches(
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[MatchRead]:
     """List the owned profile's Matches, newest evaluation first.
 

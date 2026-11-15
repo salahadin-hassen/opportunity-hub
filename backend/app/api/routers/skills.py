@@ -1,4 +1,4 @@
-"""Authenticated profile skill endpoints under the current user's profile."""
+"""Skill endpoints: the public canonical catalog and the current user's skills."""
 from __future__ import annotations
 
 import uuid
@@ -17,9 +17,11 @@ from app.services.skills import (
     attach_skill,
     detach_skill,
     list_profile_skills,
+    list_skills,
 )
 
 router = APIRouter(prefix="/me/profile/skills", tags=["skills"])
+catalog_router = APIRouter(prefix="/skills", tags=["skills"])
 
 
 def _skill_not_attached() -> HTTPException:
@@ -29,10 +31,20 @@ def _skill_not_attached() -> HTTPException:
     )
 
 
+@catalog_router.get("", response_model=list[SkillRead])
+def list_catalog(db: Session = Depends(get_db, scope="function")) -> list[SkillRead]:
+    """Return the canonical skill vocabulary a profile can attach from.
+
+    Read-only and public: the vocabulary is curated (no HTTP route creates
+    skills), so it holds no user data.
+    """
+    return list_skills(db)
+
+
 @router.get("", response_model=list[SkillRead])
 def list_my_skills(
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[SkillRead]:
     """Return the owned profile's canonical skills ordered by key."""
     return list_profile_skills(db, profile.id)
@@ -42,7 +54,7 @@ def list_my_skills(
 def attach_my_skill(
     payload: ProfileSkillCreate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> SkillRead:
     """Attach one existing canonical skill to the owned profile."""
     try:
@@ -62,7 +74,7 @@ def attach_my_skill(
 def detach_my_skill(
     skill_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Remove one skill association; the canonical skill survives."""
     try:

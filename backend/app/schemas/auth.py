@@ -1,6 +1,9 @@
 """Request and response schemas for the authentication endpoints."""
 from __future__ import annotations
 
+import uuid
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 PASSWORD_MIN_LENGTH = 8
@@ -35,10 +38,55 @@ class UserLogin(BaseModel):
 
 
 class TokenResponse(BaseModel):
-    """One signed bearer token; carries no user data or secret material."""
+    """One signed bearer token or opaque session token."""
 
     access_token: str
     token_type: str = "bearer"
 
 
-__all__ = ["UserCreate", "UserLogin", "TokenResponse"]
+class SessionRead(BaseModel):
+    """Active server session details."""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    created_at: datetime
+    last_seen_at: datetime
+    user_agent: str | None = None
+    is_current: bool = False
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Password reset request."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Password reset completion."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    token: str
+    new_password: str = Field(min_length=PASSWORD_MIN_LENGTH, max_length=PASSWORD_MAX_LENGTH)
+
+
+class VerifyEmailRequest(BaseModel):
+    """Email verification token submission."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    token: str
+
+
+__all__ = [
+    "UserCreate",
+    "UserLogin",
+    "TokenResponse",
+    "SessionRead",
+    "ForgotPasswordRequest",
+    "ResetPasswordRequest",
+    "VerifyEmailRequest",
+]

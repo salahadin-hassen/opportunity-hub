@@ -363,8 +363,8 @@ async def test_post_preserves_match_requirement_evidence(
     gpa_row = rows[str(requirements[GPA].id)]
     assert gpa_row["outcome"] == "met"
     assert gpa_row["reason_code"] == "numeric_threshold_met"
-    assert gpa_row["expected"] == {"metric": "gpa", "operator": ">=", "value": 3.5}
-    assert gpa_row["actual"] == {"value": 3.75}
+    assert gpa_row["expected"] == {"metric": "gpa", "operator": ">=", "value": 3.5, "scale": 4.0}
+    assert gpa_row["actual"] == {"value": 3.75, "scale": 4.0}
     assert gpa_row["message"] == "Profile satisfies the numeric threshold requirement."
 
     boolean_row = rows[str(requirements[BOOLEAN].id)]
@@ -785,7 +785,7 @@ async def test_potential_match_unknown_outcome_is_exposed(
     row = rows_by_requirement(body)[str(requirements[GPA].id)]
     assert row["outcome"] == "unknown"
     assert row["reason_code"] == "profile_fact_unavailable"
-    assert row["actual"] == {"value": None}
+    assert row["actual"] == {"value": None, "scale": None}
 
 
 async def test_needs_review_outcome_is_exposed(

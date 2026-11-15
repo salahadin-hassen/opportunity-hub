@@ -5,7 +5,7 @@ description = "Personalized opportunity discovery platform - Backend API"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi>=0.109.0",
+    "fastapi>=0.121.0",  # Depends(scope="function"): commit before the response is sent
     "uvicorn[standard]>=0.27.0",
     "sqlalchemy>=2.0.0,<2.1.0",
     "psycopg2-binary>=2.9.0",

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import uuid
 from datetime import date, datetime
-from typing import Any
+from typing import Any, ClassVar
 
 from pydantic import BaseModel, ConfigDict, Field, HttpUrl, field_serializer, model_validator
 
@@ -12,6 +12,9 @@ from app.models.enums import (
     LocationMode,
     OpportunityStatus,
     OpportunityType,
+    RequirementCategory,
+    RequirementKind,
+    SourceType,
 )
 
 
@@ -34,8 +37,8 @@ class OpportunityCreate(BaseModel):
     countries: list[str] = Field(default_factory=list)
     languages: list[str] = Field(default_factory=list)
     tags: list[str] = Field(default_factory=list)
-    status: OpportunityStatus = OpportunityStatus.DRAFT
-    published_at: datetime | None = None
+    # No ``status`` or ``published_at``: every new opportunity is a draft, and only
+    # ``publish_opportunity`` may publish one. ``extra="forbid"`` turns either key into a 422.
 
     @model_validator(mode="after")
     def validate_date_range(self) -> OpportunityCreate:
@@ -46,6 +49,43 @@ class OpportunityCreate(BaseModel):
     @field_serializer("official_url")
     def serialize_official_url(self, value: HttpUrl | None) -> str | None:
         """Keep ORM payloads and serialized API output as plain strings."""
+        return str(value) if value is not None else None
+
+
+class OpportunityUpdate(BaseModel):
+    """Payload for updating an opportunity (curators/admins)."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    title: str | None = Field(default=None, min_length=1, max_length=500)
+    opportunity_type: OpportunityType | None = None
+    description: str | None = None
+    host_name: str | None = Field(default=None, max_length=255)
+    official_url: HttpUrl | None = Field(default=None, max_length=2000)
+    deadline_at: datetime | None = None
+    deadline_type: DeadlineType | None = None
+    starts_at: date | None = None
+    ends_at: date | None = None
+    location_mode: LocationMode | None = None
+    countries: list[str] | None = None
+    languages: list[str] | None = None
+    tags: list[str] | None = None
+    # Lifecycle fields are not editable here: publish and close have their own validated operations.
+
+    #: Columns that are NOT NULL: they may be omitted from a PATCH but never set to null.
+    NON_NULLABLE: ClassVar[tuple[str, ...]] = ("title", "opportunity_type", "deadline_type", "location_mode", "countries", "languages", "tags")
+
+    @model_validator(mode="after")
+    def reject_null_for_required_columns(self) -> OpportunityUpdate:
+        nulled = [name for name in self.NON_NULLABLE if name in self.model_fields_set and getattr(self, name) is None]
+        if nulled:
+            raise ValueError(f"{', '.join(nulled)} cannot be null")
+        if self.title is not None and not self.title.strip():
+            raise ValueError("title cannot be blank")
+        return self
+
+    @field_serializer("official_url")
+    def serialize_official_url(self, value: HttpUrl | None) -> str | None:
         return str(value) if value is not None else None
 
 
@@ -79,4 +119,60 @@ class OpportunityRead(BaseModel):
         return str(value) if value is not None else None
 
 
-__all__ = ["OpportunityCreate", "OpportunityRead"]
+class PublicSourceRead(BaseModel):
+    """Provenance a visitor can verify: where a rule came from and when.
+
+    Curator-only fields (``raw_snapshot``, ``content_hash``, ``notes``) are
+    deliberately absent.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    source_type: SourceType
+    url: HttpUrl
+    publisher: str | None
+    retrieved_at: datetime
+    is_primary: bool
+
+    @field_serializer("url")
+    def serialize_url(self, value: HttpUrl) -> str:
+        return str(value)
+
+
+class PublicRequirementRead(BaseModel):
+    """One eligibility rule as published, before any profile is evaluated.
+
+    ``kind`` + ``params`` are the rule itself, so clients can state it
+    without evaluating; curator ``notes`` and timestamps are not exposed.
+    """
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    order_index: int
+    label: str
+    kind: RequirementKind
+    params: dict[str, Any]
+    is_mandatory: bool
+    category: RequirementCategory
+    source_id: uuid.UUID | None
+    source_quote: str | None
+    is_ambiguous: bool
+
+
+class OpportunityDetailRead(OpportunityRead):
+    """One public opportunity with its ordered rules and their sources."""
+
+    requirements: list[PublicRequirementRead]
+    sources: list[PublicSourceRead]
+
+
+__all__ = [
+    "OpportunityCreate",
+    "OpportunityDetailRead",
+    "OpportunityRead",
+    "OpportunityUpdate",
+    "PublicRequirementRead",
+    "PublicSourceRead",
+]

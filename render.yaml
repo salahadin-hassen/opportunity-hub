@@ -1,0 +1,164 @@
+# Render Blueprint for Opportunity Hub: a static frontend and a FastAPI web service.
+# The database is external (Neon Postgres, free and persistent): paste its connection
+# string as DATABASE_URL when Render asks. See docs/DEPLOYMENT.md before applying.
+#
+# If Render can't give a service its exact name (names are global on onrender.com),
+# it adds a suffix: update CORS_ORIGINS and VITE_API_BASE to the real URLs.
+services:
+  - type: web
+    name: opportunity-hub-api
+    runtime: python
+    plan: free
+    region: frankfurt
+    branch: feat/opportunity-hub-product
+    rootDir: backend
+    # rootDir is backend, so constraints.txt resolves there; it holds the versions CI tested.
+    buildCommand: pip install --upgrade pip && pip install . -c constraints.txt
+    # --proxy-headers stays for X-Forwarded-Proto (https redirects); the client address uvicorn derives from
+    # X-Forwarded-For under "*" is forgeable and is NOT used for rate limiting (see CLIENT_IP_STRATEGY).
+    # Start web workers cleanly without concurrent migration races.
+    # Path A (Free plan): migrations are run once by operator prior to deploy (proven backward-compatible).
+    # Path B (Paid plan / Starter): add 'preDeployCommand: alembic upgrade head' above startCommand.
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --proxy-headers --forwarded-allow-ips="*"
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: APP_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        value: https://opportunities.sahelyon.com,https://opportunity-hub.onrender.com
+      # Mandatory in production: 1-1000. Unset means 10; invalid values or "disabled" stop the app from starting.
+      # It is the only credential limit while CLIENT_IP_STRATEGY=none.
+      - key: AUTH_RATE_LIMIT_PER_MINUTE
+        value: "10"
+      # No per-address budget until the CF-Connecting-IP black-box check passes on this
+      # service (docs/architecture/RENDER_CLIENT_IP_VERIFICATION.md §5); the per-account budget
+      # still applies. "peer" is refused on Render: it would count a forgeable or shared address.
+      - key: CLIENT_IP_STRATEGY
+        value: none
+      # Password reset answers 503 until a provider is configured. To enable: set EMAIL_DELIVERY=smtp
+      # here AND on opportunity-hub-email-worker, plus SMTP_HOST and SMTP_FROM on both.
+      - key: EMAIL_DELIVERY
+        value: disabled
+      # Reset/verification token keys, independent of JWT_SECRET: "id:secret[,id:secret]"; EMAIL_TOKEN_ACTIVE_KEY
+      # names the one new tokens use. Required once EMAIL_DELIVERY=smtp; the worker reads the same values.
+      # Rotation: docs/architecture/P0_SECURITY_HARDENING_2026-11-14.md, "Key rotation".
+      - key: EMAIL_TOKEN_KEYS
+        sync: false
+      - key: EMAIL_TOKEN_ACTIVE_KEY
+        sync: false
+
+  - type: web
+    name: opportunity-hub
+    runtime: static
+    branch: feat/opportunity-hub-product
+    rootDir: frontend
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      - key: VITE_API_BASE
+        value: https://api.opportunities.sahelyon.com
+    routes:
+      # Single-page app: every path that isn't a file serves index.html (direct links and refreshes).
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+
+  - type: cron
+    name: opportunity-hub-email-worker
+    runtime: python
+    region: frankfurt
+    plan: starter
+    schedule: "*/2 * * * *"
+    branch: ci/m1-m2-foundation
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install . -c constraints.txt
+    startCommand: python -m app.cli process-outbox --batch-size 50
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: DATABASE_URL
+      - key: APP_ENV
+        value: production
+      # Production settings require it (it keys session tokens and rate-limit digests). Email-token links
+      # use EMAIL_TOKEN_KEYS, not JWT_SECRET.
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: JWT_SECRET
+      - key: CLIENT_IP_STRATEGY
+        value: none
+      # The worker exits non-zero (queue untouched) while this is disabled. Switch to smtp together with the API.
+      - key: EMAIL_DELIVERY
+        value: disabled
+      - key: EMAIL_TOKEN_KEYS
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: EMAIL_TOKEN_KEYS
+      - key: EMAIL_TOKEN_ACTIVE_KEY
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: EMAIL_TOKEN_ACTIVE_KEY
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURITY
+        value: starttls
+      - key: SMTP_USERNAME
+        sync: false
+      - key: SMTP_PASSWORD
+        sync: false
+      - key: SMTP_FROM
+        value: noreply@opportunities.sahelyon.com
+
+  - type: cron
+    name: opportunity-hub-account-purge
+    runtime: python
+    region: frankfurt
+    plan: starter
+    schedule: "0 3 * * *"
+    branch: ci/m1-m2-foundation
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install . -c constraints.txt
+    startCommand: python -m app.cli purge-deleted-accounts
+    envVars:
+      - key: DATABASE_URL
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: DATABASE_URL
+      - key: APP_ENV
+        value: production
+      - key: JWT_SECRET
+        fromService:
+          type: web
+          name: opportunity-hub-api
+          envVarKey: JWT_SECRET
+      - key: CLIENT_IP_STRATEGY
+        value: none
+

@@ -1,13 +1,23 @@
 """Evaluator for a date gate on the profile date of birth."""
 from __future__ import annotations
 
+import operator as op
 from datetime import date, datetime
-from typing import Any
+from typing import Any, Callable
 
 from app.services.matching.result import RequirementOutcome, RequirementResult
 
 SUPPORTED_METRIC = "date_of_birth"
-SUPPORTED_OPERATOR = "<="
+#: Every comparison the requirement schema allows: ``date_of_birth <= D``
+#: reads "born on or before D" (old enough), ``> D`` "born after D" (young enough).
+OPERATORS: dict[str, Callable[[date, date], bool]] = {
+    "<=": op.le,
+    "<": op.lt,
+    ">=": op.ge,
+    ">": op.gt,
+    "==": op.eq,
+    "!=": op.ne,
+}
 
 
 def _needs_review(
@@ -48,7 +58,7 @@ def _parse_expected_date(value: Any) -> date | None:
 
 
 def evaluate_date_gate(profile: Any, requirement: Any) -> RequirementResult:
-    """Evaluate ``date_of_birth <= required date`` without guessing missing data."""
+    """Compare the profile date of birth to a required date without guessing missing data."""
     if getattr(requirement, "is_ambiguous", False):
         return _needs_review(
             "ambiguous_requirement",
@@ -75,7 +85,7 @@ def evaluate_date_gate(profile: Any, requirement: Any) -> RequirementResult:
             expected,
             f"Date metric '{metric}' is not supported.",
         )
-    if operator != SUPPORTED_OPERATOR:
+    if operator not in OPERATORS:
         return _needs_review(
             "unsupported_date_operator",
             expected,
@@ -108,7 +118,7 @@ def evaluate_date_gate(profile: Any, requirement: Any) -> RequirementResult:
             actual,
         )
 
-    if actual_value <= required_date:
+    if OPERATORS[operator](actual_value, required_date):
         return RequirementResult(
             outcome=RequirementOutcome.MET,
             reason_code="date_gate_met",
