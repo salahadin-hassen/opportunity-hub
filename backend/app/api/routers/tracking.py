@@ -27,7 +27,7 @@ router = APIRouter(prefix="/me", tags=["tracking"])
 @router.get("/saved-opportunities", response_model=list[SavedOpportunityRead])
 def list_saved(
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[SavedOpportunityRead]:
     """List all saved/bookmarked opportunities for the current user."""
     return tracking.list_saved_opportunities(db, profile.id)
@@ -41,7 +41,7 @@ def list_saved(
 def save(
     payload: SavedOpportunityCreate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> SavedOpportunityRead:
     """Save or update reminder settings for an opportunity."""
     saved = tracking.save_opportunity(
@@ -62,7 +62,7 @@ def save(
 def unsave(
     opportunity_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Remove a saved opportunity."""
     if not tracking.unsave_opportunity(db, profile.id, opportunity_id):
@@ -76,7 +76,7 @@ def unsave(
 @router.get("/applications", response_model=list[ApplicationRead])
 def list_apps(
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[ApplicationRead]:
     """List tracked applications for the current profile."""
     return tracking.list_applications(db, profile.id)
@@ -90,7 +90,7 @@ def list_apps(
 def create_app(
     payload: ApplicationCreate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> ApplicationRead:
     """Start tracking an application."""
     app = tracking.create_application(db, profile.id, payload)
@@ -106,7 +106,7 @@ def create_app(
 def get_app(
     application_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> ApplicationRead:
     """Get application details and checklist items."""
     app = tracking.get_application(db, profile.id, application_id)
@@ -123,7 +123,7 @@ def update_app(
     application_id: uuid.UUID,
     payload: ApplicationUpdate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> ApplicationRead:
     """Update application status, notes, or outcome."""
     app = tracking.update_application(db, profile.id, application_id, payload)
@@ -144,7 +144,7 @@ def add_item(
     application_id: uuid.UUID,
     payload: ApplicationItemCreate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> ApplicationItemRead:
     """Add a checklist item to an application."""
     item = tracking.add_application_item(db, profile.id, application_id, payload)
@@ -165,7 +165,7 @@ def update_item(
     item_id: uuid.UUID,
     payload: ApplicationItemUpdate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> ApplicationItemRead:
     """Update status or notes for an application checklist item."""
     item = tracking.update_application_item(db, profile.id, application_id, item_id, payload)
@@ -184,7 +184,7 @@ def update_item(
 def delete_app(
     application_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Delete a tracked application."""
     if not tracking.delete_application(db, profile.id, application_id):
@@ -203,7 +203,7 @@ def delete_item(
     application_id: uuid.UUID,
     item_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Delete a checklist item from an application."""
     if not tracking.delete_application_item(db, profile.id, application_id, item_id):

@@ -34,7 +34,7 @@ def _education_not_found() -> HTTPException:
 @router.get("", response_model=list[EducationRead])
 def list_my_education(
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[EducationRead]:
     """Return the owned profile's education records in deterministic order."""
     return list_education(db, profile.id)
@@ -46,7 +46,7 @@ def list_my_education(
 def create_my_education(
     payload: EducationCreate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> EducationRead:
     """Add one education record to the owned profile."""
     try:
@@ -63,7 +63,7 @@ def patch_my_education(
     education_id: uuid.UUID,
     payload: EducationUpdate,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> EducationRead:
     """Apply a partial update to one owned education record."""
     education = get_education(db, profile.id, education_id)
@@ -86,7 +86,7 @@ def patch_my_education(
 def delete_my_education(
     education_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Delete one owned education record."""
     education = get_education(db, profile.id, education_id)

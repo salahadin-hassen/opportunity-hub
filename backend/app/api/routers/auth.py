@@ -88,7 +88,7 @@ def _database_unavailable(endpoint: str) -> HTTPException:
 
 
 @router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
-def register(payload: UserCreate, db: Session = Depends(get_db)) -> UserRead:
+def register(payload: UserCreate, db: Session = Depends(get_db, scope="function")) -> UserRead:
     """Create one account, or report the email conflict as a 409."""
     limit_account_attempts("/auth/register", payload.email)
     try:
@@ -111,7 +111,7 @@ def login(
     payload: UserLogin,
     request: Request,
     response: Response,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> TokenResponse:
     """Exchange valid credentials for a short-lived bearer access token and session."""
     limit_account_attempts("/auth/login", payload.email)
@@ -153,7 +153,7 @@ def logout(
     request: Request,
     response: Response,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, str]:
     """Revoke the current session and clear session cookies."""
     raw_token: str | None = None
@@ -174,7 +174,7 @@ def logout(
 def list_sessions(
     request: Request,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[SessionRead]:
     """List active sessions for the current user."""
     sessions = list_user_sessions(db, current_user.id)
@@ -202,7 +202,7 @@ def list_sessions(
 def revoke_session(
     session_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Response:
     """Revoke a specific active session."""
     revoked = revoke_session_by_id(db, current_user.id, session_id)
@@ -214,7 +214,7 @@ def revoke_session(
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
 def forgot_password(
     payload: ForgotPasswordRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, str]:
     """Initiate a password reset flow.
     
@@ -238,7 +238,7 @@ def forgot_password(
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
 def reset_password(
     payload: ResetPasswordRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, str]:
     """Complete a password reset with a valid token."""
     now = datetime.now(timezone.utc)
@@ -279,7 +279,7 @@ def reset_password(
 @router.post("/verify-email", status_code=status.HTTP_200_OK)
 def verify_email(
     payload: VerifyEmailRequest,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> dict[str, str]:
     """Verify an email address with a single-use token."""
     now = datetime.now(timezone.utc)

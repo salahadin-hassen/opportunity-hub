@@ -103,7 +103,7 @@ def list_sources(
     status_filter: SourceStatus | None = Query(default=None, alias="status"),
     limit: int = Query(default=50, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     _: User = Depends(require_permission(Permission.SOURCE_READ)),
 ) -> list[SourceRead]:
     statement = select(AcquisitionSource).order_by(AcquisitionSource.created_at, AcquisitionSource.id)
@@ -115,7 +115,7 @@ def list_sources(
 @router.post("", response_model=SourceRead, status_code=status.HTTP_201_CREATED)
 def propose_source(
     definition: SourceDefinition,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     user: User = Depends(require_permission(Permission.SOURCE_PROPOSE)),
 ) -> SourceRead:
     try:
@@ -127,7 +127,7 @@ def propose_source(
 @router.get("/{source_id}", response_model=SourceRead)
 def get_source(
     source_id: uuid.UUID,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     _: User = Depends(require_permission(Permission.SOURCE_READ)),
 ) -> SourceRead:
     return _read(_load(db, source_id))
@@ -137,7 +137,7 @@ def get_source(
 def edit_source(
     source_id: uuid.UUID,
     definition: SourceDefinition,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     user: User = Depends(require_permission(Permission.SOURCE_EDIT)),
 ) -> SourceRead:
     source = _load(db, source_id)
@@ -151,7 +151,7 @@ def edit_source(
 def review_terms(
     source_id: uuid.UUID,
     review: TermsReview,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     user: User = Depends(require_permission(Permission.SOURCE_REVIEW)),
 ) -> SourceRead:
     source = _load(db, source_id)
@@ -165,7 +165,7 @@ def review_terms(
 def change_status(
     source_id: uuid.UUID,
     change: StatusChange,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     user: User = Depends(require_permission(Permission.SOURCE_READ)),
 ) -> SourceRead:
     _require(user, STATUS_PERMISSIONS[change.status])
@@ -180,7 +180,7 @@ def change_status(
 def change_publish_mode(
     source_id: uuid.UUID,
     change: PublishModeChange,
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     user: User = Depends(require_permission(Permission.SOURCE_READ)),
 ) -> SourceRead:
     source = _load(db, source_id)
@@ -196,7 +196,7 @@ def change_publish_mode(
 def source_history(
     source_id: uuid.UUID,
     limit: int = Query(default=100, ge=1, le=100),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     _: User = Depends(require_permission(Permission.SOURCE_READ)),
 ) -> list[AuditLog]:
     _load(db, source_id)
@@ -220,7 +220,7 @@ def read_audit(
     action: str | None = Query(default=None, max_length=64),
     limit: int = Query(default=50, ge=1, le=100),
     before_id: int | None = Query(default=None, ge=1),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     _: User = Depends(require_permission(Permission.AUDIT_READ)),
 ) -> list[AuditLog]:
     """Newest first; page with ``before_id``."""

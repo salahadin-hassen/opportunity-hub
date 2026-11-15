@@ -1,17 +1,27 @@
 import {
   AlertCircle,
+  CheckCircle2,
+  ChevronRight,
+  ExternalLink,
   Plus,
+  RefreshCw,
   Shield,
   ShieldAlert,
+  X,
+  XCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useAuditLog,
+  useCandidateDetail,
   useCloseOpportunity,
   useCreateOpportunity,
+  useCuratorCandidates,
   useCuratorOpportunities,
   useCuratorSources,
   usePublishOpportunity,
+  useRequeueCandidate,
+  useReviewCandidate,
   useUserAccount,
 } from "../api/queries";
 import { Content, Page } from "../components/layout/Page";
@@ -20,10 +30,23 @@ import { formatDate } from "../lib/format";
 
 export function Curate() {
   const account = useUserAccount();
-  const [tab, setTab] = useState<"opportunities" | "sources" | "audit">("opportunities");
+  const [tab, setTab] = useState<"opportunities" | "candidates" | "sources" | "audit">("opportunities");
   const [oppFilter, setOppFilter] = useState<string>("all");
+  const [candFilter, setCandFilter] = useState<string>("needs_review");
+  const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
+
+  // Review modal state
+  const [reviewTitle, setReviewTitle] = useState("");
+  const [reviewType, setReviewType] = useState<string>("scholarship");
+  const [reviewDeadline, setReviewDeadline] = useState("");
+  const [reviewDeadlineType, setReviewDeadlineType] = useState<"fixed" | "rolling" | "none">("fixed");
+  const [reviewDescription, setReviewDescription] = useState("");
+  const [reviewNotes, setReviewNotes] = useState("");
+  const [reviewForce, setReviewForce] = useState(false);
+  const [selectedStatements, setSelectedStatements] = useState<number[]>([]);
+  const [reviewError, setReviewError] = useState<string | null>(null);
 
   // Form states for new opportunity
   const [slug, setSlug] = useState("");
@@ -35,11 +58,32 @@ export function Curate() {
 
   const sources = useCuratorSources();
   const opportunities = useCuratorOpportunities(oppFilter);
+  const candidates = useCuratorCandidates(candFilter);
+  const candidateDetail = useCandidateDetail(selectedCandidateId);
   const auditLogs = useAuditLog();
 
   const createOpp = useCreateOpportunity();
   const publishOpp = usePublishOpportunity();
   const closeOpp = useCloseOpportunity();
+  const reviewMutation = useReviewCandidate();
+  const requeueMutation = useRequeueCandidate();
+
+  useEffect(() => {
+    if (candidateDetail.data) {
+      const ext = (candidateDetail.data.extraction as any) || {};
+      setReviewTitle(ext.title?.value || candidateDetail.data.title || "");
+      setReviewType(ext.opportunity_type?.value || "scholarship");
+      setReviewDeadline(ext.deadline?.value || "");
+      const dt = ext.deadline_type?.value;
+      setReviewDeadlineType(dt === "rolling" ? "rolling" : dt === "none" ? "none" : "fixed");
+      setReviewDescription(ext.description?.value || "");
+      setReviewNotes("");
+      setReviewForce(false);
+      setReviewError(null);
+      const stmts: string[] = ext.eligibility?.value || [];
+      setSelectedStatements(stmts.map((_, i) => i));
+    }
+  }, [candidateDetail.data]);
 
   if (account.isPending) {
     return (
@@ -110,6 +154,58 @@ export function Curate() {
     }
   }
 
+  async function handleApprove(e: React.FormEvent) {
+    e.preventDefault();
+    if (!selectedCandidateId) return;
+    setReviewError(null);
+    try {
+      await reviewMutation.mutateAsync({
+        id: selectedCandidateId,
+        body: {
+          decision: "approve",
+          title: reviewTitle.trim() || undefined,
+          opportunity_type: reviewType || undefined,
+          deadline: reviewDeadlineType === "fixed" && reviewDeadline ? reviewDeadline : undefined,
+          deadline_type: reviewDeadlineType,
+          description: reviewDescription.trim() || undefined,
+          statements: selectedStatements.length > 0 ? selectedStatements : undefined,
+          notes: reviewNotes.trim() || undefined,
+          force: reviewForce,
+        },
+      });
+      setSelectedCandidateId(null);
+    } catch (err: any) {
+      setReviewError(err?.message ?? "Approval failed.");
+    }
+  }
+
+  async function handleReject(decision: "reject" | "request_changes") {
+    if (!selectedCandidateId) return;
+    setReviewError(null);
+    try {
+      await reviewMutation.mutateAsync({
+        id: selectedCandidateId,
+        body: {
+          decision,
+          notes: reviewNotes.trim() || undefined,
+          force: false,
+        },
+      });
+      setSelectedCandidateId(null);
+    } catch (err: any) {
+      setReviewError(err?.message ?? `${decision} failed.`);
+    }
+  }
+
+  async function handleRequeue(id: string) {
+    setReviewError(null);
+    try {
+      await requeueMutation.mutateAsync(id);
+    } catch (err: any) {
+      setReviewError(err?.message ?? "Re-queue failed.");
+    }
+  }
+
   return (
     <Page title="Curator workspace">
       <Content width="wide">
@@ -127,7 +223,7 @@ export function Curate() {
             Manage acquisition sources, review opportunity drafts, and audit administrative actions.
           </p>
 
-          <div className="mt-6 flex gap-2">
+          <div className="mt-6 flex flex-wrap gap-2">
             <button
               type="button"
               onClick={() => setTab("opportunities")}
@@ -136,6 +232,20 @@ export function Curate() {
               }`}
             >
               Opportunities
+            </button>
+            <button
+              type="button"
+              onClick={() => setTab("candidates")}
+              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[14px] font-medium transition-colors ${
+                tab === "candidates" ? "bg-ink text-paper" : "bg-cream text-ink-soft hover:bg-sand"
+              }`}
+            >
+              Candidate Queue
+              {candidates.data && candidates.data.filter((c) => c.state === "needs_review").length > 0 && (
+                <span className="rounded-full bg-persimmon px-2 py-0.5 text-[11px] font-bold text-paper">
+                  {candidates.data.filter((c) => c.state === "needs_review").length}
+                </span>
+              )}
             </button>
             <button
               type="button"
@@ -338,7 +448,406 @@ export function Curate() {
           </section>
         )}
 
-        {/* Tab 2: Sources */}
+        {/* Tab 2: Candidate Review Queue */}
+        {tab === "candidates" && (
+          <section className="mt-8 space-y-6">
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div className="flex flex-wrap gap-2">
+                {["needs_review", "all", "approved", "expired", "duplicate", "rejected", "changes_requested"].map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => setCandFilter(st)}
+                    className={`rounded-full px-3 py-1 text-[13px] font-medium capitalize transition-colors ${
+                      candFilter === st ? "bg-sand text-ink font-semibold" : "bg-cream/60 text-muted hover:bg-cream"
+                    }`}
+                  >
+                    {st.replace("_", " ")}
+                  </button>
+                ))}
+              </div>
+              <span className="text-[13px] text-muted">
+                {candidates.data?.length ?? 0} candidate(s)
+              </span>
+            </div>
+
+            {candidates.isPending ? (
+              <Spinner />
+            ) : (candidates.data ?? []).length === 0 ? (
+              <div className="rounded-panel border border-rule bg-paper p-8 text-center text-muted">
+                <p className="text-[15px] font-medium text-ink">No candidates in &ldquo;{candFilter.replace("_", " ")}&rdquo; state</p>
+                <p className="mt-1 text-[13px]">Run discovery or ingestion to discover opportunities from verified sources.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto rounded-panel border border-rule bg-paper shadow-card">
+                <table className="w-full text-left text-[13.5px]">
+                  <thead className="border-b border-rule bg-cream/40 text-[12px] uppercase text-muted">
+                    <tr>
+                      <th className="px-4 py-3">Candidate / Title</th>
+                      <th className="px-4 py-3">Source</th>
+                      <th className="px-4 py-3">State</th>
+                      <th className="px-4 py-3">Quality</th>
+                      <th className="px-4 py-3">Deadline</th>
+                      <th className="px-4 py-3">Signals</th>
+                      <th className="px-4 py-3 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-rule">
+                    {(candidates.data ?? []).map((cand) => (
+                      <tr key={cand.id} className="hover:bg-cream/20">
+                        <td className="px-4 py-3 max-w-[280px]">
+                          <p className="font-semibold text-ink truncate" title={cand.title || cand.url}>
+                            {cand.title || "(Untitled candidate)"}
+                          </p>
+                          <a
+                            href={cand.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center gap-1 font-mono text-[11.5px] text-persimmon hover:underline truncate max-w-full"
+                          >
+                            <span className="truncate">{cand.url}</span>
+                            <ExternalLink size={11} className="shrink-0" />
+                          </a>
+                        </td>
+                        <td className="px-4 py-3 text-ink-soft text-[13px]">
+                          {cand.source_name || "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                              cand.state === "approved"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : cand.state === "needs_review"
+                                ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                : cand.state === "duplicate"
+                                ? "bg-purple-100 text-purple-800"
+                                : cand.state === "expired"
+                                ? "bg-rose-100 text-rose-800"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                          >
+                            {cand.state.replace("_", " ")}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 font-mono text-[12.5px]">
+                          {cand.quality_score !== null && cand.quality_score !== undefined ? (
+                            <span
+                              className={`font-semibold ${
+                                cand.quality_score >= 70
+                                  ? "text-emerald-700"
+                                  : cand.quality_score >= 40
+                                  ? "text-amber-700"
+                                  : "text-rose-700"
+                              }`}
+                            >
+                              {cand.quality_score}%
+                            </span>
+                          ) : (
+                            <span className="text-muted">—</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-[12.5px] text-ink-soft">
+                          {cand.deadline ? String(cand.deadline) : "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex flex-col gap-0.5 text-[11.5px]">
+                            {cand.duplicate_of_opportunity_id && (
+                              <span className="text-purple-700 font-medium">Opp duplicate</span>
+                            )}
+                            {cand.duplicate_of_candidate_id && (
+                              <span className="text-purple-700 font-medium">Cand duplicate</span>
+                            )}
+                            {cand.problems && cand.problems.length > 0 && (
+                              <span className="text-amber-700">{cand.problems.length} issue(s)</span>
+                            )}
+                            {!cand.duplicate_of_opportunity_id && !cand.duplicate_of_candidate_id && (!cand.problems || cand.problems.length === 0) && (
+                              <span className="text-emerald-700 font-medium">Clean</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedCandidateId(cand.id)}
+                            className="btn btn-sm btn-ink inline-flex items-center gap-1 text-[12px] py-1 px-3"
+                          >
+                            Review
+                            <ChevronRight size={13} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* Review Candidate Modal / Panel */}
+            {selectedCandidateId && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4 backdrop-blur-xs">
+                <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-panel border border-rule bg-paper p-6 shadow-2xl space-y-6">
+                  <div className="flex items-start justify-between gap-4 border-b border-rule pb-4">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-full bg-cream px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-ink">
+                          {candidateDetail.data?.state.replace("_", " ")}
+                        </span>
+                        <span className="text-[13px] text-muted">
+                          Source: {candidateDetail.data?.source_name ?? "—"}
+                        </span>
+                      </div>
+                      <h2 className="mt-1 text-[20px] font-bold text-ink">
+                        Review Ingestion Candidate
+                      </h2>
+                      <a
+                        href={candidateDetail.data?.final_url || candidateDetail.data?.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="mt-1 inline-flex items-center gap-1 text-[13px] text-persimmon hover:underline font-mono"
+                      >
+                        {candidateDetail.data?.final_url || candidateDetail.data?.url}
+                        <ExternalLink size={13} />
+                      </a>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedCandidateId(null)}
+                      className="rounded-full p-1.5 text-muted hover:bg-cream hover:text-ink transition-colors"
+                    >
+                      <X size={20} />
+                    </button>
+                  </div>
+
+                  {candidateDetail.isPending ? (
+                    <div className="flex justify-center py-12">
+                      <Spinner />
+                    </div>
+                  ) : (
+                    <form onSubmit={handleApprove} className="space-y-6">
+                      {reviewError && (
+                        <div role="alert" className="flex items-start gap-3 rounded-panel border border-persimmon/30 bg-persimmon/10 p-4 text-[13.5px] text-persimmon-deep">
+                          <AlertCircle size={18} className="mt-0.5 shrink-0" />
+                          <div>
+                            <p className="font-semibold">Review Error</p>
+                            <p className="mt-0.5">{reviewError}</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Warnings / Duplicate Banner */}
+                      {(candidateDetail.data?.duplicate_of_opportunity_id || candidateDetail.data?.duplicate_of_candidate_id) && (
+                        <div className="rounded-panel border border-purple-300 bg-purple-50 p-4 text-[13px] text-purple-900">
+                          <p className="font-bold">Duplicate Warning</p>
+                          <p className="mt-0.5">
+                            This candidate matches an existing opportunity or candidate cycle. Check whether this is a recurring new cycle or a duplicate. If approving, check &ldquo;Force approve override&rdquo;.
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Extracted Fields */}
+                      <div className="space-y-4 rounded-panel border border-rule bg-cream/20 p-5">
+                        <h3 className="text-[15px] font-bold text-ink">1. Extracted Details</h3>
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                          <div className="sm:col-span-2">
+                            <label className="block text-[12.5px] font-medium text-ink">Title</label>
+                            <input
+                              required
+                              type="text"
+                              value={reviewTitle}
+                              onChange={(e) => setReviewTitle(e.target.value)}
+                              className="input mt-1 w-full text-[13.5px]"
+                              placeholder="Programme title"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[12.5px] font-medium text-ink">Opportunity Type</label>
+                            <select
+                              value={reviewType}
+                              onChange={(e) => setReviewType(e.target.value)}
+                              className="input mt-1 w-full text-[13.5px]"
+                            >
+                              <option value="scholarship">Scholarship</option>
+                              <option value="fellowship">Fellowship</option>
+                              <option value="internship">Internship</option>
+                              <option value="research_program">Research Program</option>
+                              <option value="summer_school">Summer School</option>
+                              <option value="competition">Competition</option>
+                              <option value="grant">Grant</option>
+                              <option value="other">Other</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[12.5px] font-medium text-ink">Deadline Type</label>
+                            <select
+                              value={reviewDeadlineType}
+                              onChange={(e) => setReviewDeadlineType(e.target.value as any)}
+                              className="input mt-1 w-full text-[13.5px]"
+                            >
+                              <option value="fixed">Fixed date</option>
+                              <option value="rolling">Rolling (open)</option>
+                              <option value="none">None / Open-ended</option>
+                            </select>
+                          </div>
+
+                          {reviewDeadlineType === "fixed" && (
+                            <div>
+                              <label className="block text-[12.5px] font-medium text-ink">Deadline Date (YYYY-MM-DD)</label>
+                              <input
+                                required
+                                type="date"
+                                value={reviewDeadline}
+                                onChange={(e) => setReviewDeadline(e.target.value)}
+                                className="input mt-1 w-full text-[13.5px]"
+                              />
+                            </div>
+                          )}
+
+                          <div className="sm:col-span-2">
+                            <label className="block text-[12.5px] font-medium text-ink">Description</label>
+                            <textarea
+                              rows={3}
+                              value={reviewDescription}
+                              onChange={(e) => setReviewDescription(e.target.value)}
+                              className="input mt-1 w-full text-[13.5px]"
+                              placeholder="Official description quoted from the source page"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Quoted Verbatim Eligibility Statements */}
+                      <div className="space-y-3 rounded-panel border border-rule bg-cream/20 p-5">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="text-[15px] font-bold text-ink">2. Verbatim Quoted Eligibility Statements</h3>
+                            <p className="text-[12px] text-muted">
+                              Every kept statement is verified against the page text and becomes a quoted rule. Publication requires at least one quote.
+                            </p>
+                          </div>
+                          <span className="text-[12px] font-semibold text-persimmon">
+                            {selectedStatements.length} selected
+                          </span>
+                        </div>
+
+                        {((candidateDetail.data?.extraction as any)?.eligibility?.value ?? []).length === 0 ? (
+                          <p className="text-[13px] text-muted italic">No explicit eligibility statements extracted from this page.</p>
+                        ) : (
+                          <div className="space-y-2 max-h-[220px] overflow-y-auto">
+                            {((candidateDetail.data?.extraction as any)?.eligibility?.value as string[]).map((stmt, idx) => (
+                              <label
+                                key={idx}
+                                className={`flex items-start gap-3 rounded-lg border p-3 text-[13px] cursor-pointer transition-colors ${
+                                  selectedStatements.includes(idx)
+                                    ? "border-ink bg-paper shadow-xs"
+                                    : "border-rule bg-cream/40 opacity-70"
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedStatements.includes(idx)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedStatements([...selectedStatements, idx]);
+                                    } else {
+                                      setSelectedStatements(selectedStatements.filter((i) => i !== idx));
+                                    }
+                                  }}
+                                  className="mt-0.5"
+                                />
+                                <span className="font-serif italic text-ink leading-relaxed">&ldquo;{stmt}&rdquo;</span>
+                              </label>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Curator Notes & Overrides */}
+                      <div className="space-y-3 rounded-panel border border-rule bg-cream/20 p-5">
+                        <h3 className="text-[15px] font-bold text-ink">3. Review Audit & Decisions</h3>
+                        <div>
+                          <label className="block text-[12.5px] font-medium text-ink">Curator Review Notes</label>
+                          <input
+                            type="text"
+                            value={reviewNotes}
+                            onChange={(e) => setReviewNotes(e.target.value)}
+                            placeholder="Reason for decision / audit comments"
+                            className="input mt-1 w-full text-[13.5px]"
+                          />
+                        </div>
+
+                        {(candidateDetail.data?.state === "expired" || candidateDetail.data?.state === "duplicate") && (
+                          <label className="flex items-center gap-2 text-[13px] font-medium text-persimmon-deep cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={reviewForce}
+                              onChange={(e) => setReviewForce(e.target.checked)}
+                            />
+                            Force approve override (approves an expired or duplicate candidate into a draft)
+                          </label>
+                        )}
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-4">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleReject("reject")}
+                            disabled={reviewMutation.isPending}
+                            className="btn btn-sm btn-quiet text-persimmon hover:bg-persimmon/10"
+                          >
+                            <XCircle size={15} />
+                            Reject
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleReject("request_changes")}
+                            disabled={reviewMutation.isPending}
+                            className="btn btn-sm btn-quiet text-ink-soft hover:bg-cream"
+                          >
+                            Request Changes
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleRequeue(selectedCandidateId)}
+                            disabled={requeueMutation.isPending}
+                            className="btn btn-sm btn-quiet text-ink-soft hover:bg-cream"
+                            title="Re-queue candidate for fresh fetch"
+                          >
+                            <RefreshCw size={14} />
+                            Re-queue
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => setSelectedCandidateId(null)}
+                            className="btn btn-sm btn-quiet"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            disabled={reviewMutation.isPending}
+                            className="btn btn-ink inline-flex items-center gap-1.5 text-[13.5px]"
+                          >
+                            <CheckCircle2 size={16} />
+                            Approve as Draft Opportunity
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
+        )}
+
+        {/* Tab 3: Sources */}
         {tab === "sources" && (
           <section className="mt-8 space-y-4">
             <h2 className="text-[16px] font-semibold text-ink">Acquisition Source Registry</h2>

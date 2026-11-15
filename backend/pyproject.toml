@@ -5,7 +5,7 @@ description = "Personalized opportunity discovery platform - Backend API"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi>=0.109.0",
+    "fastapi>=0.121.0",  # Depends(scope="function"): commit before the response is sent
     "uvicorn[standard]>=0.27.0",
     "sqlalchemy>=2.0.0,<2.1.0",
     "psycopg2-binary>=2.9.0",
@@ -15,6 +15,8 @@ dependencies = [
     "email-validator>=2.1.0",
     "pyjwt>=2.8.0",
     "argon2-cffi>=23.1.0",
+    # The ingestion fetcher (app.intelligence.fetcher) runs in production; pinned in constraints.txt.
+    "httpx>=0.26.0",
 ]
 
 [project.optional-dependencies]

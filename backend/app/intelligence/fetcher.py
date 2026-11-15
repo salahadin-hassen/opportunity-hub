@@ -16,6 +16,7 @@ from __future__ import annotations
 import hashlib
 import ipaddress
 import socket
+import time
 import urllib.parse
 from dataclasses import dataclass
 from datetime import datetime, timezone
@@ -27,6 +28,9 @@ import httpx
 
 MAX_RESPONSE_BYTES = 5 * 1024 * 1024  # 5 MiB
 DEFAULT_TIMEOUT_SECONDS = 10.0
+#: Wall-clock limit for one fetch including redirects. The per-operation timeout alone would let a
+#: server that trickles bytes hold a worker for hours.
+DEFAULT_TOTAL_TIMEOUT_SECONDS = 45.0
 MAX_REDIRECTS = 5
 
 #: Deny-listed IP networks that must never be dialed.
@@ -69,6 +73,10 @@ class SSRFBlockedError(FetchError):
 
 class ResponseTooLargeError(FetchError):
     """Raised when the fetched payload exceeds the size limit."""
+
+
+class OffAllowListError(FetchError):
+    """Raised when a URL or a redirect leaves the hosts the caller allowed."""
 
 
 @dataclass(frozen=True)
@@ -177,23 +185,50 @@ def validate_url_scheme_and_host(url: str) -> tuple[str, str, int]:
     return scheme, hostname, port
 
 
+def _check_allowed(hostname: str, port: int, allowed_hosts: frozenset[str] | None) -> None:
+    """With an allow-list, every hop must be on one of its exact hosts, on port 80 or 443."""
+    if allowed_hosts is None:
+        return
+    if port not in (80, 443):
+        raise OffAllowListError(f"Port {port} is not allowed.")
+    if hostname.lower().rstrip(".") not in allowed_hosts:
+        raise OffAllowListError(f"Host {hostname!r} is not on the source's allow-list.")
+
+
 def fetch_url(
     url: str,
     *,
     timeout: float = DEFAULT_TIMEOUT_SECONDS,
     max_bytes: int = MAX_RESPONSE_BYTES,
+    allowed_hosts: frozenset[str] | None = None,
+    total_timeout: float = DEFAULT_TOTAL_TIMEOUT_SECONDS,
+    etag: str | None = None,
+    last_modified: str | None = None,
 ) -> FetchedDocument:
-    """Safely retrieve a web resource with socket-level SSRF defense and byte budgeting."""
+    """Safely retrieve a web resource with socket-level SSRF defense and byte budgeting.
+
+    ``allowed_hosts`` (exact, lower-case hostnames) is enforced on the first URL and on every redirect
+    hop, so a source page can't redirect the pipeline anywhere its registry entry doesn't allow.
+    Supports conditional requests via ``etag`` (If-None-Match) and ``last_modified`` (If-Modified-Since).
+    """
     current_url = url
+    deadline = time.monotonic() + total_timeout
     headers = {
         "User-Agent": "OpportunityHub-Bot/1.0 (+https://opportunities.sahelyon.com/bot)",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     }
+    if etag:
+        headers["If-None-Match"] = etag.strip()
+    if last_modified:
+        headers["If-Modified-Since"] = last_modified.strip()
 
     client_timeout = httpx.Timeout(timeout, connect=5.0)
 
     for hop in range(MAX_REDIRECTS + 1):
         scheme, hostname, port = validate_url_scheme_and_host(current_url)
+        _check_allowed(hostname, port, allowed_hosts)
+        if time.monotonic() >= deadline:
+            raise FetchError(f"Fetch exceeded the total time limit of {total_timeout:g} s.")
 
         # Pre-validate hostname resolution before opening the transport
         resolve_safe_addresses(hostname, port)
@@ -220,11 +255,25 @@ def fetch_url(
                         current_url = next_url
                         continue
 
+                    # Conditional request 304 Not Modified
+                    if response.status_code == 304:
+                        return FetchedDocument(
+                            url=str(response.url),
+                            status_code=304,
+                            content_type=response.headers.get("content-type", "text/html"),
+                            headers=dict(response.headers),
+                            body="",
+                            sha256_hash="",
+                            fetched_at=datetime.now(timezone.utc),
+                        )
+
                     # Stream payload chunk-by-chunk to enforce max_bytes without buffering bombs
                     chunks: list[bytes] = []
                     total_bytes = 0
                     for chunk in response.iter_bytes(chunk_size=16384):
                         total_bytes += len(chunk)
+                        if time.monotonic() >= deadline:
+                            raise FetchError(f"Fetch exceeded the total time limit of {total_timeout:g} s.")
                         if total_bytes > max_bytes:
                             raise ResponseTooLargeError(
                                 f"Response payload exceeded limit of {max_bytes} bytes."
@@ -250,7 +299,7 @@ def fetch_url(
                         sha256_hash=sha256,
                         fetched_at=now,
                     )
-            except (SSRFBlockedError, ResponseTooLargeError):
+            except FetchError:
                 raise
             except httpx.RequestError as exc:
                 raise FetchError(f"HTTP request failed: {exc}") from exc

@@ -68,7 +68,7 @@ def _opportunity_or_match_not_found(db: Session, opportunity_id: uuid.UUID) -> H
 def batch_evaluate_for_me(
     payload: BatchEvaluateRequest | None = None,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[MatchRead]:
     """Evaluate the owned profile against multiple opportunities in a single transaction.
 
@@ -88,7 +88,7 @@ def batch_evaluate_for_me(
 def evaluate_for_me(
     opportunity_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> MatchRead:
     """Evaluate the owned profile against one shared opportunity.
 
@@ -110,7 +110,7 @@ def evaluate_for_me(
 def get_one_for_me(
     opportunity_id: uuid.UUID,
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> MatchRead:
     """Return the owned profile's persisted Match for one opportunity.
 
@@ -129,7 +129,7 @@ def list_my_matches(
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     profile: Profile = Depends(get_my_profile),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> list[MatchRead]:
     """List the owned profile's Matches, newest evaluation first.
 

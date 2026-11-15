@@ -8,6 +8,7 @@ from __future__ import annotations
 import uuid
 from collections.abc import Callable
 from typing import Any
+from urllib.parse import urlsplit
 
 from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -43,6 +44,25 @@ def unauthorized() -> HTTPException:
     )
 
 
+def _origin_of(value: str) -> str | None:
+    """``scheme://host[:port]`` of an Origin or Referer value, or None if it isn't a plain web origin.
+
+    Lower-cases the scheme and host and drops the scheme's default port, so equivalent spellings
+    compare equal. Values with user info, a non-http(s) scheme, no host or an invalid port give None.
+    """
+    try:
+        parts = urlsplit(value.strip())
+        port = parts.port
+    except ValueError:
+        return None
+    if parts.scheme not in ("http", "https") or not parts.hostname:
+        return None
+    if parts.username is not None or parts.password is not None:
+        return None
+    default = 443 if parts.scheme == "https" else 80
+    return f"{parts.scheme}://{parts.hostname.lower()}" + ("" if port in (None, default) else f":{port}")
+
+
 class _DummyRequest:
     cookies: dict[str, str] = {}
     method: str = "GET"
@@ -54,7 +74,7 @@ _DEFAULT_REQUEST: Any = _DummyRequest()
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials | None = Depends(bearer_token),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
     request: Request = _DEFAULT_REQUEST,
 ) -> User:
     """Resolve the active User from bearer credentials or a secure session cookie.
@@ -75,17 +95,22 @@ def get_current_user(
     if not raw_token:
         raise unauthorized()
 
-    # CSRF protection for cookie-authenticated mutating requests
+    # CSRF protection for cookie-authenticated mutating requests.
+    # Ambient cookie authority requires an explicit, trusted origin. Always execute for
+    # cookie-authenticated mutating requests, rejecting when:
+    # - Origin and Referer are both missing
+    # - The supplied origin cannot be parsed
+    # - The configured allowlist is empty or contains no valid origins
+    # - The supplied origin does not match an allowed origin
     if is_cookie_auth and getattr(request, "method", "") in ("POST", "PUT", "PATCH", "DELETE"):
         origin = request.headers.get("origin") or request.headers.get("referer")
-        if origin and settings.cors_origins:
-            allowed = [o.rstrip("/") for o in settings.cors_origins]
-            origin_clean = origin.split("?")[0].rstrip("/")
-            if not any(origin_clean.startswith(a) for a in allowed):
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail="CSRF validation failed.",
-                )
+        request_origin = _origin_of(origin) if origin else None
+        allowed = {_origin_of(item) for item in settings.cors_origins} - {None}
+        if not allowed or request_origin is None or request_origin not in allowed:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="CSRF validation failed.",
+            )
 
     # 1. Check opaque server session first
     user = resolve_session(db, raw_token)
@@ -142,7 +167,7 @@ def require_permission(permission: Permission) -> Callable[..., User]:
 
 def get_my_profile(
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Profile:
     """Resolve the authenticated user's own profile, or 404 when none exists yet.
 
@@ -160,7 +185,7 @@ def get_my_profile(
 def get_owned_profile(
     profile_id: uuid.UUID,
     current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db),
+    db: Session = Depends(get_db, scope="function"),
 ) -> Profile:
     """Load a profile only when the authenticated user owns it.
 
