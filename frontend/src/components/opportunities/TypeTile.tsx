@@ -56,28 +56,29 @@ export function monogramScale(text: string): number {
   return text.length <= 2 ? 0.3 : text.length === 3 ? 0.25 : text.length === 4 ? 0.21 : 0.18;
 }
 
-export function TypeTile({ type, host, size = 48 }: { type: OpportunityType; host?: string | null; size?: number }) {
-  const style = TYPE_STYLE[type];
-  const Icon = style.icon;
+/**
+ * The type as a quiet key: its glyph on paper with a hairline edge. Colour is
+ * reserved for actions, deadlines and verdicts, so types stay neutral and are
+ * told apart by glyph and name. ``host`` is accepted for older call sites.
+ */
+export function TypeTile({ type, size = 48 }: { type: OpportunityType; host?: string | null; size?: number }) {
+  const Icon = TYPE_STYLE[type].icon;
   return (
     <span
-      className={`relative inline-flex shrink-0 items-end justify-start overflow-hidden rounded-[10px] p-1.5 ${style.tile} ${style.text}`}
+      className="inline-flex shrink-0 items-center justify-center rounded-[10px] border border-rule-strong bg-paper text-ink-soft"
       style={{ width: size, height: size }}
       aria-hidden="true"
     >
-      <Icon size={size * 0.3} className={`absolute right-1.5 top-1.5 ${style.accent}`} strokeWidth={2} />
-      <span className="font-display font-bold leading-none tracking-[-0.03em]" style={{ fontSize: Math.max(10.5, size * monogramScale(monogram(host))) }}>
-        {monogram(host)}
-      </span>
+      <Icon size={Math.round(size * 0.42)} strokeWidth={1.6} />
     </span>
   );
 }
 
-export function TypeLabel({ type }: { type: OpportunityType }) {
+export function TypeLabel({ type, quiet = false }: { type: OpportunityType; quiet?: boolean }) {
   const Icon = TYPE_STYLE[type].icon;
   return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-semibold text-ink">
-      <Icon size={13} strokeWidth={2.2} className="text-ink-soft" />
+    <span className={`inline-flex items-center gap-1.5 whitespace-nowrap text-[12.5px] font-semibold ${quiet ? "text-ink-soft" : "text-ink"}`}>
+      <Icon size={13} strokeWidth={2} className="text-muted" />
       {TYPE_LABELS[type]}
     </span>
   );

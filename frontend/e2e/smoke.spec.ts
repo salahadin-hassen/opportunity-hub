@@ -26,7 +26,7 @@ test("public pages, direct links, demo sign-in and a real eligibility check", as
   }
 
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("There’s more out there for you.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Discover a world of opportunity.");
   await expect(page.getByRole("heading", { name: "Open right now." })).toBeVisible();
 
   // Direct navigation and refresh of nested routes (SPA fallback).

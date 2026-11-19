@@ -190,8 +190,8 @@ export function GuestShell({ children }: { children: ReactNode }) {
             <Link to="/#how-it-works" className="px-3 py-2 text-ink-soft hover:text-ink">
               How it works
             </Link>
-            <Link to="/#engine" className="px-3 py-2 text-ink-soft hover:text-ink">
-              The engine
+            <Link to="/#open-now" className="px-3 py-2 text-ink-soft hover:text-ink">
+              Open now
             </Link>
           </nav>
           {/* Phones: the landing page's pattern, theme toggle plus the shared menu sheet, so nothing overflows. */}
@@ -237,7 +237,7 @@ export function PageHeader({ kicker, title, description, actions }: { kicker?: s
   return (
     <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
       <div className="min-w-0">
-        {kicker && <p className="kicker mb-3">{kicker}</p>}
+        {kicker && <p className="eyebrow mb-3">{kicker}</p>}
         <h1 className="display text-[44px] text-ink sm:text-[60px]">{title}</h1>
         {description && <p className="mt-4 max-w-[60ch] text-[16px] text-ink-soft">{description}</p>}
       </div>

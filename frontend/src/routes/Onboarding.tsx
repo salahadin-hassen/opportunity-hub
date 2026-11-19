@@ -191,7 +191,7 @@ export function Onboarding() {
       <Page title="Checking eligibility">
         <div className="flex min-h-dvh items-center bg-ivory px-5">
           <div className="mx-auto w-full max-w-[760px]" role="status" aria-live="polite">
-            <p className="kicker">{phase === "saving" ? "Step 1 of 2" : "Step 2 of 2"}</p>
+            <p className="eyebrow">{phase === "saving" ? "Step 1 of 2" : "Step 2 of 2"}</p>
             <p className="display mt-4 text-[48px] text-ink sm:text-[72px]">
               {phase === "saving" ? "Saving your profile." : "Checking every published rule."}
             </p>

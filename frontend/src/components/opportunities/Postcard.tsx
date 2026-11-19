@@ -3,7 +3,7 @@ import { Link } from "react-router";
 import type { Match, Opportunity } from "../../api/types";
 import { TYPE_LABELS, deadlineInfo, deadlineIsDate } from "../../lib/format";
 import { VerdictBadge } from "../ui/Verdict";
-import { locationText } from "./OpportunityRow";
+import { deadlineWords, locationText } from "./OpportunityRow";
 import { TYPE_STYLE, monogram } from "./TypeTile";
 
 /**
@@ -15,6 +15,7 @@ export function Postcard({ opportunity, match, className = "", cover = "tall" }:
   const style = TYPE_STYLE[opportunity.opportunity_type];
   const Icon = style.icon;
   const deadline = deadlineInfo(opportunity);
+  const words = deadlineWords(opportunity);
   return (
     <motion.article whileHover={{ y: -4 }} transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }} className={`group relative ${className}`}>
       <Link to={`/opportunities/${opportunity.id}`} className="block rounded-panel focus-visible:outline-offset-4">
@@ -38,9 +39,9 @@ export function Postcard({ opportunity, match, className = "", cover = "tall" }:
           <h3 className="heading text-[18px] text-ink decoration-1 underline-offset-4 group-hover:underline">{opportunity.title}</h3>
           <p className="mt-1 line-clamp-1 text-[13.5px] text-muted">{opportunity.host_name}</p>
           <div className="mt-2.5 flex items-center justify-between gap-3 text-[13px]">
-            <span className="text-ink-soft">
-              <span className="text-muted">Deadline </span>
-              <span className={deadlineIsDate(opportunity) ? "num text-ink" : "text-ink"}>{deadline.label}</span>
+            <span className="min-w-0">
+              <span className={words.urgent ? "font-semibold text-persimmon-deep" : "text-ink-soft"}>{words.text}</span>
+              {deadlineIsDate(opportunity) && deadline.state !== "closed" && <span className="num text-muted"> · {deadline.label}</span>}
             </span>
             {match && <VerdictBadge status={match.status} size="sm" />}
           </div>
@@ -52,7 +53,7 @@ export function Postcard({ opportunity, match, className = "", cover = "tall" }:
 
 export function PostcardSkeleton() {
   return (
-    <div>
+    <div aria-hidden="true">
       <div className="skeleton aspect-[5/4] w-full rounded-panel" />
       <div className="skeleton mt-3.5 h-5 w-3/4" />
       <div className="skeleton mt-2 h-3.5 w-1/2" />

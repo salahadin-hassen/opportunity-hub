@@ -104,6 +104,12 @@ function explanation(view: RuleView): string | null {
   }
 }
 
+/** Compare a rule's label with its quote, ignoring case, quotes, spacing and end punctuation. */
+function sameWording(a: string, b: string): boolean {
+  const norm = (value: string) => value.toLowerCase().replace(/[“”"'‘’]/g, "").replace(/\s+/g, " ").replace(/[.;:,\s]+$/, "").trim();
+  return norm(a) === norm(b);
+}
+
 const ROW_ACCENT: Record<MatchOutcome, string> = {
   met: "",
   not_met: "bg-ineligible-wash/50",
@@ -133,6 +139,8 @@ export function EvidenceRow({
   const changed = row && view.previousOutcome && view.previousOutcome !== row.outcome;
   const facts = row?.outcome === "unknown" ? missingFacts(view) : [];
   const why = explanation(view);
+  // When the label already is the official sentence, show it once and say so, instead of repeating it below.
+  const verbatim = Boolean(view.quote && sameWording(view.quote, view.label));
 
   return (
     <motion.li
@@ -200,7 +208,25 @@ export function EvidenceRow({
                 Add your {FACT_NOUNS[facts[0]!]}
               </Link>
             )}
-            {view.quote && (
+            {view.quote && verbatim && (
+              <span className="inline-flex flex-wrap items-center gap-x-2 text-[12.5px] text-muted">
+                <Quote size={12} aria-hidden="true" />
+                <span>Quoted verbatim [{number}]</span>
+                {source && (
+                  <>
+                    <span aria-hidden="true">·</span>
+                    <a href={source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 hover:text-ink">
+                      {source.publisher ?? new URL(source.url).hostname}
+                      <ExternalLink size={11} aria-hidden="true" />
+                      <span className="sr-only">(opens the official page)</span>
+                    </a>
+                    <span aria-hidden="true">·</span>
+                    <span>Retrieved {formatDate(source.retrieved_at)}</span>
+                  </>
+                )}
+              </span>
+            )}
+            {view.quote && !verbatim && (
               <button
                 type="button"
                 className="inline-flex items-center gap-1.5 text-[13px] text-muted hover:text-ink"
@@ -216,7 +242,7 @@ export function EvidenceRow({
           </div>
 
           <AnimatePresence initial={false}>
-            {quoteOpen && view.quote && (
+            {quoteOpen && view.quote && !verbatim && (
               <motion.div
                 id={quoteId}
                 initial={{ height: 0, opacity: 0 }}

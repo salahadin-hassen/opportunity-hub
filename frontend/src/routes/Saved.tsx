@@ -1,175 +1,177 @@
-import { Bookmark, BookmarkX, Calendar, ChevronRight, FileCheck, MapPin } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { Bookmark, BookmarkX, FileCheck, Search } from "lucide-react";
 import { Link, useNavigate } from "react-router";
 import { useCreateApplication, useSavedOpportunities, useUnsaveOpportunity } from "../api/queries";
+import type { SavedOpportunity } from "../api/types";
+import { PageHeader } from "../components/layout/AppShell";
 import { Content, Page } from "../components/layout/Page";
-import { TYPE_LABELS, deadlineInfo } from "../lib/format";
-import { locationText } from "../components/opportunities/OpportunityRow";
-import { EmptyState, ErrorState, Spinner } from "../components/ui/States";
-import { TypeTile } from "../components/opportunities/TypeTile";
+import { deadlineWords, locationText } from "../components/opportunities/OpportunityRow";
+import { TypeLabel } from "../components/opportunities/TypeTile";
+import { DateBlock } from "../components/ui/DateBlock";
+import { EmptyState, ErrorState } from "../components/ui/States";
+import { useToast } from "../components/ui/Toast";
+import { deadlineInfo, plural } from "../lib/format";
+
+function SavedRow({ entry, onTrack, onRemove, removing }: { entry: SavedOpportunity; onTrack: () => void; onRemove: () => void; removing: boolean }) {
+  const { opportunity } = entry;
+  const deadline = deadlineWords(opportunity);
+  const closed = opportunity.status === "closed";
+  return (
+    <motion.li
+      layout
+      initial={false}
+      exit={{ opacity: 0, x: -24, transition: { duration: 0.25 } }}
+      className="group relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-3 py-5 sm:gap-x-5 md:grid-cols-[auto_minmax(0,1fr)_auto] md:items-center"
+    >
+      <DateBlock opportunity={opportunity} />
+      <div className="min-w-0">
+        <TypeLabel type={opportunity.opportunity_type} quiet />
+        <h3 className="heading mt-1 text-[18px] leading-[1.2] text-ink">
+          <Link to={`/opportunities/${opportunity.id}`} className="decoration-1 underline-offset-4 hover:underline">
+            {opportunity.title}
+          </Link>
+        </h3>
+        <p className="mt-1 truncate text-[13.5px] text-ink-soft">
+          {opportunity.host_name}
+          <span className="mx-1.5 text-faint" aria-hidden="true">
+            ·
+          </span>
+          <span className="text-muted">{locationText(opportunity)}</span>
+        </p>
+        <p className={`mt-1.5 text-[12.5px] ${closed ? "text-muted" : deadline.urgent ? "font-semibold text-persimmon-deep" : "text-muted"}`}>
+          {closed ? "Applications for this cycle have closed" : deadline.text}
+        </p>
+      </div>
+      <div className="col-start-2 flex items-center gap-2 md:col-start-auto">
+        {!closed && (
+          <button type="button" onClick={onTrack} className="btn btn-quiet btn-sm">
+            <FileCheck size={15} />
+            Track application
+          </button>
+        )}
+        <button type="button" onClick={onRemove} disabled={removing} className="btn btn-ghost btn-sm">
+          <BookmarkX size={15} />
+          Remove
+          <span className="sr-only">{opportunity.title}</span>
+        </button>
+      </div>
+    </motion.li>
+  );
+}
 
 export function Saved() {
   const navigate = useNavigate();
   const saved = useSavedOpportunities();
   const unsave = useUnsaveOpportunity();
   const createApplication = useCreateApplication();
+  const toast = useToast();
 
-  if (saved.isPending) {
-    return (
-      <Content>
-        <div className="flex min-h-[50vh] items-center justify-center text-muted">
-          <Spinner />
-        </div>
-      </Content>
-    );
-  }
+  const items = [...(saved.data ?? [])].sort((a, b) => deadlineInfo(a.opportunity).sortKey - deadlineInfo(b.opportunity).sortKey);
+  const open = items.filter((entry) => entry.opportunity.status !== "closed");
+  const closed = items.filter((entry) => entry.opportunity.status === "closed");
+  const soon = open.filter((entry) => deadlineInfo(entry.opportunity).state === "soon").length;
 
-  if (saved.isError) {
-    return (
-      <Content>
-        <ErrorState message="Could not load your saved opportunities." onRetry={() => saved.refetch()} />
-      </Content>
-    );
-  }
-
-  const items = saved.data ?? [];
-  const active = items.filter((s) => s.opportunity.status !== "closed");
-  const closed = items.filter((s) => s.opportunity.status === "closed");
-
-  async function handleTrack(opportunityId: string) {
+  async function track(opportunityId: string) {
     try {
       await createApplication.mutateAsync({ opportunity_id: opportunityId });
-      navigate("/applications");
     } catch {
-      navigate("/applications");
+      /* already tracked: the list opens either way */
+    }
+    navigate("/applications");
+  }
+
+  async function remove(entry: SavedOpportunity) {
+    try {
+      await unsave.mutateAsync(entry.opportunity_id);
+      toast.show("Removed from your saved list");
+    } catch {
+      toast.show("That didn’t remove. Try again.", "error");
     }
   }
 
   return (
-    <Page title="Saved opportunities">
+    <Page title="Saved">
       <Content width="wide">
-        <header className="border-b border-rule pb-6">
-          <div className="flex items-center gap-3 text-persimmon">
-            <Bookmark size={24} />
-            <h1 className="display text-[32px] text-ink sm:text-[44px]">Saved opportunities</h1>
-          </div>
-          <p className="mt-2 text-[15px] text-ink-soft">
-            Opportunities you’ve bookmarked for this cycle. Set reminders and track your application checklists.
-          </p>
-        </header>
+        <PageHeader
+          kicker="Your shortlist"
+          title="Saved"
+          description={
+            saved.isSuccess && items.length > 0
+              ? `${plural(open.length, "open opportunity", "open opportunities")}, soonest deadline first${soon ? `. ${soon} close${soon === 1 ? "s" : ""} within 30 days.` : "."}`
+              : "Opportunities you’ve kept to come back to, ordered by deadline."
+          }
+          actions={
+            items.length > 0 && (
+              <Link to="/discover" className="btn btn-quiet">
+                <Search size={15} />
+                Find more
+              </Link>
+            )
+          }
+        />
 
-        {items.length === 0 ? (
-          <div className="mt-12">
-            <EmptyState
-              icon={Bookmark}
-              title="No saved opportunities yet"
-              action={
-                <Link to="/discover" className="btn btn-ink">
-                  Discover opportunities
-                </Link>
-              }
-            >
-              When you find scholarships or fellowships you like, bookmark them to track deadlines and application steps.
-            </EmptyState>
+        {saved.isPending ? (
+          <ul className="mt-10 divide-y divide-rule border-t border-ink" aria-busy="true" aria-label="Loading saved opportunities">
+            {Array.from({ length: 3 }, (_, index) => (
+              <li key={index} className="flex gap-5 py-5">
+                <div className="skeleton h-[68px] w-[60px] rounded-[10px]" />
+                <div className="flex flex-1 flex-col gap-2 pt-1">
+                  <div className="skeleton h-3 w-24" />
+                  <div className="skeleton h-5 w-2/3" />
+                  <div className="skeleton h-3 w-1/3" />
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : saved.isError ? (
+          <div className="mt-10">
+            <ErrorState message="Your saved list couldn’t load." onRetry={() => saved.refetch()} />
           </div>
+        ) : items.length === 0 ? (
+          <EmptyState
+            icon={Bookmark}
+            title="Nothing saved yet"
+            action={
+              <Link to="/discover" className="btn btn-ink">
+                Browse opportunities
+              </Link>
+            }
+          >
+            Use the bookmark on any listing to keep it here, ordered by deadline. From here you can start tracking an application.
+          </EmptyState>
         ) : (
-          <div className="mt-8 space-y-12">
-            {active.length > 0 && (
-              <section aria-labelledby="active-saved-title">
-                <h2 id="active-saved-title" className="text-[14px] font-semibold uppercase tracking-wider text-muted">
-                  Open ({active.length})
-                </h2>
-                <ul className="mt-4 divide-y divide-rule rounded-panel border border-rule bg-paper">
-                  {active.map(({ opportunity }) => {
-                    const deadline = deadlineInfo(opportunity);
-                    return (
-                      <li key={opportunity.id} className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
-                        <div className="flex items-start gap-4">
-                          <TypeTile type={opportunity.opportunity_type} host={opportunity.host_name} size={42} />
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">
-                                {TYPE_LABELS[opportunity.opportunity_type]}
-                              </span>
-                              {opportunity.host_name && <span className="text-[13px] text-muted">• {opportunity.host_name}</span>}
-                            </div>
-                            <Link
-                              to={`/opportunities/${opportunity.id}`}
-                              className="mt-1 block text-[17px] font-semibold text-ink hover:text-persimmon"
-                            >
-                              {opportunity.title}
-                            </Link>
-                            <div className="mt-2 flex flex-wrap items-center gap-4 text-[13px] text-ink-soft">
-                              <span className="flex items-center gap-1.5">
-                                <Calendar size={14} className="text-muted" />
-                                {deadline.label}
-                                {deadline.relative && <span className="text-persimmon-deep">({deadline.relative})</span>}
-                              </span>
-                              <span className="flex items-center gap-1.5">
-                                <MapPin size={14} className="text-muted" />
-                                {locationText(opportunity)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2.5 sm:shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => handleTrack(opportunity.id)}
-                            className="btn btn-quiet inline-flex items-center gap-1.5 text-[13.5px]"
-                          >
-                            <FileCheck size={15} />
-                            Track
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => unsave.mutate(opportunity.id)}
-                            disabled={unsave.isPending}
-                            className="btn btn-quiet text-muted hover:text-persimmon"
-                            title="Remove from saved"
-                          >
-                            <BookmarkX size={16} />
-                          </button>
-                          <Link to={`/opportunities/${opportunity.id}`} className="btn btn-quiet">
-                            <ChevronRight size={16} />
-                          </Link>
-                        </div>
-                      </li>
-                    );
-                  })}
+          <div className="mt-10 space-y-14">
+            {open.length > 0 && (
+              <section aria-labelledby="open-title">
+                <div className="flex items-baseline justify-between border-b border-ink pb-3">
+                  <h2 id="open-title" className="heading text-[22px] text-ink">
+                    Open
+                  </h2>
+                  <span className="num text-[13.5px] text-muted">{open.length}</span>
+                </div>
+                <ul className="divide-y divide-rule">
+                  <AnimatePresence initial={false}>
+                    {open.map((entry) => (
+                      <SavedRow key={entry.opportunity_id} entry={entry} onTrack={() => track(entry.opportunity_id)} onRemove={() => remove(entry)} removing={unsave.isPending} />
+                    ))}
+                  </AnimatePresence>
                 </ul>
               </section>
             )}
-
             {closed.length > 0 && (
-              <section aria-labelledby="closed-saved-title">
-                <h2 id="closed-saved-title" className="text-[14px] font-semibold uppercase tracking-wider text-muted">
-                  Closed cycles ({closed.length})
-                </h2>
-                <ul className="mt-4 divide-y divide-rule rounded-panel border border-rule bg-paper opacity-75">
-                  {closed.map(({ opportunity }) => (
-                    <li key={opportunity.id} className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
-                      <div className="flex items-start gap-4">
-                        <TypeTile type={opportunity.opportunity_type} host={opportunity.host_name} size={42} />
-                        <div>
-                          <Link to={`/opportunities/${opportunity.id}`} className="text-[17px] font-semibold text-ink hover:underline">
-                            {opportunity.title}
-                          </Link>
-                          <p className="mt-1 text-[13px] text-muted">Applications for this cycle have closed.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => unsave.mutate(opportunity.id)}
-                          className="btn btn-quiet text-muted hover:text-persimmon"
-                        >
-                          <BookmarkX size={16} />
-                          Remove
-                        </button>
-                      </div>
-                    </li>
-                  ))}
+              <section aria-labelledby="closed-title">
+                <div className="flex items-baseline justify-between border-b border-rule-strong pb-3">
+                  <h2 id="closed-title" className="heading text-[22px] text-ink-soft">
+                    Closed this cycle
+                  </h2>
+                  <span className="num text-[13.5px] text-muted">{closed.length}</span>
+                </div>
+                <ul className="divide-y divide-rule opacity-80">
+                  <AnimatePresence initial={false}>
+                    {closed.map((entry) => (
+                      <SavedRow key={entry.opportunity_id} entry={entry} onTrack={() => track(entry.opportunity_id)} onRemove={() => remove(entry)} removing={unsave.isPending} />
+                    ))}
+                  </AnimatePresence>
                 </ul>
               </section>
             )}

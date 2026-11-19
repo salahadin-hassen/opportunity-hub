@@ -17,6 +17,8 @@ import { GoogleComplete } from "../auth/google";
 
 // The landing page ships first; application routes load on demand.
 const Login = lazy(() => import("../routes/Auth").then((module) => ({ default: module.Login })));
+const ForgotPassword = lazy(() => import("../routes/Auth").then((module) => ({ default: module.ForgotPassword })));
+const ResetPassword = lazy(() => import("../routes/Auth").then((module) => ({ default: module.ResetPassword })));
 const Register = lazy(() => import("../routes/Auth").then((module) => ({ default: module.Register })));
 const Discover = lazy(() => import("../routes/Discover").then((module) => ({ default: module.Discover })));
 const Eligibility = lazy(() => import("../routes/Eligibility").then((module) => ({ default: module.Eligibility })));
@@ -95,6 +97,7 @@ function NotFound() {
   return (
     <GuestShell>
       <Page title="Not found">
+        <Content width="narrow">
         <EmptyState
           icon={Compass}
           title="There’s no page at this address"
@@ -104,8 +107,9 @@ function NotFound() {
             </Link>
           }
         >
-          The link may be out of date.
+          The link may be out of date, or the page has moved. The index of opportunities is a good place to start again.
         </EmptyState>
+        </Content>
       </Page>
     </GuestShell>
   );
@@ -150,6 +154,8 @@ export function App() {
                   <Route path="/opportunities/:id" element={<Frame><OpportunityDetail /></Frame>} />
                   <Route path="/login" element={<Login />} />
                   <Route path="/register" element={<Register />} />
+                  <Route path="/forgot-password" element={<ForgotPassword />} />
+                  <Route path="/reset-password" element={<ResetPassword />} />
                   <Route path="/auth/google/complete" element={<GoogleComplete />} />
                   <Route path="/onboarding" element={<RequireAuth><Onboarding /></RequireAuth>} />
                   <Route path="/discover" element={app(<Discover />)} />

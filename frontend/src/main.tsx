@@ -4,6 +4,7 @@ import "@fontsource-variable/bricolage-grotesque/wdth.css";
 import "@fontsource-variable/dm-sans";
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource/gloock/latin-400.css";
 import "./styles/app.css";
 import { App } from "./app/App";
 

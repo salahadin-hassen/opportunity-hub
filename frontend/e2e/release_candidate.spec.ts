@@ -37,21 +37,21 @@ test("student save opportunity and unsave workflow", async ({ page }) => {
   await page.getByRole("link", { name: /CERN Summer Student Programme/i }).first().click();
   await expect(page).toHaveURL(/\/opportunities\/[a-z0-9-]+$/);
 
-  // Click Save Opportunity
-  const saveBtn = page.getByRole("button", { name: /Save opportunity/i });
+  // Save it from the detail page: the toggle reports its pressed state
+  const saveBtn = page.getByRole("button", { name: /Save for later/i });
   await expect(saveBtn).toBeVisible();
   await saveBtn.click();
-  await expect(page.getByRole("button", { name: /Saved to your list/i })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: "Saved", exact: true })).toHaveAttribute("aria-pressed", "true", { timeout: 15_000 });
 
   // Navigate to Saved page
   await page.goto("/saved");
-  await expect(page.getByRole("heading", { name: "Saved opportunities", level: 1 })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "Saved", level: 1 })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("CERN Summer Student Programme").first()).toBeVisible({ timeout: 15_000 });
 
   // Unsave / remove bookmark
-  const removeBtn = page.getByRole("button", { name: /Remove/i });
+  const removeBtn = page.getByRole("button", { name: /Remove.*CERN Summer Student Programme/i });
   await removeBtn.click();
-  await expect(page.getByText("No saved opportunities yet")).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("Nothing saved yet")).toBeVisible({ timeout: 15_000 });
 });
 
 test("student application tracking: stage updates and checklist items", async ({ page }) => {
@@ -63,30 +63,31 @@ test("student application tracking: stage updates and checklist items", async ({
   await page.goto("/opportunities");
   await page.getByRole("link", { name: /Google Summer of Code/i }).first().click();
 
-  const trackBtn = page.getByRole("button", { name: /Track application/i });
+  const trackBtn = page.getByRole("button", { name: /Track my application/i });
   await expect(trackBtn).toBeVisible();
   await trackBtn.click();
 
   // Clicking Track application navigates straight to /applications workspace
   await expect(page).toHaveURL(/\/applications$/, { timeout: 15_000 });
-  await expect(page.getByRole("heading", { name: "Application tracking", level: 1 })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "Applications", level: 1 })).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText("Google Summer of Code").first()).toBeVisible({ timeout: 15_000 });
 
   // Update application stage to "in_progress"
-  const stageSelect = page.locator("select").first();
+  const stageSelect = page.getByRole("combobox", { name: "Status" }).first();
   await stageSelect.selectOption("in_progress");
   await expect(stageSelect).toHaveValue("in_progress");
 
   // Add checklist item
-  const itemInput = page.getByPlaceholder("Add step or document (e.g. Transcript, Essay)...");
+  const itemInput = page.getByLabel("Add a step or document").first();
   await expect(itemInput).toBeVisible({ timeout: 15_000 });
   await itemInput.fill("Prepare proposal draft");
   await page.getByRole("button", { name: "Add", exact: true }).click();
   await expect(page.getByText("Prepare proposal draft")).toBeVisible({ timeout: 15_000 });
 
-  // Toggle checklist item (toggle button contains the label)
-  const toggleBtn = page.getByRole("button", { name: /Prepare proposal draft/i });
-  await toggleBtn.click();
+  // Tick the checklist item: a real checkbox, labelled by the step
+  const step = page.getByRole("checkbox", { name: /Prepare proposal draft/i });
+  await step.check();
+  await expect(step).toBeChecked();
   await expect(page.locator(".line-through").filter({ hasText: "Prepare proposal draft" })).toBeVisible({ timeout: 15_000 });
 });
 
@@ -103,7 +104,7 @@ test("authorization: ordinary student is denied access to curator workspace", as
   await expect(page.getByText("Curator access required")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByText(/This workspace is restricted to authorized platform curators/)).toBeVisible();
   await expect(page.getByText(/Your current role is “student”/)).toBeVisible();
-  await expect(page.getByRole("button", { name: /New Opportunity Draft/i })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /New draft/i })).toHaveCount(0);
 });
 
 test("admin journey: curator workspace, tabs, draft creation, publish guard, and opportunity closing", async ({ page }) => {
@@ -132,10 +133,10 @@ test("admin journey: curator workspace, tabs, draft creation, publish guard, and
 
   // Return to Opportunities tab
   await page.getByRole("button", { name: "Opportunities" }).click();
-  await expect(page.getByRole("button", { name: /New Opportunity Draft/i })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: /New draft/i })).toBeVisible({ timeout: 15_000 });
 
   // Open creation form and submit draft
-  await page.getByRole("button", { name: /New Opportunity Draft/i }).click();
+  await page.getByRole("button", { name: /New draft/i }).click();
   const testSlug = `rc-fellowship-${Date.now()}`;
   await page.fill("#opp-slug", testSlug);
   await page.fill("#opp-title", "Pan-African Research Fellowship 2027");
@@ -151,7 +152,7 @@ test("admin journey: curator workspace, tabs, draft creation, publish guard, and
 
   // Attempt to publish without source records or quoted rules:
   // Completeness guard MUST reject publication and show explicit error alert
-  const publishBtn = draftItem.getByRole("button", { name: /Check & publish/i });
+  const publishBtn = draftItem.getByRole("button", { name: /Check and publish/i });
   await publishBtn.click();
   await expect(page.getByRole("alert")).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("alert")).toContainText(/source record/i);
@@ -164,7 +165,7 @@ test("admin journey: curator workspace, tabs, draft creation, publish guard, and
   await expect(cernItem.getByText("closed").first()).toBeVisible({ timeout: 15_000 });
 
   // Re-publish the opportunity to restore active state and verify re-opening workflow
-  const republishBtn = cernItem.getByRole("button", { name: /Check & publish/i });
+  const republishBtn = cernItem.getByRole("button", { name: /Check and publish/i });
   await republishBtn.click();
   await expect(cernItem.getByText("published").first()).toBeVisible({ timeout: 15_000 });
 });

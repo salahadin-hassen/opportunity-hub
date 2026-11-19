@@ -5,7 +5,6 @@ import {
   ExternalLink,
   Plus,
   RefreshCw,
-  Shield,
   ShieldAlert,
   X,
   XCircle,
@@ -24,9 +23,18 @@ import {
   useReviewCandidate,
   useUserAccount,
 } from "../api/queries";
+import { PageHeader } from "../components/layout/AppShell";
 import { Content, Page } from "../components/layout/Page";
+import type { OpportunityType } from "../api/types";
 import { EmptyState, Spinner } from "../components/ui/States";
-import { formatDate } from "../lib/format";
+import { TYPE_LABELS, formatDate } from "../lib/format";
+
+const OPP_STATUS_DOT: Record<string, string> = {
+  draft: "bg-potential",
+  published: "bg-eligible",
+  closed: "bg-faint",
+  archived: "bg-rule-strong",
+};
 
 export function Curate() {
   const account = useUserAccount();
@@ -34,6 +42,24 @@ export function Curate() {
   const [oppFilter, setOppFilter] = useState<string>("all");
   const [candFilter, setCandFilter] = useState<string>("needs_review");
   const [selectedCandidateId, setSelectedCandidateId] = useState<string | null>(null);
+
+  // The review panel is modal: Escape closes it, the page behind doesn't scroll, focus returns afterwards.
+  useEffect(() => {
+    if (!selectedCandidateId) return;
+    const opener = document.activeElement as HTMLElement | null;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedCandidateId(null);
+    };
+    document.addEventListener("keydown", onKey);
+    const overflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => document.querySelector<HTMLElement>('[aria-labelledby="candidate-review-heading"]')?.focus());
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = overflow;
+      opener?.focus();
+    };
+  }, [selectedCandidateId]);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [publishError, setPublishError] = useState<string | null>(null);
 
@@ -206,72 +232,39 @@ export function Curate() {
     }
   }
 
+  const queueCount = (candidates.data ?? []).filter((c) => c.state === "needs_review").length;
+
   return (
     <Page title="Curator workspace">
       <Content width="wide">
-        <header className="border-b border-rule pb-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3 text-persimmon">
-              <Shield size={26} />
-              <h1 className="display text-[32px] text-ink sm:text-[44px]">Curator workspace</h1>
-            </div>
-            <span className="rounded-full bg-cream px-3 py-1 text-[13px] font-semibold text-ink-soft">
-              Role: {role}
-            </span>
-          </div>
-          <p className="mt-2 text-[15px] text-ink-soft">
-            Manage acquisition sources, review opportunity drafts, and audit administrative actions.
-          </p>
+        <PageHeader
+          kicker="Curation"
+          title="Curator workspace"
+          description="Review what the ingestion pipeline found, publish opportunities that pass the completeness checks, and keep sources healthy."
+          actions={<span className="tag capitalize">Role: {role}</span>}
+        />
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setTab("opportunities")}
-              className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition-colors ${
-                tab === "opportunities" ? "bg-ink text-paper" : "bg-cream text-ink-soft hover:bg-sand"
-              }`}
-            >
-              Opportunities
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab("candidates")}
-              className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-[14px] font-medium transition-colors ${
-                tab === "candidates" ? "bg-ink text-paper" : "bg-cream text-ink-soft hover:bg-sand"
-              }`}
-            >
-              Candidate Queue
-              {candidates.data && candidates.data.filter((c) => c.state === "needs_review").length > 0 && (
-                <span className="rounded-full bg-persimmon px-2 py-0.5 text-[11px] font-bold text-paper">
-                  {candidates.data.filter((c) => c.state === "needs_review").length}
-                </span>
+        <div role="group" aria-label="Workspace sections" className="-mx-4 mt-8 flex gap-7 overflow-x-auto border-b border-rule px-4 [scrollbar-width:none] sm:mx-0 sm:px-0">
+          {(
+            [
+              ["opportunities", "Opportunities"],
+              ["candidates", "Candidate Queue"],
+              ["sources", "Acquisition Sources"],
+              ...(role === "admin" ? ([["audit", "Audit Log"]] as const) : []),
+            ] as const
+          ).map(([key, label]) => (
+            <button key={key} type="button" aria-pressed={tab === key} onClick={() => setTab(key)} className="index-tab">
+              {label}
+              {key === "candidates" && queueCount > 0 && (
+                <span className="num inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-persimmon px-1.5 text-[11px] font-bold text-night">{queueCount}</span>
               )}
+              {tab === key && <span className="absolute inset-x-0 -bottom-px h-[2px] bg-ink" aria-hidden="true" />}
             </button>
-            <button
-              type="button"
-              onClick={() => setTab("sources")}
-              className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition-colors ${
-                tab === "sources" ? "bg-ink text-paper" : "bg-cream text-ink-soft hover:bg-sand"
-              }`}
-            >
-              Acquisition Sources
-            </button>
-            {role === "admin" && (
-              <button
-                type="button"
-                onClick={() => setTab("audit")}
-                className={`rounded-full px-4 py-1.5 text-[14px] font-medium transition-colors ${
-                  tab === "audit" ? "bg-ink text-paper" : "bg-cream text-ink-soft hover:bg-sand"
-                }`}
-              >
-                Audit Log
-              </button>
-            )}
-          </div>
-        </header>
+          ))}
+        </div>
 
         {publishError && (
-          <div role="alert" className="mt-6 flex items-start gap-3 rounded-panel border border-persimmon/30 bg-persimmon/10 p-4 text-[14px] text-persimmon-deep">
+          <div role="alert" className="mt-6 flex items-start gap-3 rounded-panel border border-ineligible/30 bg-ineligible-wash p-4 text-[14px] text-ineligible-ink">
             <AlertCircle size={18} className="mt-0.5 shrink-0" />
             <div>
               <p className="font-semibold">Action refused</p>
@@ -290,9 +283,8 @@ export function Curate() {
                     key={st}
                     type="button"
                     onClick={() => setOppFilter(st)}
-                    className={`rounded-full px-3 py-1 text-[13px] font-medium capitalize ${
-                      oppFilter === st ? "bg-sand text-ink" : "bg-cream/60 text-muted"
-                    }`}
+                    aria-pressed={oppFilter === st}
+                    className="chip capitalize"
                   >
                     {st}
                   </button>
@@ -305,13 +297,13 @@ export function Curate() {
                 className="btn btn-ink inline-flex items-center gap-1.5 text-[13.5px]"
               >
                 <Plus size={15} />
-                {showCreateForm ? "Cancel" : "New Opportunity Draft"}
+                {showCreateForm ? "Cancel" : "New draft"}
               </button>
             </div>
 
             {showCreateForm && (
-              <form onSubmit={handleCreateOpp} className="rounded-panel border border-rule bg-paper p-6 shadow-card space-y-4">
-                <h3 className="text-[16px] font-semibold text-ink">Create new opportunity draft</h3>
+              <form onSubmit={handleCreateOpp} className="rounded-panel border border-rule bg-paper p-6 space-y-4">
+                <h3 className="heading text-[20px] text-ink">New opportunity draft</h3>
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <label htmlFor="opp-slug" className="block text-[13px] font-medium text-ink">Slug (lowercase with hyphens)</label>
@@ -391,7 +383,7 @@ export function Curate() {
 
                 <div className="flex justify-end gap-2 pt-2">
                   <button type="submit" disabled={createOpp.isPending} className="btn btn-ink">
-                    Save Draft
+                    Save draft
                   </button>
                 </div>
               </form>
@@ -405,17 +397,21 @@ export function Curate() {
                   <li key={opp.id} className="flex flex-col justify-between gap-4 p-5 sm:flex-row sm:items-center">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-[12px] font-semibold uppercase tracking-wider text-muted">
-                          {opp.opportunity_type}
+                        <span className="text-[12.5px] font-semibold text-ink-soft">
+                          {TYPE_LABELS[opp.opportunity_type as OpportunityType] ?? opp.opportunity_type}
                         </span>
-                        <span className="rounded-full bg-cream px-2.5 py-0.5 text-[11px] font-bold uppercase text-ink">
+                        <span className="tag capitalize">
+                          <span className={`size-1.5 rounded-full ${OPP_STATUS_DOT[opp.status] ?? "bg-faint"}`} aria-hidden="true" />
                           {opp.status}
                         </span>
                       </div>
-                      <a href={`/opportunities/${opp.id}`} className="mt-1 block text-[17px] font-semibold text-ink hover:underline">
+                      <a href={`/opportunities/${opp.id}`} className="heading mt-1.5 block text-[18px] text-ink decoration-1 underline-offset-4 hover:underline">
                         {opp.title}
                       </a>
-                      <p className="text-[12.5px] text-muted">Slug: {opp.slug} {opp.host_name ? `• ${opp.host_name}` : ""}</p>
+                      <p className="mt-1 text-[12.5px] text-muted">
+                        {opp.host_name && <span className="text-ink-soft">{opp.host_name} · </span>}
+                        <span className="code break-all">{opp.slug}</span>
+                      </p>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -427,7 +423,7 @@ export function Curate() {
                           className="btn btn-ink text-[13px] py-1.5"
                           title="Publishes only if the completeness checks pass: an official URL, a source record, and quoted mandatory rules citing it. Sources are not independently verified."
                         >
-                          Check & publish
+                          Check and publish
                         </button>
                       )}
                       {opp.status === "published" && (
@@ -437,7 +433,7 @@ export function Curate() {
                           disabled={closeOpp.isPending}
                           className="btn btn-quiet text-[13px] py-1.5 text-muted hover:text-persimmon"
                         >
-                          Close Cycle
+                          Close cycle
                         </button>
                       )}
                     </div>
@@ -458,9 +454,8 @@ export function Curate() {
                     key={st}
                     type="button"
                     onClick={() => setCandFilter(st)}
-                    className={`rounded-full px-3 py-1 text-[13px] font-medium capitalize transition-colors ${
-                      candFilter === st ? "bg-sand text-ink font-semibold" : "bg-cream/60 text-muted hover:bg-cream"
-                    }`}
+                    aria-pressed={candFilter === st}
+                    className="chip capitalize"
                   >
                     {st.replace("_", " ")}
                   </button>
@@ -479,9 +474,9 @@ export function Curate() {
                 <p className="mt-1 text-[13px]">Run discovery or ingestion to find opportunities on registered sources.</p>
               </div>
             ) : (
-              <div className="overflow-x-auto rounded-panel border border-rule bg-paper shadow-card">
+              <div className="overflow-x-auto rounded-panel border border-rule bg-paper">
                 <table className="w-full text-left text-[13.5px]">
-                  <thead className="border-b border-rule bg-cream/40 text-[12px] uppercase text-muted">
+                  <thead className="border-b border-rule bg-cream/40 text-left [&_th]:eyebrow [&_th]:font-semibold">
                     <tr>
                       <th className="px-4 py-3">Candidate / Title</th>
                       <th className="px-4 py-3">Source</th>
@@ -503,7 +498,7 @@ export function Curate() {
                             href={cand.url}
                             target="_blank"
                             rel="noreferrer"
-                            className="inline-flex items-center gap-1 font-mono text-[11.5px] text-persimmon hover:underline truncate max-w-full"
+                            className="inline-flex items-center gap-1 font-mono text-[11.5px] text-cobalt-deep hover:underline truncate max-w-full"
                           >
                             <span className="truncate">{cand.url}</span>
                             <ExternalLink size={11} className="shrink-0" />
@@ -516,14 +511,14 @@ export function Curate() {
                           <span
                             className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
                               cand.state === "approved"
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-eligible-wash text-eligible-ink"
                                 : cand.state === "needs_review"
-                                ? "bg-amber-100 text-amber-900 border border-amber-300"
+                                ? "bg-potential-wash text-potential-ink border border-potential/40"
                                 : cand.state === "duplicate"
-                                ? "bg-purple-100 text-purple-800"
+                                ? "bg-review-wash text-review-ink"
                                 : cand.state === "expired"
-                                ? "bg-rose-100 text-rose-800"
-                                : "bg-gray-100 text-gray-700"
+                                ? "bg-ineligible-wash text-ineligible-ink"
+                                : "bg-cream text-ink-soft"
                             }`}
                           >
                             {cand.state.replace("_", " ")}
@@ -534,10 +529,10 @@ export function Curate() {
                             <span
                               className={`font-semibold ${
                                 cand.quality_score >= 70
-                                  ? "text-emerald-700"
+                                  ? "text-eligible-ink"
                                   : cand.quality_score >= 40
-                                  ? "text-amber-700"
-                                  : "text-rose-700"
+                                  ? "text-potential-ink"
+                                  : "text-ineligible-ink"
                               }`}
                             >
                               {cand.quality_score}%
@@ -552,16 +547,16 @@ export function Curate() {
                         <td className="px-4 py-3">
                           <div className="flex flex-col gap-0.5 text-[11.5px]">
                             {cand.duplicate_of_opportunity_id && (
-                              <span className="text-purple-700 font-medium">Opp duplicate</span>
+                              <span className="text-review-ink font-medium">Opp duplicate</span>
                             )}
                             {cand.duplicate_of_candidate_id && (
-                              <span className="text-purple-700 font-medium">Cand duplicate</span>
+                              <span className="text-review-ink font-medium">Cand duplicate</span>
                             )}
                             {cand.problems && cand.problems.length > 0 && (
-                              <span className="text-amber-700">{cand.problems.length} issue(s)</span>
+                              <span className="text-potential-ink">{cand.problems.length} issue(s)</span>
                             )}
                             {!cand.duplicate_of_opportunity_id && !cand.duplicate_of_candidate_id && (!cand.problems || cand.problems.length === 0) && (
-                              <span className="text-emerald-700 font-medium">Clean</span>
+                              <span className="text-eligible-ink font-medium">Clean</span>
                             )}
                           </div>
                         </td>
@@ -584,31 +579,32 @@ export function Curate() {
 
             {/* Review Candidate Modal / Panel */}
             {selectedCandidateId && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/50 p-4 backdrop-blur-xs">
+              <div className="fixed inset-0 z-50 flex items-end justify-center bg-night/45 backdrop-blur-[2px] sm:items-center sm:p-4">
                 <div
                   role="dialog"
                   aria-modal="true"
                   aria-labelledby="candidate-review-heading"
-                  className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-panel border border-rule bg-paper p-6 shadow-2xl space-y-6"
+                  tabIndex={-1}
+                  className="relative max-h-[92dvh] w-full max-w-3xl space-y-6 overflow-y-auto rounded-t-[20px] border border-rule bg-paper p-5 shadow-float sm:rounded-panel sm:p-7"
                 >
                   <div className="flex items-start justify-between gap-4 border-b border-rule pb-4">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full bg-cream px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-ink">
+                        <span className="tag capitalize">
                           {candidateDetail.data?.state.replace("_", " ")}
                         </span>
                         <span className="text-[13px] text-muted">
                           Source: {candidateDetail.data?.source_name ?? "—"}
                         </span>
                       </div>
-                      <h2 id="candidate-review-heading" className="mt-1 text-[20px] font-bold text-ink">
+                      <h2 id="candidate-review-heading" className="heading mt-2 text-[24px] text-ink">
                         Review Ingestion Candidate
                       </h2>
                       <a
                         href={candidateDetail.data?.final_url || candidateDetail.data?.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-1 inline-flex items-center gap-1 text-[13px] text-persimmon hover:underline font-mono"
+                        className="mt-1 inline-flex items-center gap-1 text-[13px] text-cobalt-deep hover:underline font-mono"
                       >
                         {candidateDetail.data?.final_url || candidateDetail.data?.url}
                         <ExternalLink size={13} />
@@ -631,7 +627,7 @@ export function Curate() {
                   ) : (
                     <form onSubmit={handleApprove} className="space-y-6">
                       {reviewError && (
-                        <div role="alert" className="flex items-start gap-3 rounded-panel border border-persimmon/30 bg-persimmon/10 p-4 text-[13.5px] text-persimmon-deep">
+                        <div role="alert" className="flex items-start gap-3 rounded-panel border border-ineligible/30 bg-ineligible-wash p-4 text-[13.5px] text-ineligible-ink">
                           <AlertCircle size={18} className="mt-0.5 shrink-0" />
                           <div>
                             <p className="font-semibold">Review Error</p>
@@ -642,7 +638,7 @@ export function Curate() {
 
                       {/* Warnings / Duplicate Banner */}
                       {(candidateDetail.data?.duplicate_of_opportunity_id || candidateDetail.data?.duplicate_of_candidate_id) && (
-                        <div className="rounded-panel border border-purple-300 bg-purple-50 p-4 text-[13px] text-purple-900">
+                        <div className="rounded-panel border border-review/40 bg-review-wash p-4 text-[13px] text-review-ink">
                           <p className="font-bold">Duplicate Warning</p>
                           <p className="mt-0.5">
                             This candidate matches an existing opportunity or candidate cycle. Check whether this is a recurring new cycle or a duplicate. If approving, check &ldquo;Force approve override&rdquo;.
@@ -871,7 +867,7 @@ export function Curate() {
             ) : (
               <div className="overflow-x-auto rounded-panel border border-rule bg-paper">
                 <table className="w-full text-left text-[13.5px]">
-                  <thead className="border-b border-rule bg-cream/40 text-[12px] uppercase text-muted">
+                  <thead className="border-b border-rule bg-cream/40 text-left [&_th]:eyebrow [&_th]:font-semibold">
                     <tr>
                       <th className="px-4 py-3">Source Name</th>
                       <th className="px-4 py-3">Base Domain</th>
@@ -894,10 +890,10 @@ export function Curate() {
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
                               src.robots_status === "allowed"
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-eligible-wash text-eligible-ink"
                                 : src.robots_status === "disallowed"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-gray-100 text-gray-800"
+                                ? "bg-ineligible-wash text-ineligible-ink"
+                                : "bg-cream text-ink-soft"
                             }`}
                           >
                             {src.robots_status}
@@ -907,8 +903,8 @@ export function Curate() {
                           <span
                             className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
                               src.terms_status === "acceptable"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : "bg-amber-100 text-amber-800"
+                                ? "bg-eligible-wash text-eligible-ink"
+                                : "bg-potential-wash text-potential-ink"
                             }`}
                           >
                             {src.terms_status}
@@ -934,7 +930,7 @@ export function Curate() {
             ) : (
               <div className="overflow-x-auto rounded-panel border border-rule bg-paper">
                 <table className="w-full text-left text-[13.5px]">
-                  <thead className="border-b border-rule bg-cream/40 text-[12px] uppercase text-muted">
+                  <thead className="border-b border-rule bg-cream/40 text-left [&_th]:eyebrow [&_th]:font-semibold">
                     <tr>
                       <th className="px-4 py-3">Timestamp</th>
                       <th className="px-4 py-3">Action</th>
@@ -1022,7 +1018,7 @@ function CandidateEvidence({ candidate }: CandidateEvidenceProps) {
         </p>
       </div>
       {problems.length === 0 && warnings.length === 0 ? (
-        <p className="text-[12.5px] font-medium text-emerald-700">No validation problems or warnings.</p>
+        <p className="text-[12.5px] font-medium text-eligible-ink">No validation problems or warnings.</p>
       ) : (
         <ul className="space-y-1 text-[12.5px]">
           {problems.map((problem) => (
@@ -1031,7 +1027,7 @@ function CandidateEvidence({ candidate }: CandidateEvidenceProps) {
             </li>
           ))}
           {warnings.map((warning) => (
-            <li key={`w-${warning}`} className="text-amber-800">
+            <li key={`w-${warning}`} className="text-potential-ink">
               <span className="font-semibold">Warning:</span> {warning}
             </li>
           ))}

@@ -1,7 +1,7 @@
-import { Clock3 } from "lucide-react";
+import { ArrowLeft, CheckCircle2, Clock3, Eye, EyeOff } from "lucide-react";
 import { useState, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
-import { ApiError } from "../api/client";
+import { ApiError, api, unwrap } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
 import { Page } from "../components/layout/Page";
 import { Logo } from "../components/ui/Logo";
@@ -56,6 +56,69 @@ function AuthFrame({ title, subtitle, children }: { title: string; subtitle: Rea
   );
 }
 
+/** A password input with a show/hide control; the value is never revealed unless asked. */
+export function PasswordField({
+  id,
+  label,
+  value,
+  onChange,
+  autoComplete,
+  error,
+  hint,
+  aside,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete: "current-password" | "new-password";
+  error?: string;
+  hint?: string;
+  aside?: ReactNode;
+}) {
+  const [visible, setVisible] = useState(false);
+  const describedBy = error ? `${id}-error` : hint ? `${id}-hint` : undefined;
+  return (
+    <div>
+      <div className="flex items-baseline justify-between gap-3">
+        <label htmlFor={id} className="field-label">
+          {label}
+        </label>
+        {aside}
+      </div>
+      <div className="relative">
+        <input
+          id={id}
+          type={visible ? "text" : "password"}
+          autoComplete={autoComplete}
+          required
+          className="input pr-12"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          aria-invalid={Boolean(error)}
+          aria-describedby={describedBy}
+        />
+        <button
+          type="button"
+          className="icon-btn absolute right-1 top-1/2 size-9 -translate-y-1/2"
+          onClick={() => setVisible((shown) => !shown)}
+          aria-pressed={visible}
+          aria-controls={id}
+          aria-label={visible ? "Hide password" : "Show password"}
+        >
+          {visible ? <EyeOff size={17} /> : <Eye size={17} />}
+        </button>
+      </div>
+      {hint && !error && (
+        <p id={`${id}-hint`} className="mt-1.5 text-[12.5px] text-muted">
+          {hint}
+        </p>
+      )}
+      <FieldError id={`${id}-error`} message={error} />
+    </div>
+  );
+}
+
 function useCredentials() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -92,28 +155,22 @@ function CredentialFields({
         />
         <FieldError id="email-error" message={state.errors.email} />
       </div>
-      <div>
-        <label htmlFor="password" className="field-label">
-          Password
-        </label>
-        <input
-          id="password"
-          type="password"
-          autoComplete={autoCompletePassword}
-          required
-          className="input"
-          value={state.password}
-          onChange={(event) => state.setPassword(event.target.value)}
-          aria-invalid={Boolean(state.errors.password)}
-          aria-describedby={state.errors.password ? "password-error" : passwordHint ? "password-hint" : undefined}
-        />
-        {passwordHint && !state.errors.password && (
-          <p id="password-hint" className="mt-1.5 text-[12.5px] text-muted">
-            {passwordHint}
-          </p>
-        )}
-        <FieldError id="password-error" message={state.errors.password} />
-      </div>
+      <PasswordField
+        id="password"
+        label="Password"
+        value={state.password}
+        onChange={state.setPassword}
+        autoComplete={autoCompletePassword}
+        error={state.errors.password}
+        hint={passwordHint}
+        aside={
+          autoCompletePassword === "current-password" && (
+            <Link to="/forgot-password" className="text-[13px] font-medium text-cobalt-deep hover:underline">
+              Forgot password?
+            </Link>
+          )
+        }
+      />
     </div>
   );
 }
@@ -178,7 +235,7 @@ export function Login() {
         <form onSubmit={submit} noValidate>
           <CredentialFields state={state} autoCompletePassword="current-password" />
           {state.errors.form && (
-            <p role="alert" className="mt-4 text-[13.5px] text-ineligible-ink">
+            <p role="alert" key={state.errors.form + state.busy} className="nudge mt-4 text-[13.5px] text-ineligible-ink">
               {state.errors.form}
             </p>
           )}
@@ -249,7 +306,7 @@ export function Register() {
         <form onSubmit={submit} noValidate>
           <CredentialFields state={state} passwordHint="At least 8 characters." autoCompletePassword="new-password" />
           {state.errors.form && (
-            <p role="alert" className="mt-4 text-[13.5px] text-ineligible-ink">
+            <p role="alert" key={state.errors.form + state.busy} className="nudge mt-4 text-[13.5px] text-ineligible-ink">
               {state.errors.form}
             </p>
           )}
@@ -264,6 +321,167 @@ export function Register() {
             </Link>
           </p>
         </form>
+      </AuthFrame>
+    </Page>
+  );
+}
+
+function Notice({ tone, children }: { tone: "ok" | "error"; children: ReactNode }) {
+  return tone === "ok" ? (
+    <div role="status" className="flex items-start gap-2.5 rounded-[10px] border border-eligible/35 bg-eligible-wash px-3.5 py-3 text-[14px] text-eligible-ink">
+      <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
+      <div>{children}</div>
+    </div>
+  ) : (
+    <p role="alert" className="rounded-[10px] border border-ineligible/30 bg-ineligible-wash px-3.5 py-3 text-[14px] text-ineligible-ink">
+      {children}
+    </p>
+  );
+}
+
+function BackToSignIn() {
+  return (
+    <Link to="/login" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-cobalt-deep hover:underline">
+      <ArrowLeft size={15} />
+      Back to sign in
+    </Link>
+  );
+}
+
+/** Ask for a reset link. The answer never reveals whether an account exists. */
+export function ForgotPassword() {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<string | undefined>();
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    setError(null);
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      setFieldError("Enter the email address you signed up with.");
+      return;
+    }
+    setFieldError(undefined);
+    setBusy(true);
+    try {
+      await unwrap(api.POST("/auth/forgot-password", { body: { email } }));
+      setSent(true);
+    } catch (caught) {
+      setError(caught instanceof ApiError ? caught.message : "The request didn’t go through. Try again.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Page title="Reset your password">
+      <AuthFrame title="Reset your password" subtitle="Enter your account’s email and we’ll send a link to choose a new password.">
+        {sent ? (
+          <div className="flex flex-col gap-6">
+            <Notice tone="ok">
+              If <span className="font-semibold">{email}</span> has an account, a reset link is on its way. It works once and expires; check spam if it doesn’t arrive.
+            </Notice>
+            <BackToSignIn />
+          </div>
+        ) : (
+          <form onSubmit={submit} noValidate className="flex flex-col gap-5">
+            <div>
+              <label htmlFor="email" className="field-label">
+                Email
+              </label>
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="input"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                aria-invalid={Boolean(fieldError)}
+                aria-describedby={fieldError ? "email-error" : undefined}
+              />
+              <FieldError id="email-error" message={fieldError} />
+            </div>
+            {error && <Notice tone="error">{error}</Notice>}
+            <button type="submit" className="btn btn-primary btn-lg w-full" disabled={busy}>
+              {busy && <Spinner size={15} />}
+              Send reset link
+            </button>
+            <BackToSignIn />
+          </form>
+        )}
+      </AuthFrame>
+    </Page>
+  );
+}
+
+/** Choose a new password from an emailed link. The token arrives in the URL fragment, never in server logs. */
+export function ResetPassword() {
+  const token = new URLSearchParams(window.location.hash.slice(1)).get("token");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const [done, setDone] = useState(false);
+
+  async function submit(event: FormEvent) {
+    event.preventDefault();
+    const next: Record<string, string> = {};
+    if (password.length < 8) next.password = "Use at least 8 characters.";
+    else if (password.length > 128) next.password = "Use at most 128 characters.";
+    if (!next.password && confirm !== password) next.confirm = "The two passwords don’t match.";
+    setErrors(next);
+    if (Object.keys(next).length || !token) return;
+    setBusy(true);
+    try {
+      await unwrap(api.POST("/auth/reset-password", { body: { token, new_password: password } }));
+      // Drop the spent token from the address bar and history.
+      window.history.replaceState(null, "", window.location.pathname);
+      setDone(true);
+    } catch (caught) {
+      setErrors({ form: caught instanceof ApiError ? caught.message : "The reset didn’t go through. Try again." });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Page title="Choose a new password">
+      <AuthFrame title="Choose a new password" subtitle="After this, every device signed in to your account is signed out.">
+        {done ? (
+          <div className="flex flex-col gap-6">
+            <Notice tone="ok">Your password has been changed. Sign in with the new one.</Notice>
+            <Link to="/login" className="btn btn-primary btn-lg w-full">
+              Sign in
+            </Link>
+          </div>
+        ) : !token ? (
+          <div className="flex flex-col gap-6">
+            <Notice tone="error">This page needs the link from your reset email. Open the link again, or request a new one.</Notice>
+            <Link to="/forgot-password" className="btn btn-quiet w-full">
+              Request a new link
+            </Link>
+          </div>
+        ) : (
+          <form onSubmit={submit} noValidate className="flex flex-col gap-5">
+            <PasswordField id="new-password" label="New password" value={password} onChange={setPassword} autoComplete="new-password" error={errors.password} hint="At least 8 characters." />
+            <PasswordField id="confirm-password" label="Repeat it" value={confirm} onChange={setConfirm} autoComplete="new-password" error={errors.confirm} />
+            {errors.form && (
+              <Notice tone="error">
+                {errors.form}{" "}
+                <Link to="/forgot-password" className="font-semibold underline underline-offset-2">
+                  Request a new link
+                </Link>
+              </Notice>
+            )}
+            <button type="submit" className="btn btn-primary btn-lg w-full" disabled={busy}>
+              {busy && <Spinner size={15} />}
+              Save new password
+            </button>
+          </form>
+        )}
       </AuthFrame>
     </Page>
   );

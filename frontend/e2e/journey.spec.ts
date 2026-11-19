@@ -31,7 +31,7 @@ async function onboard(page: Page, gpa?: { value: string; scale: string }) {
 
 test("landing page loads real opportunities and the hero demonstration", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("There’s more out there for you.");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Discover a world of opportunity.");
   await expect(page.getByRole("heading", { name: "Open right now." })).toBeVisible();
   // Proof section renders live rules from the API.
   await expect(page.getByText("Minimum GPA: 3.5 on a 4-point scale (or equivalent).").first()).toBeVisible();
