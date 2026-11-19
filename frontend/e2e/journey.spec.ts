@@ -112,7 +112,7 @@ test("invalid forms show specific errors", async ({ page }) => {
   await page.fill("#email", "not-an-email");
   await page.fill("#password", "short");
   await page.getByRole("button", { name: "Create account" }).click();
-  await expect(page.getByText("Enter a valid email address.")).toBeVisible();
+  await expect(page.getByText("That doesn’t look like an email address.")).toBeVisible();
   await expect(page.getByText("Use at least 8 characters.")).toBeVisible();
 
   await page.goto("/login");

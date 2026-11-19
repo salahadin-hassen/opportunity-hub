@@ -1,57 +1,66 @@
-import { ArrowLeft, CheckCircle2, Clock3, Eye, EyeOff } from "lucide-react";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { ArrowRight, Check, Eye, EyeOff } from "lucide-react";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router";
 import { ApiError, api, unwrap } from "../api/client";
 import { useAuth } from "../auth/AuthContext";
-import { Page } from "../components/layout/Page";
-import { Logo } from "../components/ui/Logo";
-import { FieldError, Spinner } from "../components/ui/States";
-import { Credit } from "../components/ui/Plate";
-import { PHOTOS } from "../lib/photos";
-import { ThemeToggle } from "../components/ui/ThemeToggle";
 import { GoogleSignIn, googleErrorMessage } from "../auth/google";
+import { AuthFieldError, AuthFrame, AuthNotice } from "../components/auth/AuthLayout";
+import { Ticks } from "../components/landing/Ink";
+import { Page } from "../components/layout/Page";
+import { Spinner } from "../components/ui/States";
 
 /** Only same-site relative paths are honoured as a post-login destination. */
 function safeNext(value: string | null): string | null {
   return value && value.startsWith("/") && !value.startsWith("//") ? value : null;
 }
 
-function AuthFrame({ title, subtitle, children }: { title: string; subtitle: ReactNode; children: ReactNode }) {
-  const photo = PHOTOS.radioTelescope;
+const EMAIL = /^\S+@\S+\.\S+$/;
+const MIN_PASSWORD = 8;
+const MAX_PASSWORD = 128;
+
+/** Focus the first field that has an error, so keyboard and screen-reader users land on it. */
+function focusFirst(errors: Record<string, string>, order: string[]) {
+  const id = order.find((key) => errors[key]);
+  if (id) requestAnimationFrame(() => document.getElementById(id)?.focus());
+}
+
+/** The submit action, stamped like the landing page's calls to action. Busy: a spinner and a present-tense label. */
+function SubmitButton({ busy, children, busyLabel }: { busy: boolean; children: ReactNode; busyLabel: string }) {
   return (
-    <div className="grid min-h-dvh grid-cols-1 bg-ivory lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-      <div className="flex flex-col px-5 py-6 sm:px-10">
-        <div className="flex items-center justify-between">
-          <Logo />
-          <ThemeToggle className="-my-2" />
-        </div>
-        <main id="main" className="flex flex-1 items-center py-12">
-          <div className="mx-auto w-full max-w-[400px]">
-            <h1 className="display text-[48px] text-ink sm:text-[56px]">{title}</h1>
-            <p className="mt-4 text-[15.5px] text-ink-soft">{subtitle}</p>
-            <div className="mt-10">{children}</div>
-          </div>
-        </main>
-      </div>
-      <div className="relative hidden overflow-hidden bg-night lg:block">
-        <img
-          src={photo.small}
-          srcSet={`${photo.small} 800w, ${photo.large} 1600w`}
-          sizes="55vw"
-          alt={photo.alt}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-night/85 via-night/10 to-transparent" aria-hidden="true" />
-        <div className="absolute inset-x-0 bottom-0 p-12 xl:p-16">
-          <p className="display max-w-[14ch] text-[52px] text-snow xl:text-[64px]">Every verdict shows its work.</p>
-          <p className="mt-4 max-w-[44ch] text-[16px] text-snow/80">
-            Rules are copied from official pages and checked against your profile one at a time. Anything a machine can’t decide is left for you.
-          </p>
-          <p className="mt-8 text-[12px] text-snow/70">
-            {photo.caption}. <Credit photo="radioTelescope" tone="paper" />
-          </p>
-        </div>
-      </div>
+    <button type="submit" className="btn-stamp btn-stamp-solid auth-submit mt-7 w-full" disabled={busy} aria-busy={busy}>
+      <Ticks />
+      {busy ? <Spinner size={15} /> : null}
+      <span>{busy ? busyLabel : children}</span>
+      {!busy && <ArrowRight size={16} aria-hidden="true" />}
+    </button>
+  );
+}
+
+function EmailField({ value, onChange, error, onBlur, autoFocus }: { value: string; onChange: (value: string) => void; error?: string; onBlur?: () => void; autoFocus?: boolean }) {
+  return (
+    <div>
+      <label htmlFor="email" className="field-label">
+        Email address
+      </label>
+      <input
+        id="email"
+        name="email"
+        type="email"
+        inputMode="email"
+        autoComplete="email"
+        autoCapitalize="none"
+        spellCheck={false}
+        placeholder="you@example.org"
+        required
+        autoFocus={autoFocus}
+        className="input"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        onBlur={onBlur}
+        aria-invalid={Boolean(error)}
+        aria-describedby={error ? "email-error" : undefined}
+      />
+      <AuthFieldError id="email-error" message={error} />
     </div>
   );
 }
@@ -73,11 +82,11 @@ export function PasswordField({
   onChange: (value: string) => void;
   autoComplete: "current-password" | "new-password";
   error?: string;
-  hint?: string;
+  hint?: ReactNode;
   aside?: ReactNode;
 }) {
   const [visible, setVisible] = useState(false);
-  const describedBy = error ? `${id}-error` : hint ? `${id}-hint` : undefined;
+  const describedBy = [error ? `${id}-error` : null, hint ? `${id}-hint` : null].filter(Boolean).join(" ") || undefined;
   return (
     <div>
       <div className="flex items-baseline justify-between gap-3">
@@ -89,8 +98,11 @@ export function PasswordField({
       <div className="relative">
         <input
           id={id}
+          name={id}
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
+          autoCapitalize="none"
+          spellCheck={false}
           required
           className="input pr-12"
           value={value}
@@ -100,77 +112,46 @@ export function PasswordField({
         />
         <button
           type="button"
-          className="icon-btn absolute right-1 top-1/2 size-9 -translate-y-1/2"
+          className="auth-eye absolute right-1 top-1/2 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full text-ink-soft hover:text-ink"
           onClick={() => setVisible((shown) => !shown)}
           aria-pressed={visible}
           aria-controls={id}
           aria-label={visible ? "Hide password" : "Show password"}
         >
-          {visible ? <EyeOff size={17} /> : <Eye size={17} />}
+          <span key={visible ? "hide" : "show"} className="auth-eye-icon inline-flex">
+            {visible ? <EyeOff size={18} /> : <Eye size={18} />}
+          </span>
         </button>
       </div>
-      {hint && !error && (
-        <p id={`${id}-hint`} className="mt-1.5 text-[12.5px] text-muted">
+      {hint && (
+        <div id={`${id}-hint`} className="mt-1.5 text-[12.5px] text-muted">
           {hint}
-        </p>
+        </div>
       )}
-      <FieldError id={`${id}-error`} message={error} />
+      <AuthFieldError id={`${id}-error`} message={error} />
     </div>
   );
 }
 
-function useCredentials() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [busy, setBusy] = useState(false);
-  return { email, setEmail, password, setPassword, errors, setErrors, busy, setBusy };
+/** "At least 8 characters", ticked off as you type: a mark and words, not colour alone. */
+function LengthHint({ length }: { length: number }) {
+  const met = length >= MIN_PASSWORD;
+  return (
+    <span className={`inline-flex items-center gap-1.5 transition-colors ${met ? "text-eligible-ink" : ""}`}>
+      <span className={`inline-flex size-4 items-center justify-center rounded-full border ${met ? "border-eligible bg-eligible text-white" : "border-current"}`} aria-hidden="true">
+        {met && <Check size={11} strokeWidth={3} />}
+      </span>
+      At least {MIN_PASSWORD} characters{met ? " (done)" : ""}
+    </span>
+  );
 }
 
-function CredentialFields({
-  state,
-  passwordHint,
-  autoCompletePassword,
-}: {
-  state: ReturnType<typeof useCredentials>;
-  passwordHint?: string;
-  autoCompletePassword: "current-password" | "new-password";
-}) {
+function Divider() {
   return (
-    <div className="flex flex-col gap-4">
-      <div>
-        <label htmlFor="email" className="field-label">
-          Email
-        </label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          required
-          className="input"
-          value={state.email}
-          onChange={(event) => state.setEmail(event.target.value)}
-          aria-invalid={Boolean(state.errors.email)}
-          aria-describedby={state.errors.email ? "email-error" : undefined}
-        />
-        <FieldError id="email-error" message={state.errors.email} />
-      </div>
-      <PasswordField
-        id="password"
-        label="Password"
-        value={state.password}
-        onChange={state.setPassword}
-        autoComplete={autoCompletePassword}
-        error={state.errors.password}
-        hint={passwordHint}
-        aside={
-          autoCompletePassword === "current-password" && (
-            <Link to="/forgot-password" className="text-[13px] font-medium text-cobalt-deep hover:underline">
-              Forgot password?
-            </Link>
-          )
-        }
-      />
+    <div className="my-6 flex items-center gap-3 text-ink-soft" aria-hidden="true">
+      <span className="h-px flex-1 bg-ink/20" />
+      <span className="small-caps text-[10.5px]">or with email</span>
+      <span className="h-px flex-1 bg-ink/20" />
     </div>
   );
 }
@@ -179,74 +160,101 @@ export function Login() {
   const { login, isAuthenticated, demo } = useAuth();
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const state = useCredentials();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const inFlight = useRef(false);
   const next = safeNext(params.get("next"));
   const expired = params.get("expired") === "1";
   const googleError = googleErrorMessage(params.get("google_error"));
 
-  if (isAuthenticated && !state.busy) return <Navigate to={next ?? "/discover"} replace />;
+  if (isAuthenticated && !busy) return <Navigate to={next ?? "/discover"} replace />;
 
   async function submit(event: FormEvent, credentials?: { email: string; password: string }) {
     event.preventDefault();
-    state.setErrors({});
-    state.setBusy(true);
+    if (inFlight.current) return; // one request at a time
+    const values = credentials ?? { email: email.trim(), password };
+    const found: Record<string, string> = {};
+    if (!values.email) found.email = "Enter your email address.";
+    else if (!EMAIL.test(values.email)) found.email = "That doesn’t look like an email address.";
+    if (!values.password) found.password = "Enter your password.";
+    setErrors(found);
+    if (Object.keys(found).length) return focusFirst(found, ["email", "password"]);
+    inFlight.current = true;
+    setBusy(true);
     try {
-      await login(credentials?.email ?? state.email, credentials?.password ?? state.password);
+      await login(values.email, values.password);
       navigate(next ?? "/discover", { replace: true });
     } catch (error) {
-      state.setErrors({
+      // One message for any wrong combination: it never says which part, or whether the account exists.
+      setErrors({
         form:
           error instanceof ApiError && error.status === 401
-            ? "That email and password don’t match an account."
-            : error instanceof ApiError
-              ? error.message
-              : "Sign-in failed. Try again.",
+            ? "That email and password don’t match an account. Check both, or reset your password."
+            : error instanceof ApiError && error.status === 429
+              ? "Too many attempts. Wait a minute, then try again."
+              : error instanceof ApiError
+                ? error.message
+                : "We couldn’t reach the server. Check your connection and try again.",
       });
     } finally {
-      state.setBusy(false);
+      inFlight.current = false;
+      setBusy(false);
     }
   }
 
   return (
     <Page title="Sign in">
       <AuthFrame
-        title="Sign in"
-        subtitle={
+        kicker="Sign in"
+        title="Welcome back."
+        subtitle="Pick up where you left off: your saved opportunities, your applications, and where you stand on each."
+        footer={
           <>
-            New here?{" "}
-            <Link to="/register" className="font-medium text-cobalt-deep hover:underline">
+            New to Opportunity Hub?{" "}
+            <Link to="/register" className="auth-link">
               Create an account
             </Link>
           </>
         }
       >
-        {expired && (
-          <div className="mb-5 flex items-start gap-2.5 rounded-[10px] border border-potential/40 bg-potential-wash px-3.5 py-3 text-[13.5px] text-potential-ink" role="status">
-            <Clock3 size={15} className="mt-0.5 shrink-0" />
-            Your session expired after 30 minutes. Sign in again to pick up where you left off.
+        <div className="flex flex-col gap-4">
+          {expired && <AuthNotice tone="info">Your session expired after 30 minutes. Sign in again to pick up where you left off.</AuthNotice>}
+          {googleError && <AuthNotice tone="error">{googleError}</AuthNotice>}
+        </div>
+        <GoogleSignIn next={next} divider={<Divider />} />
+        <form onSubmit={submit} noValidate className={expired || googleError ? "mt-6" : undefined} aria-describedby={errors.form ? "form-error" : undefined}>
+          <div className="flex flex-col gap-5">
+            <EmailField value={email} onChange={setEmail} error={errors.email} />
+            <PasswordField
+              id="password"
+              label="Password"
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
+              error={errors.password}
+              aside={
+                <Link to="/forgot-password" className="auth-link text-[13px]">
+                  Forgot password?
+                </Link>
+              }
+            />
           </div>
-        )}
-        {googleError && (
-          <p role="alert" className="mb-5 rounded-[10px] border border-ineligible/30 bg-ineligible-wash px-3.5 py-3 text-[13.5px] text-ineligible-ink">
-            {googleError}
-          </p>
-        )}
-        <GoogleSignIn next={next} />
-        <form onSubmit={submit} noValidate>
-          <CredentialFields state={state} autoCompletePassword="current-password" />
-          {state.errors.form && (
-            <p role="alert" key={state.errors.form + state.busy} className="nudge mt-4 text-[13.5px] text-ineligible-ink">
-              {state.errors.form}
-            </p>
+          {errors.form && (
+            <div key={errors.form + busy} className="nudge mt-5">
+              <AuthNotice tone="error" id="form-error">
+                {errors.form}
+              </AuthNotice>
+            </div>
           )}
-          <button type="submit" className="btn btn-primary btn-lg mt-6 w-full" disabled={state.busy}>
-            {state.busy && <Spinner size={15} />}
+          <SubmitButton busy={busy} busyLabel="Signing in…">
             Sign in
-          </button>
+          </SubmitButton>
         </form>
         {demo && (
-          <div className="mt-6 border-t border-rule pt-5">
-            <button type="button" className="btn btn-quiet w-full" disabled={state.busy} onClick={(event) => submit(event, demo)}>
+          <div className="mt-6 border-t border-ink/15 pt-5">
+            <button type="button" className="btn btn-quiet w-full" disabled={busy} onClick={(event) => submit(event, demo)}>
               Use the local demo account
             </button>
             <p className="mt-2 text-center text-[12px] text-muted">Development builds only. Signs in as {demo.email}.</p>
@@ -260,91 +268,109 @@ export function Login() {
 export function Register() {
   const { register, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const state = useCredentials();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState(false);
+  const inFlight = useRef(false);
 
-  if (isAuthenticated && !state.busy) return <Navigate to="/discover" replace />;
+  if (isAuthenticated && !busy) return <Navigate to="/discover" replace />;
+
+  function checkEmail(value: string) {
+    return !value ? "Enter your email address." : !EMAIL.test(value) ? "That doesn’t look like an email address." : undefined;
+  }
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    const errors: Record<string, string> = {};
-    if (!/^\S+@\S+\.\S+$/.test(state.email)) errors.email = "Enter a valid email address.";
-    if (state.password.length < 8) errors.password = "Use at least 8 characters.";
-    if (state.password.length > 128) errors.password = "Use at most 128 characters.";
-    state.setErrors(errors);
-    if (Object.keys(errors).length) return;
-    state.setBusy(true);
+    if (inFlight.current) return;
+    const found: Record<string, string> = {};
+    const emailError = checkEmail(email.trim());
+    if (emailError) found.email = emailError;
+    if (password.length < MIN_PASSWORD) found.password = `Use at least ${MIN_PASSWORD} characters.`;
+    else if (password.length > MAX_PASSWORD) found.password = `Use at most ${MAX_PASSWORD} characters.`;
+    setErrors(found);
+    if (Object.keys(found).length) return focusFirst(found, ["email", "password"]);
+    inFlight.current = true;
+    setBusy(true);
     try {
-      await register(state.email, state.password);
+      await register(email.trim(), password);
       navigate("/onboarding", { replace: true });
     } catch (error) {
       if (error instanceof ApiError && error.status === 409) {
-        state.setErrors({ email: "An account with this email already exists. Sign in instead." });
+        setErrors({ email: "An account with this email already exists. Sign in instead, or reset your password." });
+        focusFirst({ email: "x" }, ["email"]);
       } else if (error instanceof ApiError && Object.keys(error.fields).length) {
-        state.setErrors(error.fields);
+        setErrors(error.fields);
+        focusFirst(error.fields, ["email", "password"]);
       } else {
-        state.setErrors({ form: error instanceof ApiError ? error.message : "Registration failed. Try again." });
+        setErrors({ form: error instanceof ApiError ? error.message : "We couldn’t reach the server. Check your connection and try again." });
       }
     } finally {
-      state.setBusy(false);
+      inFlight.current = false;
+      setBusy(false);
     }
   }
 
   return (
     <Page title="Create account">
       <AuthFrame
-        title="Create your account"
-        subtitle={
+        kicker="Create an account"
+        title="Your next opportunity starts here."
+        subtitle="One account to check your eligibility against each program’s published rules, keep a shortlist, and track your applications."
+        footer={
           <>
-            Already have one?{" "}
-            <Link to="/login" className="font-medium text-cobalt-deep hover:underline">
+            Already have an account?{" "}
+            <Link to="/login" className="auth-link">
               Sign in
             </Link>
           </>
         }
       >
-        <GoogleSignIn label="Sign up with Google" />
+        <GoogleSignIn label="Sign up with Google" divider={<Divider />} />
         <form onSubmit={submit} noValidate>
-          <CredentialFields state={state} passwordHint="At least 8 characters." autoCompletePassword="new-password" />
-          {state.errors.form && (
-            <p role="alert" key={state.errors.form + state.busy} className="nudge mt-4 text-[13.5px] text-ineligible-ink">
-              {state.errors.form}
-            </p>
+          <div className="flex flex-col gap-5">
+            <EmailField
+              value={email}
+              onChange={(value) => {
+                setEmail(value);
+                if (errors.email) setErrors(({ email: _drop, ...rest }) => rest);
+              }}
+              onBlur={() => {
+                const message = email.trim() ? checkEmail(email.trim()) : undefined;
+                setErrors((old) => (message ? { ...old, email: message } : (({ email: _drop, ...rest }) => rest)(old)));
+              }}
+              error={errors.email}
+            />
+            <PasswordField
+              id="password"
+              label="Choose a password"
+              value={password}
+              onChange={(value) => {
+                setPassword(value);
+                if (errors.password && value.length >= MIN_PASSWORD) setErrors(({ password: _drop, ...rest }) => rest);
+              }}
+              autoComplete="new-password"
+              error={errors.password}
+              hint={<LengthHint length={password.length} />}
+            />
+          </div>
+          {errors.form && (
+            <div key={errors.form + busy} className="nudge mt-5">
+              <AuthNotice tone="error">{errors.form}</AuthNotice>
+            </div>
           )}
-          <button type="submit" className="btn btn-primary btn-lg mt-6 w-full" disabled={state.busy}>
-            {state.busy && <Spinner size={15} />}
+          <SubmitButton busy={busy} busyLabel="Creating your account…">
             Create account
-          </button>
-          <p className="mt-4 text-[12.5px] text-muted">
-            Next you’ll build a short profile. It takes about two minutes.{" "}
-            <Link to="/privacy" className="link">
+          </SubmitButton>
+          <p className="mt-4 text-[12.5px] leading-relaxed text-muted">
+            Next, a short profile so we can check your eligibility. It takes about two minutes, and you can skip parts of it.{" "}
+            <Link to="/privacy" className="auth-link">
               What we store
             </Link>
           </p>
         </form>
       </AuthFrame>
     </Page>
-  );
-}
-
-function Notice({ tone, children }: { tone: "ok" | "error"; children: ReactNode }) {
-  return tone === "ok" ? (
-    <div role="status" className="flex items-start gap-2.5 rounded-[10px] border border-eligible/35 bg-eligible-wash px-3.5 py-3 text-[14px] text-eligible-ink">
-      <CheckCircle2 size={16} className="mt-0.5 shrink-0" />
-      <div>{children}</div>
-    </div>
-  ) : (
-    <p role="alert" className="rounded-[10px] border border-ineligible/30 bg-ineligible-wash px-3.5 py-3 text-[14px] text-ineligible-ink">
-      {children}
-    </p>
-  );
-}
-
-function BackToSignIn() {
-  return (
-    <Link to="/login" className="inline-flex items-center gap-1.5 text-[14px] font-medium text-cobalt-deep hover:underline">
-      <ArrowLeft size={15} />
-      Back to sign in
-    </Link>
   );
 }
 
@@ -358,18 +384,19 @@ export function ForgotPassword() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (busy) return;
     setError(null);
-    if (!/^\S+@\S+\.\S+$/.test(email)) {
+    if (!EMAIL.test(email.trim())) {
       setFieldError("Enter the email address you signed up with.");
-      return;
+      return focusFirst({ email: "x" }, ["email"]);
     }
     setFieldError(undefined);
     setBusy(true);
     try {
-      await unwrap(api.POST("/auth/forgot-password", { body: { email } }));
+      await unwrap(api.POST("/auth/forgot-password", { body: { email: email.trim() } }));
       setSent(true);
     } catch (caught) {
-      setError(caught instanceof ApiError ? caught.message : "The request didn’t go through. Try again.");
+      setError(caught instanceof ApiError ? caught.message : "The request didn’t go through. Check your connection and try again.");
     } finally {
       setBusy(false);
     }
@@ -377,39 +404,31 @@ export function ForgotPassword() {
 
   return (
     <Page title="Reset your password">
-      <AuthFrame title="Reset your password" subtitle="Enter your account’s email and we’ll send a link to choose a new password.">
+      <AuthFrame
+        kicker="Password help"
+        title={sent ? "Check your inbox." : "Find your way back."}
+        subtitle={sent ? undefined : "Enter the email you signed up with and we’ll send a link to choose a new password."}
+        footer={
+          <Link to="/login" className="auth-link">
+            ← Back to sign in
+          </Link>
+        }
+      >
         {sent ? (
-          <div className="flex flex-col gap-6">
-            <Notice tone="ok">
-              If <span className="font-semibold">{email}</span> has an account, a reset link is on its way. It works once and expires; check spam if it doesn’t arrive.
-            </Notice>
-            <BackToSignIn />
-          </div>
+          <AuthNotice tone="ok">
+            If <span className="font-semibold">{email.trim()}</span> has an account, a reset link is on its way. It works once and expires soon; check your spam folder if it doesn’t arrive.
+          </AuthNotice>
         ) : (
-          <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-            <div>
-              <label htmlFor="email" className="field-label">
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                className="input"
-                value={email}
-                onChange={(event) => setEmail(event.target.value)}
-                aria-invalid={Boolean(fieldError)}
-                aria-describedby={fieldError ? "email-error" : undefined}
-              />
-              <FieldError id="email-error" message={fieldError} />
-            </div>
-            {error && <Notice tone="error">{error}</Notice>}
-            <button type="submit" className="btn btn-primary btn-lg w-full" disabled={busy}>
-              {busy && <Spinner size={15} />}
+          <form onSubmit={submit} noValidate className="flex flex-col">
+            <EmailField value={email} onChange={setEmail} error={fieldError} />
+            {error && (
+              <div className="mt-5">
+                <AuthNotice tone="error">{error}</AuthNotice>
+              </div>
+            )}
+            <SubmitButton busy={busy} busyLabel="Sending…">
               Send reset link
-            </button>
-            <BackToSignIn />
+            </SubmitButton>
           </form>
         )}
       </AuthFrame>
@@ -428,12 +447,14 @@ export function ResetPassword() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    const next: Record<string, string> = {};
-    if (password.length < 8) next.password = "Use at least 8 characters.";
-    else if (password.length > 128) next.password = "Use at most 128 characters.";
-    if (!next.password && confirm !== password) next.confirm = "The two passwords don’t match.";
-    setErrors(next);
-    if (Object.keys(next).length || !token) return;
+    if (busy) return;
+    const found: Record<string, string> = {};
+    if (password.length < MIN_PASSWORD) found["new-password"] = `Use at least ${MIN_PASSWORD} characters.`;
+    else if (password.length > MAX_PASSWORD) found["new-password"] = `Use at most ${MAX_PASSWORD} characters.`;
+    if (!found["new-password"] && confirm !== password) found["confirm-password"] = "The two passwords don’t match.";
+    setErrors(found);
+    if (Object.keys(found).length) return focusFirst(found, ["new-password", "confirm-password"]);
+    if (!token) return;
     setBusy(true);
     try {
       await unwrap(api.POST("/auth/reset-password", { body: { token, new_password: password } }));
@@ -449,37 +470,61 @@ export function ResetPassword() {
 
   return (
     <Page title="Choose a new password">
-      <AuthFrame title="Choose a new password" subtitle="After this, every device signed in to your account is signed out.">
+      <AuthFrame
+        kicker="Password help"
+        title={done ? "Password changed." : "Choose a new password."}
+        subtitle={done ? undefined : "After this, every device signed in to your account is signed out."}
+        footer={
+          !done && (
+            <Link to="/login" className="auth-link">
+              ← Back to sign in
+            </Link>
+          )
+        }
+      >
         {done ? (
-          <div className="flex flex-col gap-6">
-            <Notice tone="ok">Your password has been changed. Sign in with the new one.</Notice>
-            <Link to="/login" className="btn btn-primary btn-lg w-full">
+          <div className="flex flex-col">
+            <AuthNotice tone="ok">Your password has been changed. Sign in with the new one.</AuthNotice>
+            <Link to="/login" className="btn-stamp btn-stamp-solid mt-7 w-full">
+              <Ticks />
               Sign in
+              <ArrowRight size={16} aria-hidden="true" />
             </Link>
           </div>
         ) : !token ? (
           <div className="flex flex-col gap-6">
-            <Notice tone="error">This page needs the link from your reset email. Open the link again, or request a new one.</Notice>
+            <AuthNotice tone="error">This page needs the link from your reset email. Open the link again, or request a new one.</AuthNotice>
             <Link to="/forgot-password" className="btn btn-quiet w-full">
               Request a new link
             </Link>
           </div>
         ) : (
-          <form onSubmit={submit} noValidate className="flex flex-col gap-5">
-            <PasswordField id="new-password" label="New password" value={password} onChange={setPassword} autoComplete="new-password" error={errors.password} hint="At least 8 characters." />
-            <PasswordField id="confirm-password" label="Repeat it" value={confirm} onChange={setConfirm} autoComplete="new-password" error={errors.confirm} />
+          <form onSubmit={submit} noValidate className="flex flex-col">
+            <div className="flex flex-col gap-5">
+              <PasswordField
+                id="new-password"
+                label="New password"
+                value={password}
+                onChange={setPassword}
+                autoComplete="new-password"
+                error={errors["new-password"]}
+                hint={<LengthHint length={password.length} />}
+              />
+              <PasswordField id="confirm-password" label="Repeat it" value={confirm} onChange={setConfirm} autoComplete="new-password" error={errors["confirm-password"]} />
+            </div>
             {errors.form && (
-              <Notice tone="error">
-                {errors.form}{" "}
-                <Link to="/forgot-password" className="font-semibold underline underline-offset-2">
-                  Request a new link
-                </Link>
-              </Notice>
+              <div className="mt-5">
+                <AuthNotice tone="error">
+                  {errors.form}{" "}
+                  <Link to="/forgot-password" className="font-semibold underline underline-offset-2">
+                    Request a new link
+                  </Link>
+                </AuthNotice>
+              </div>
             )}
-            <button type="submit" className="btn btn-primary btn-lg w-full" disabled={busy}>
-              {busy && <Spinner size={15} />}
+            <SubmitButton busy={busy} busyLabel="Saving…">
               Save new password
-            </button>
+            </SubmitButton>
           </form>
         )}
       </AuthFrame>

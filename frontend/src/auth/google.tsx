@@ -4,6 +4,9 @@ import { useNavigate } from "react-router";
 import { ApiError, api, unwrap } from "../api/client";
 import { useAuth } from "./AuthContext";
 import { Spinner } from "../components/ui/States";
+import { AuthFrame, AuthNotice } from "../components/auth/AuthLayout";
+import { Page } from "../components/layout/Page";
+import type { ReactNode } from "react";
 
 /** What the browser shows for each refusal code the API's Google callback can send back. */
 export const GOOGLE_ERRORS: Record<string, string> = {
@@ -78,7 +81,7 @@ export function GoogleButton({
         onClick={go}
         disabled={busy || disabled}
         aria-busy={busy}
-        className="google-btn inline-flex h-10 w-full items-center justify-center gap-2.5 rounded-full border px-4 text-[14px] font-medium transition-colors disabled:opacity-60"
+        className="google-btn inline-flex h-11 w-full items-center justify-center gap-2.5 rounded-full border px-4 text-[14px] font-medium transition-colors disabled:opacity-60"
       >
         {busy ? <Spinner size={16} /> : <GoogleMark />}
         <span>{busy ? "Redirecting to Google…" : label}</span>
@@ -92,8 +95,8 @@ export function GoogleButton({
   );
 }
 
-/** Sign in (or create an account) with Google, then come back to ``next``. Renders nothing if unavailable. */
-export function GoogleSignIn({ next, label }: { next?: string | null; label?: string }) {
+/** Sign in (or create an account) with Google, then come back to ``next``. Renders nothing (not even the divider) if unavailable. */
+export function GoogleSignIn({ next, label, divider }: { next?: string | null; label?: string; divider?: ReactNode }) {
   const available = useGoogleAvailable();
   if (!available) return null;
   return (
@@ -105,11 +108,13 @@ export function GoogleSignIn({ next, label }: { next?: string | null; label?: st
           return authorization_url;
         }}
       />
-      <div className="my-5 flex items-center gap-3 text-[12px] uppercase tracking-wide text-muted" aria-hidden="true">
-        <span className="h-px flex-1 bg-rule" />
-        or
-        <span className="h-px flex-1 bg-rule" />
-      </div>
+      {divider ?? (
+        <div className="my-5 flex items-center gap-3 text-[12px] uppercase tracking-wide text-muted" aria-hidden="true">
+          <span className="h-px flex-1 bg-rule" />
+          or
+          <span className="h-px flex-1 bg-rule" />
+        </div>
+      )}
     </>
   );
 }
@@ -151,22 +156,22 @@ export function GoogleComplete() {
   }, [adopt, client, navigate]);
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-ivory px-5 text-center">
-      {failed ? (
-        <>
-          <p role="alert" className="max-w-sm text-[15px] text-ink">
-            That Google sign-in link has expired or was already used.
+    <Page title={failed ? "Google sign-in didn’t finish" : "Signing you in"}>
+      <AuthFrame kicker="Sign in with Google" title={failed ? "That link has expired." : "Signing you in…"}>
+        {failed ? (
+          <div className="flex flex-col gap-6">
+            <AuthNotice tone="error">That Google sign-in link has expired or was already used. Start again from the sign-in page.</AuthNotice>
+            <a href="/login" className="btn btn-quiet w-full">
+              Back to sign in
+            </a>
+          </div>
+        ) : (
+          <p role="status" className="flex items-center gap-2.5 text-[15px] text-ink-soft">
+            <Spinner size={16} /> Confirming your Google account with the server.
           </p>
-          <a href="/login" className="btn btn-primary">
-            Back to sign in
-          </a>
-        </>
-      ) : (
-        <p role="status" className="flex items-center gap-2.5 text-[15px] text-muted">
-          <Spinner size={16} /> Signing you in…
-        </p>
-      )}
-    </div>
+        )}
+      </AuthFrame>
+    </Page>
   );
 }
 

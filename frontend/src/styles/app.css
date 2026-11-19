@@ -978,6 +978,58 @@ button.voyage-mark:hover { transform: translateY(1px); box-shadow: 0 1px 0 -1px 
 /* Panels in the strip: paper by day; by night the stage's own ground, so the theme's ink stays legible. */
 .voyage-panel { background: var(--atlas-paper, var(--color-paper)); }
 :root[data-theme="dark"] .voyage-panel { background: var(--atlas-bg); }
+/* Authentication: the entrance to the atlas. ---------------------------- */
+.auth .input {
+  height: 3rem;
+  border-width: 1.5px;
+  border-color: rgb(31 40 51 / 0.42);
+  border-radius: 10px;
+  background: #fbf7ee;
+  font-size: 1rem; /* 16px: phones don't zoom into the field */
+}
+.auth .input:hover { border-color: rgb(31 40 51 / 0.65); }
+.auth .input:focus {
+  border-color: var(--color-ink);
+  box-shadow: 0 0 0 3px rgb(201 152 69 / 0.38);
+}
+.auth .input[aria-invalid="true"] { border-color: var(--color-ineligible); box-shadow: 0 0 0 3px rgb(196 67 46 / 0.14); }
+.auth .input::placeholder { color: rgb(31 40 51 / 0.38); }
+:root[data-theme="dark"] .auth .input { background: #1b1f27; border-color: #6b7383; }
+:root[data-theme="dark"] .auth .input:hover { border-color: #8a92a1; }
+:root[data-theme="dark"] .auth .input:focus { border-color: #ece6d8; box-shadow: 0 0 0 3px rgb(201 152 69 / 0.45); }
+:root[data-theme="dark"] .auth .input::placeholder { color: rgb(236 230 216 / 0.38); }
+.auth .field-label { font-size: 0.875rem; margin-bottom: 0.45rem; }
+.auth-link {
+  color: var(--color-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+  text-decoration-color: color-mix(in srgb, var(--color-ink) 35%, transparent);
+  transition: text-decoration-color 160ms;
+}
+.auth-link:hover { text-decoration-color: currentColor; }
+.auth-link:focus-visible, .auth-eye:focus-visible, .auth .btn-stamp:focus-visible { outline: 2px solid var(--color-cobalt); outline-offset: 3px; }
+.auth-notice { border-radius: 10px; }
+.auth-submit { height: 3.25rem; }
+.auth-submit:disabled { cursor: progress; opacity: 0.82; --stamp: 2px; transform: translateY(3px); }
+.auth-eye:hover { background: rgb(31 40 51 / 0.07); }
+:root[data-theme="dark"] .auth-eye:hover { background: rgb(236 230 216 / 0.09); }
+@keyframes eye-swap { from { opacity: 0; transform: rotate(-25deg) scale(0.8); } }
+.auth-eye-icon { animation: eye-swap 0.2s var(--ease-out-soft); }
+/* The plate and band arrive once per visit: the route draws, the rose settles, the pin lands. */
+.auth-enter .auth-route { stroke-dasharray: 1; animation: draw-stroke 1.3s 0.45s var(--ease-in-out-soft) both; }
+.auth-enter .auth-rose { animation: rose-in 1.1s 0.15s var(--ease-out-soft) both; transform-box: fill-box; transform-origin: center; }
+.auth-enter .auth-pin { animation: fade-in 0.5s 1.5s var(--ease-out-soft) both; }
+.auth-rise { animation: fade-up 0.6s 0.05s var(--ease-out-soft) both; }
+h1.auth-rise { animation-delay: 0.12s; }
+/* 404: the cable's two ends drift toward each other and back; the spark flickers between them. */
+@keyframes unplug-left { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(7px); } }
+@keyframes unplug-right { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-7px); } }
+@keyframes spark { 0%, 100% { opacity: 1; } 45% { opacity: 0.25; } 55% { opacity: 0.9; } 70% { opacity: 0.35; } }
+.not-found .unplug-left { animation: unplug-left 3.4s var(--ease-in-out-soft) infinite; }
+.not-found .unplug-right { animation: unplug-right 3.4s var(--ease-in-out-soft) infinite; }
+.not-found .unplug-sparks { animation: spark 1.7s steps(1, end) infinite; }
 .voyage-strip:focus-visible { outline: 2px solid var(--color-cobalt); outline-offset: -2px; }
 
 /* Form errors: one short shake, never repeated. */

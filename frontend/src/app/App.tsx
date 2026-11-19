@@ -1,18 +1,18 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MotionConfig } from "motion/react";
-import { Compass } from "lucide-react";
 import { Suspense, lazy, useEffect, type ReactNode } from "react";
-import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from "react-router";
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router";
 import { ApiError, sessionExpired } from "../api/client";
 import { useProfile } from "../api/queries";
 import { AuthProvider, useAuth } from "../auth/AuthContext";
 import { AppShell, GuestShell } from "../components/layout/AppShell";
-import { Content, Page } from "../components/layout/Page";
-import { EmptyState, ErrorState, Spinner } from "../components/ui/States";
+import { Content } from "../components/layout/Page";
+import { ErrorState, Spinner } from "../components/ui/States";
 import { ToastProvider } from "../components/ui/Toast";
 import { EligibilityProvider } from "../features/eligibility";
 import { ThemeProvider } from "./theme";
 import { Landing } from "../routes/Landing";
+import { NotFound } from "../routes/NotFound";
 import { GoogleComplete } from "../auth/google";
 
 // The landing page ships first; application routes load on demand.
@@ -91,28 +91,6 @@ function ScrollRestoration() {
     window.scrollTo({ top: 0 });
   }, [pathname, hash]);
   return null;
-}
-
-function NotFound() {
-  return (
-    <GuestShell>
-      <Page title="Not found">
-        <Content width="narrow">
-        <EmptyState
-          icon={Compass}
-          title="There’s no page at this address"
-          action={
-            <Link to="/opportunities" className="btn btn-quiet">
-              Browse opportunities
-            </Link>
-          }
-        >
-          The link may be out of date, or the page has moved. The index of opportunities is a good place to start again.
-        </EmptyState>
-        </Content>
-      </Page>
-    </GuestShell>
-  );
 }
 
 function app(children: ReactNode) {
