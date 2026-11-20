@@ -130,7 +130,10 @@ test("admin journey: curator workspace, tabs, draft creation, publish guard, and
 
   // Check Acquisition Sources tab
   await page.getByRole("button", { name: "Acquisition Sources" }).click();
-  await expect(page.getByRole("heading", { name: "Acquisition Source Registry" })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("heading", { name: "Sources and the pipeline" })).toBeVisible({ timeout: 15_000 });
+  // Admins can import the reviewed starter list and run the pipeline from the site.
+  await expect(page.getByRole("button", { name: /Import starter sources/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Run pipeline now/ })).toBeVisible();
 
   // Check Audit Log tab
   await page.getByRole("button", { name: "Audit Log" }).click();

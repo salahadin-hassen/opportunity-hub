@@ -42,6 +42,7 @@ export const keys = {
   adminUsers: (query: AdminUserQuery) => ["admin", "users", query] as const,
   adminUser: (id: string) => ["admin", "user", id] as const,
   adminActivity: (filters: { action?: string; targetType?: string }) => ["admin", "activity", filters] as const,
+  ingestionJobs: ["curate", "ingestion", "jobs"] as const,
 };
 
 export type AdminUserQuery = { q?: string; role?: "student" | "curator" | "admin"; state?: "active" | "suspended" | "pending_deletion"; sort?: "newest" | "oldest" | "last_active" | "email"; limit: number; offset: number };
@@ -613,3 +614,46 @@ export function useAdminActivity(filters: { action?: string; targetType?: string
   });
 }
 
+
+/* Running the pipeline from the site ----------------------------------- */
+
+/** The current ingestion job and the last few; polls every 2 s only while one runs. */
+export function useIngestionJobs() {
+  return useQuery({
+    queryKey: keys.ingestionJobs,
+    queryFn: () => unwrap(api.GET("/curate/ingestion/jobs")),
+    refetchInterval: (query) => (query.state.data?.current ? 2000 : false),
+  });
+}
+
+export function useIngestionActions() {
+  const client = useQueryClient();
+  const refresh = () => {
+    void client.invalidateQueries({ queryKey: keys.ingestionJobs });
+    void client.invalidateQueries({ queryKey: keys.curatorSources });
+    void client.invalidateQueries({ queryKey: ["curate", "candidates"] });
+  };
+  const onSuccess = refresh;
+  return {
+    refresh,
+    importStarter: useMutation({ mutationFn: () => unwrap(api.POST("/curate/ingestion/jobs/starter-sources")), onSuccess }),
+    startPipeline: useMutation({
+      mutationFn: (sourceId?: string) => unwrap(api.POST("/curate/ingestion/jobs/pipeline", { body: { source_id: sourceId ?? null, limit: 50 } })),
+      onSuccess,
+    }),
+    testSource: useMutation({
+      mutationFn: (sourceId: string) => unwrap(api.POST("/curate/ingestion/jobs/source-test/{source_id}", { params: { path: { source_id: sourceId } } })),
+      onSuccess,
+    }),
+    reviewTerms: useMutation({
+      mutationFn: (input: { sourceId: string; status: "acceptable" | "restricted"; notes: string }) =>
+        unwrap(api.POST("/curate/sources/{source_id}/terms-review", { params: { path: { source_id: input.sourceId } }, body: { status: input.status, notes: input.notes } })),
+      onSuccess,
+    }),
+    changeStatus: useMutation({
+      mutationFn: (input: { sourceId: string; status: "approved" | "paused" | "testing"; reason?: string }) =>
+        unwrap(api.POST("/curate/sources/{source_id}/status", { params: { path: { source_id: input.sourceId } }, body: { status: input.status, reason: input.reason ?? null } })),
+      onSuccess,
+    }),
+  };
+}

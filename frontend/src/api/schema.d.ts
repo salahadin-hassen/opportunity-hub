@@ -637,6 +637,77 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/curate/ingestion/jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Jobs */
+        get: operations["list_jobs_curate_ingestion_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/ingestion/jobs/pipeline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Pipeline */
+        post: operations["start_pipeline_curate_ingestion_jobs_pipeline_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/ingestion/jobs/source-test/{source_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start Source Test */
+        post: operations["start_source_test_curate_ingestion_jobs_source_test__source_id__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/curate/ingestion/jobs/starter-sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import Starter Sources
+         * @description Propose the reviewed starter list that ships with the code. Existing names are skipped; nothing is fetched.
+         */
+        post: operations["import_starter_sources_curate_ingestion_jobs_starter_sources_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/admin/audit": {
         parameters: {
             query?: never;
@@ -2075,6 +2146,38 @@ export interface components {
             /** Google Email */
             google_email?: string | null;
         };
+        /** JobRead */
+        JobRead: {
+            /** Id */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Label */
+            label: string;
+            /** Started By */
+            started_by: string;
+            /**
+             * Started At
+             * Format: date-time
+             */
+            started_at: string;
+            /** Status */
+            status: string;
+            /** Finished At */
+            finished_at: string | null;
+            /** Summary */
+            summary: {
+                [key: string]: unknown;
+            };
+            /** Error */
+            error: string | null;
+        };
+        /** JobsRead */
+        JobsRead: {
+            current: components["schemas"]["JobRead"] | null;
+            /** Recent */
+            recent: components["schemas"]["JobRead"][];
+        };
         /**
          * LocationMode
          * @description Where/how an opportunity takes place.
@@ -2361,6 +2464,16 @@ export interface components {
             languages?: string[] | null;
             /** Tags */
             tags?: string[] | null;
+        };
+        /** PipelineRunRequest */
+        PipelineRunRequest: {
+            /** Source Id */
+            source_id?: string | null;
+            /**
+             * Limit
+             * @default 50
+             */
+            limit: number;
         };
         /** ProfileCreate */
         ProfileCreate: {
@@ -3115,6 +3228,13 @@ export interface components {
         StartResponse: {
             /** Authorization Url */
             authorization_url: string;
+        };
+        /** StarterImport */
+        StarterImport: {
+            /** Created */
+            created: string[];
+            /** Skipped */
+            skipped: string[];
         };
         /** StatusChange */
         StatusChange: {
@@ -4514,6 +4634,110 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_jobs_curate_ingestion_jobs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobsRead"];
+                };
+            };
+        };
+    };
+    start_pipeline_curate_ingestion_jobs_pipeline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PipelineRunRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    start_source_test_curate_ingestion_jobs_source_test__source_id__post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobRead"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    import_starter_sources_curate_ingestion_jobs_starter_sources_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StarterImport"];
                 };
             };
         };

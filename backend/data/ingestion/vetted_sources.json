@@ -1,0 +1,362 @@
+[
+ {
+  "name": "Amgen Scholars Program",
+  "base_domain": "amgenscholars.com",
+  "allowed_hosts": [
+   "amgenscholars.com"
+  ],
+  "category": "foundation",
+  "authority_level": "official",
+  "provider": {
+   "name": "Amgen Foundation"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://amgenscholars.com/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Chevening Scholarships",
+  "base_domain": "chevening.org",
+  "allowed_hosts": [
+   "www.chevening.org"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "Chevening (UK Foreign, Commonwealth & Development Office)"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.chevening.org/scholarships/application-timeline/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Commonwealth Master's Scholarships",
+  "base_domain": "fcdo.gov.uk",
+  "allowed_hosts": [
+   "cscuk.fcdo.gov.uk"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "Commonwealth Scholarship Commission in the UK"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Fulbright Foreign Language Teaching Assistant (FLTA) Program",
+  "base_domain": "fulbrightonline.org",
+  "allowed_hosts": [
+   "foreign.fulbrightonline.org"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "Fulbright Program (U.S. Department of State)"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://foreign.fulbrightonline.org/host-institutions/flta-program/flta-thinking-of-applying"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Joint Japan/World Bank Graduate Scholarship Program",
+  "base_domain": "worldbank.org",
+  "allowed_hosts": [
+   "www.worldbank.org"
+  ],
+  "category": "international_organization",
+  "authority_level": "official",
+  "provider": {
+   "name": "World Bank Group"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.worldbank.org/en/programs/scholarships/brief/countries-eligible-for-jjwbgsp-scholarship"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Knight-Hennessy Scholars",
+  "base_domain": "stanford.edu",
+  "allowed_hosts": [
+   "knight-hennessy.stanford.edu"
+  ],
+  "category": "university",
+  "authority_level": "official",
+  "provider": {
+   "name": "Knight-Hennessy Scholars, Stanford University"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "MEXT Japanese Government Scholarship",
+  "base_domain": "go.jp",
+  "allowed_hosts": [
+   "www.studyinjapan.go.jp"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "Ministry of Education, Culture, Sports, Science and Technology (Japan)"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.studyinjapan.go.jp/en/planning/scholarships/mext-scholarships/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "MIT Summer Research Program (MSRP)",
+  "base_domain": "mit.edu",
+  "allowed_hosts": [
+   "oge.mit.edu"
+  ],
+  "category": "university",
+  "authority_level": "official",
+  "provider": {
+   "name": "Massachusetts Institute of Technology"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://oge.mit.edu/msrp/application/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Manaaki New Zealand Scholarships",
+  "base_domain": "nzscholarships.govt.nz",
+  "allowed_hosts": [
+   "www.nzscholarships.govt.nz"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "New Zealand Ministry of Foreign Affairs and Trade"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.nzscholarships.govt.nz/check-eligibility-criteria/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Mitacs Globalink Research Internship",
+  "base_domain": "mitacs.ca",
+  "allowed_hosts": [
+   "www.mitacs.ca"
+  ],
+  "category": "research_institution",
+  "authority_level": "official",
+  "provider": {
+   "name": "Mitacs"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.mitacs.ca/our-programs/globalink-research-internship-students/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Outreachy internships",
+  "base_domain": "outreachy.org",
+  "allowed_hosts": [
+   "www.outreachy.org"
+  ],
+  "category": "foundation",
+  "authority_level": "official",
+  "provider": {
+   "name": "Outreachy (Software Freedom Conservancy)"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.outreachy.org/docs/applicant/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Rhodes Scholarship",
+  "base_domain": "rhodeshouse.ox.ac.uk",
+  "allowed_hosts": [
+   "www.rhodeshouse.ox.ac.uk"
+  ],
+  "category": "foundation",
+  "authority_level": "official",
+  "provider": {
+   "name": "Rhodes Trust"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.rhodeshouse.ox.ac.uk/scholarships/selection-criteria/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Stipendium Hungaricum",
+  "base_domain": "stipendiumhungaricum.hu",
+  "allowed_hosts": [
+   "stipendiumhungaricum.hu"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "Tempus Public Foundation"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://stipendiumhungaricum.hu/apply/"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Swiss Government Excellence Scholarships",
+  "base_domain": "sbfi.admin.ch",
+  "allowed_hosts": [
+   "www.sbfi.admin.ch"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "State Secretariat for Education, Research and Innovation (SERI)"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ },
+ {
+  "name": "Türkiye Scholarships",
+  "base_domain": "turkiyeburslari.gov.tr",
+  "allowed_hosts": [
+   "www.turkiyeburslari.gov.tr"
+  ],
+  "category": "government",
+  "authority_level": "official",
+  "provider": {
+   "name": "Presidency for Turks Abroad and Related Communities (YTB)"
+  },
+  "discovery_method": "url_list",
+  "connector_key": "url_list",
+  "connector_config": {
+   "urls": [
+    "https://www.turkiyeburslari.gov.tr/scholarshipsprograms"
+   ]
+  },
+  "crawl_policy": {
+   "discovery_interval_hours": 168,
+   "max_pages_per_run": 10,
+   "min_delay_seconds": 5.0
+  }
+ }
+]

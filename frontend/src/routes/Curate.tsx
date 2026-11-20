@@ -17,13 +17,13 @@ import {
   useCreateOpportunity,
   useCuratorCandidates,
   useCuratorOpportunities,
-  useCuratorSources,
   usePublishOpportunity,
   useRequeueCandidate,
   useReviewCandidate,
   useUserAccount,
 } from "../api/queries";
 import { PageHeader } from "../components/layout/AppShell";
+import { SourcesPanel } from "../components/curate/SourcesPanel";
 import { Content, Page } from "../components/layout/Page";
 import type { OpportunityType } from "../api/types";
 import { EmptyState, Spinner } from "../components/ui/States";
@@ -82,7 +82,6 @@ export function Curate() {
   const [officialUrl, setOfficialUrl] = useState("");
   const [deadlineAt, setDeadlineAt] = useState("");
 
-  const sources = useCuratorSources();
   const opportunities = useCuratorOpportunities(oppFilter);
   const candidates = useCuratorCandidates(candFilter);
   const candidateDetail = useCandidateDetail(selectedCandidateId);
@@ -471,7 +470,7 @@ export function Curate() {
             ) : (candidates.data ?? []).length === 0 ? (
               <div className="rounded-panel border border-rule bg-paper p-8 text-center text-muted">
                 <p className="text-[15px] font-medium text-ink">No candidates in &ldquo;{candFilter.replace("_", " ")}&rdquo; state</p>
-                <p className="mt-1 text-[13px]">Run discovery or ingestion to find opportunities on registered sources.</p>
+                <p className="mt-1 text-[13px]">Run the pipeline from the Sources tab to find opportunities on approved sources.</p>
               </div>
             ) : (
               <div className="overflow-x-auto rounded-panel border border-rule bg-paper">
@@ -858,68 +857,8 @@ export function Curate() {
           </section>
         )}
 
-        {/* Tab 3: Sources */}
-        {tab === "sources" && (
-          <section className="mt-8 space-y-4">
-            <h2 className="text-[16px] font-semibold text-ink">Acquisition Source Registry</h2>
-            {sources.isPending ? (
-              <Spinner />
-            ) : (
-              <div className="overflow-x-auto rounded-panel border border-rule bg-paper">
-                <table className="w-full text-left text-[13.5px]">
-                  <thead className="border-b border-rule bg-cream/40 text-left [&_th]:eyebrow [&_th]:font-semibold">
-                    <tr>
-                      <th className="px-4 py-3">Source Name</th>
-                      <th className="px-4 py-3">Base Domain</th>
-                      <th className="px-4 py-3">Authority</th>
-                      <th className="px-4 py-3">Discovery</th>
-                      <th className="px-4 py-3">Robots.txt</th>
-                      <th className="px-4 py-3">Terms</th>
-                      <th className="px-4 py-3">Status</th>
-                      <th className="px-4 py-3">Publish Mode</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-rule">
-                    {(sources.data ?? []).map((src) => (
-                      <tr key={src.id} className="hover:bg-cream/20">
-                        <td className="px-4 py-3 font-semibold text-ink">{src.name}</td>
-                        <td className="px-4 py-3 font-mono text-[12.5px] text-muted">{src.base_domain}</td>
-                        <td className="px-4 py-3 capitalize">{src.authority_level}</td>
-                        <td className="px-4 py-3 capitalize">{src.discovery_method}</td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                              src.robots_status === "allowed"
-                                ? "bg-eligible-wash text-eligible-ink"
-                                : src.robots_status === "disallowed"
-                                ? "bg-ineligible-wash text-ineligible-ink"
-                                : "bg-cream text-ink-soft"
-                            }`}
-                          >
-                            {src.robots_status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3">
-                          <span
-                            className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
-                              src.terms_status === "acceptable"
-                                ? "bg-eligible-wash text-eligible-ink"
-                                : "bg-potential-wash text-potential-ink"
-                            }`}
-                          >
-                            {src.terms_status}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 capitalize font-medium">{src.status}</td>
-                        <td className="px-4 py-3 font-mono text-[12px]">{src.publish_mode}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        )}
+        {/* Tab 3: Sources and the pipeline */}
+        {tab === "sources" && <SourcesPanel role={role} onOpenQueue={() => setTab("candidates")} />}
 
         {/* Tab 3: Audit Log (Admins) */}
         {tab === "audit" && role === "admin" && (
