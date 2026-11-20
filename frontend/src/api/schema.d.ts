@@ -657,6 +657,108 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/admin/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Overview */
+        get: operations["overview_admin_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Users */
+        get: operations["list_users_admin_users_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{user_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read User */
+        get: operations["read_user_admin_users__user_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{user_id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change Role */
+        post: operations["change_role_admin_users__user_id__role_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{user_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change Status */
+        post: operations["change_status_admin_users__user_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/admin/users/{user_id}/sessions/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke Sessions */
+        post: operations["revoke_sessions_admin_users__user_id__sessions_revoke_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/me/profile/education": {
         parameters: {
             query?: never;
@@ -1238,6 +1340,179 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AccountActionReason */
+        AccountActionReason: {
+            /** Reason */
+            reason: string;
+        };
+        /** AccountRoleChange */
+        AccountRoleChange: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "student" | "curator" | "admin";
+            /** Reason */
+            reason: string;
+        };
+        /** AccountStatusChange */
+        AccountStatusChange: {
+            /** Active */
+            active: boolean;
+            /** Reason */
+            reason: string;
+        };
+        /**
+         * ActivityOverview
+         * @description People with session activity in each window (sessions refresh ``last_seen_at`` as they're used).
+         */
+        ActivityOverview: {
+            /** Active 1D */
+            active_1d: number;
+            /** Active 7D */
+            active_7d: number;
+            /** Active 30D */
+            active_30d: number;
+            /** Open Sessions */
+            open_sessions: number;
+            /** Signups 30D */
+            signups_30d: components["schemas"]["DayCount"][];
+        };
+        /** AdminOverview */
+        AdminOverview: {
+            /**
+             * Generated At
+             * Format: date-time
+             */
+            generated_at: string;
+            users: components["schemas"]["UsersOverview"];
+            activity: components["schemas"]["ActivityOverview"];
+            engagement: components["schemas"]["EngagementOverview"];
+            catalogue: components["schemas"]["CatalogueOverview"];
+            email: components["schemas"]["EmailOverview"];
+            system: components["schemas"]["SystemOverview"];
+        };
+        /** AdminSessionRead */
+        AdminSessionRead: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Last Seen At */
+            last_seen_at: string | null;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /** Device */
+            device: string | null;
+            /** Network */
+            network: string | null;
+        };
+        /** AdminUserDetail */
+        AdminUserDetail: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string | null;
+            /** Role */
+            role: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Email Verified */
+            email_verified: boolean;
+            /** Has Password */
+            has_password: boolean;
+            /** Google Linked */
+            google_linked: boolean;
+            /** Has Profile */
+            has_profile: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Last Active At */
+            last_active_at: string | null;
+            /** Deletion Due At */
+            deletion_due_at: string | null;
+            /** Saved Count */
+            saved_count: number;
+            /** Applications Count */
+            applications_count: number;
+            /** Email Verified At */
+            email_verified_at: string | null;
+            /** Deletion Requested At */
+            deletion_requested_at: string | null;
+            /** Google Email */
+            google_email: string | null;
+            /** Matches Count */
+            matches_count: number;
+            /** Sessions */
+            sessions: components["schemas"]["AdminSessionRead"][];
+            /** History */
+            history: components["schemas"]["AuditEntryRead"][];
+        };
+        /** AdminUserPage */
+        AdminUserPage: {
+            /** Items */
+            items: components["schemas"]["AdminUserRow"][];
+            /** Total */
+            total: number;
+            /** Limit */
+            limit: number;
+            /** Offset */
+            offset: number;
+        };
+        /** AdminUserRow */
+        AdminUserRow: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Email */
+            email: string;
+            /** Full Name */
+            full_name: string | null;
+            /** Role */
+            role: string;
+            /** Is Active */
+            is_active: boolean;
+            /** Email Verified */
+            email_verified: boolean;
+            /** Has Password */
+            has_password: boolean;
+            /** Google Linked */
+            google_linked: boolean;
+            /** Has Profile */
+            has_profile: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Last Active At */
+            last_active_at: string | null;
+            /** Deletion Due At */
+            deletion_due_at: string | null;
+            /** Saved Count */
+            saved_count: number;
+            /** Applications Count */
+            applications_count: number;
+        };
         /** ApplicationCreate */
         ApplicationCreate: {
             /**
@@ -1556,6 +1831,15 @@ export interface components {
             /** Description */
             description: string;
         };
+        /** CatalogueOverview */
+        CatalogueOverview: {
+            /** Opportunities By Status */
+            opportunities_by_status: components["schemas"]["NamedCount"][];
+            /** Candidates By State */
+            candidates_by_state: components["schemas"]["NamedCount"][];
+            /** Sources By Status */
+            sources_by_status: components["schemas"]["NamedCount"][];
+        };
         /**
          * CrawlPolicy
          * @description Politeness and volume bounds for one source.
@@ -1579,6 +1863,16 @@ export interface components {
              * @default 5
              */
             min_delay_seconds: number;
+        };
+        /** DayCount */
+        DayCount: {
+            /**
+             * Day
+             * Format: date
+             */
+            day: string;
+            /** Count */
+            count: number;
         };
         /**
          * DeadlineType
@@ -1696,6 +1990,34 @@ export interface components {
             gpa_scale?: number | null;
             /** Is Primary */
             is_primary?: boolean;
+        };
+        /** EmailOverview */
+        EmailOverview: {
+            /** By Status */
+            by_status: components["schemas"]["NamedCount"][];
+            /** Oldest Pending */
+            oldest_pending: string | null;
+        };
+        /** EngagementOverview */
+        EngagementOverview: {
+            /** Eligibility Checks */
+            eligibility_checks: number;
+            /** Profiles Checked */
+            profiles_checked: number;
+            /** Verdicts */
+            verdicts: components["schemas"]["NamedCount"][];
+            /** Saved */
+            saved: number;
+            /** Profiles Saving */
+            profiles_saving: number;
+            /** Applications */
+            applications: number;
+            /** Applications By Status */
+            applications_by_status: components["schemas"]["NamedCount"][];
+            /** Most Saved */
+            most_saved: components["schemas"]["TopOpportunity"][];
+            /** Most Tracked */
+            most_tracked: components["schemas"]["TopOpportunity"][];
         };
         /** ExchangeRequest */
         ExchangeRequest: {
@@ -1856,6 +2178,13 @@ export interface components {
          * @enum {string}
          */
         MatchStatus: "eligible" | "potential_match" | "not_eligible" | "needs_review";
+        /** NamedCount */
+        NamedCount: {
+            /** Key */
+            key: string;
+            /** Count */
+            count: number;
+        };
         /**
          * OpportunityCreate
          * @description Payload for creating an opportunity.
@@ -2793,6 +3122,18 @@ export interface components {
             /** Reason */
             reason?: string | null;
         };
+        /** SystemOverview */
+        SystemOverview: {
+            /** Environment */
+            environment: string;
+            /** Schema Revision */
+            schema_revision: string | null;
+            /**
+             * Database Time
+             * Format: date-time
+             */
+            database_time: string;
+        };
         /** TermsReview */
         TermsReview: {
             status: components["schemas"]["TermsStatus"];
@@ -2896,6 +3237,18 @@ export interface components {
              */
             token_type: string;
         };
+        /** TopOpportunity */
+        TopOpportunity: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Title */
+            title: string;
+            /** Count */
+            count: number;
+        };
         /**
          * UserAccountRead
          * @description Authenticated account identity including role.
@@ -2992,6 +3345,38 @@ export interface components {
              * Format: date-time
              */
             updated_at: string;
+        };
+        /**
+         * UserRole
+         * @description What an account may do beyond its own data; see ``app.core.permissions``.
+         *
+         *     Stored on ``users.role`` and read from the database on every request,
+         *     never from a token or a request body.
+         * @enum {string}
+         */
+        UserRole: "student" | "curator" | "admin";
+        /** UsersOverview */
+        UsersOverview: {
+            /** Total */
+            total: number;
+            /** Active */
+            active: number;
+            /** Suspended */
+            suspended: number;
+            /** Pending Deletion */
+            pending_deletion: number;
+            /** Verified Email */
+            verified_email: number;
+            /** With Google */
+            with_google: number;
+            /** With Profile */
+            with_profile: number;
+            /** New 7D */
+            new_7d: number;
+            /** New 30D */
+            new_30d: number;
+            /** By Role */
+            by_role: components["schemas"]["NamedCount"][];
         };
         /** ValidationError */
         ValidationError: {
@@ -4155,6 +4540,198 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuditEntryRead"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    overview_admin_overview_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminOverview"];
+                };
+            };
+        };
+    };
+    list_users_admin_users_get: {
+        parameters: {
+            query?: {
+                q?: string | null;
+                role?: components["schemas"]["UserRole"] | null;
+                state?: string | null;
+                sort?: string;
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserPage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    read_user_admin_users__user_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_role_admin_users__user_id__role_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountRoleChange"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    change_status_admin_users__user_id__status_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountStatusChange"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserDetail"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    revoke_sessions_admin_users__user_id__sessions_revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                user_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AccountActionReason"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminUserDetail"];
                 };
             };
             /** @description Validation Error */

@@ -105,6 +105,11 @@ test("authorization: ordinary student is denied access to curator workspace", as
   await expect(page.getByText(/This workspace is restricted to authorized platform curators/)).toBeVisible();
   await expect(page.getByText(/Your current role is “student”/)).toBeVisible();
   await expect(page.getByRole("button", { name: /New draft/i })).toHaveCount(0);
+
+  // The admin console is refused too, in the page and by the API.
+  await page.goto("/admin");
+  await expect(page.getByText("Admins only")).toBeVisible({ timeout: 15_000 });
+  expect((await page.request.get("/api/admin/users")).status()).toBe(403);
 });
 
 test("admin journey: curator workspace, tabs, draft creation, publish guard, and opportunity closing", async ({ page }) => {
@@ -168,4 +173,31 @@ test("admin journey: curator workspace, tabs, draft creation, publish guard, and
   const republishBtn = cernItem.getByRole("button", { name: /Check and publish/i });
   await republishBtn.click();
   await expect(cernItem.getByText("published").first()).toBeVisible({ timeout: 15_000 });
+});
+
+test("admin console: live overview, user directory, and the account panel", async ({ page }) => {
+  await page.goto("/login");
+  await page.fill("#email", ADMIN.email);
+  await page.fill("#password", ADMIN.password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/(discover|eligibility|opportunities)$/, { timeout: 15_000 });
+
+  await page.getByRole("navigation").getByRole("link", { name: "Admin" }).click();
+  await expect(page.getByRole("heading", { name: "Admin console", level: 1 })).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByText("Eligibility checks")).toBeVisible();
+  await expect(page.getByRole("img", { name: /Sign-ups per day over the last 30 days/ })).toBeVisible();
+
+  await page.getByRole("button", { name: "Users", exact: true }).click();
+  await expect(page).toHaveURL(/tab=users/);
+  await page.fill("#user-search", ADMIN.email);
+  await expect(page.getByText(/^1 account matching/)).toBeVisible({ timeout: 10_000 });
+  await page.locator("tbody tr button").first().click();
+  // An admin can't change their own role or status; another admin has to.
+  await expect(page.getByText("This is your account.")).toBeVisible();
+  await page.keyboard.press("Escape");
+
+  await page.getByRole("button", { name: "Activity", exact: true }).click();
+  await expect(page.getByText(/append-only/)).toBeVisible();
+  await page.getByRole("button", { name: "System", exact: true }).click();
+  await expect(page.getByText("Database schema")).toBeVisible();
 });

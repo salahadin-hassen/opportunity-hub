@@ -30,6 +30,7 @@ const Profile = lazy(() => import("../routes/Profile").then((module) => ({ defau
 const Saved = lazy(() => import("../routes/Saved").then((module) => ({ default: module.Saved })));
 const Applications = lazy(() => import("../routes/Applications").then((module) => ({ default: module.Applications })));
 const Curate = lazy(() => import("../routes/Curate").then((module) => ({ default: module.Curate })));
+const Admin = lazy(() => import("../routes/Admin").then((module) => ({ default: module.Admin })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -141,6 +142,7 @@ export function App() {
                   <Route path="/saved" element={app(<Saved />)} />
                   <Route path="/applications" element={app(<Applications />)} />
                   <Route path="/curate" element={app(<Curate />)} />
+                  <Route path="/admin" element={app(<Admin />)} />
                   <Route path="/profile" element={app(<Profile />)} />
                   <Route path="/credits" element={<Credits />} />
                   <Route path="/privacy" element={<Privacy />} />

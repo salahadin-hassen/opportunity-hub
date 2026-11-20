@@ -8,6 +8,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 
+from app.api.routers.admin import router as admin_console_router
 from app.api.routers.auth import router as auth_router
 from app.api.routers.auth_google import router as auth_google_router
 from app.api.routers.curate import admin_router
@@ -80,6 +81,7 @@ app.include_router(curate_opportunities_router)
 app.include_router(ingestion_router)
 app.include_router(ingestion_operations_router)
 app.include_router(admin_router)
+app.include_router(admin_console_router)
 app.include_router(education_router)
 app.include_router(opportunities_router)
 app.include_router(matches_router)

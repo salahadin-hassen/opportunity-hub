@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Bookmark, ChevronDown, Compass, FileCheck, LogOut, Menu, ScanSearch, Shield, UserRound, X, type LucideIcon } from "lucide-react";
+import { Bookmark, ChevronDown, ClipboardCheck, Compass, FileCheck, LogOut, Menu, ScanSearch, Shield, UserRound, X, type LucideIcon } from "lucide-react";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link, NavLink, useLocation } from "react-router";
 import { useProfile, useUserAccount } from "../../api/queries";
@@ -122,10 +122,11 @@ function AccountMenu() {
 export function AppShell({ children }: { children: ReactNode }) {
   const location = useLocation();
   const account = useUserAccount();
-  const isCuratorOrAdmin = account.data?.role === "curator" || account.data?.role === "admin";
-  const navItems = isCuratorOrAdmin
-    ? [...BASE_NAV, { to: "/curate", label: "Admin", icon: Shield }]
-    : BASE_NAV;
+  const role = account.data?.role;
+  // Curators work in the curator workspace; admins also get the admin console. On phones the bottom bar
+  // stays short: admins get "Admin" there, and the console links to the workspace.
+  const navItems = role === "admin" || role === "curator" ? [...BASE_NAV, { to: "/curate", label: "Curate", icon: ClipboardCheck }, ...(role === "admin" ? [{ to: "/admin", label: "Admin", icon: Shield }] : [])] : BASE_NAV;
+  const phoneItems = role === "admin" ? [...BASE_NAV, { to: "/admin", label: "Admin", icon: Shield }] : navItems;
 
   return (
     <div className="min-h-dvh bg-ivory pb-20 md:pb-0">
@@ -155,7 +156,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav aria-label="Application" className="fixed inset-x-0 bottom-0 z-40 border-t border-rule bg-paper/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-md md:hidden">
         <ul className="flex items-center justify-around">
-          {navItems.map(({ to, label, icon: Icon }) => {
+          {phoneItems.map(({ to, label, icon: Icon }) => {
             const active = location.pathname.startsWith(to);
             return (
               <li key={to} className="flex-1">

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApiError, api, unwrap } from "./client";
 import type {
   ApplicationCreate,
@@ -38,7 +38,17 @@ export const keys = {
   candidateDetail: (id: string) => ["curate", "candidates", id] as const,
   candidateRuns: ["curate", "candidates", "runs"] as const,
   auditLog: ["admin", "audit"] as const,
+  adminOverview: ["admin", "overview"] as const,
+  adminUsers: (query: AdminUserQuery) => ["admin", "users", query] as const,
+  adminUser: (id: string) => ["admin", "user", id] as const,
+  adminActivity: (filters: { action?: string; targetType?: string }) => ["admin", "activity", filters] as const,
 };
+
+export type AdminUserQuery = { q?: string; role?: "student" | "curator" | "admin"; state?: "active" | "suspended" | "pending_deletion"; sort?: "newest" | "oldest" | "last_active" | "email"; limit: number; offset: number };
+export type AdminUserAction =
+  | { kind: "role"; role: "student" | "curator" | "admin"; reason: string }
+  | { kind: "status"; active: boolean; reason: string }
+  | { kind: "signout"; reason: string };
 
 const PAGE = 100;
 
@@ -543,3 +553,63 @@ export function useRequeueCandidate() {
     },
   });
 }
+
+
+/* Admin console ---------------------------------------------------------- */
+
+export function useAdminOverview() {
+  return useQuery({
+    queryKey: keys.adminOverview,
+    queryFn: () => unwrap(api.GET("/admin/overview")),
+    staleTime: 30_000,
+  });
+}
+
+export function useAdminUsers(query: AdminUserQuery) {
+  return useQuery({
+    queryKey: keys.adminUsers(query),
+    queryFn: () => unwrap(api.GET("/admin/users", { params: { query } })),
+    placeholderData: (previous) => previous, // keep the current page on screen while the next loads
+    staleTime: 15_000,
+  });
+}
+
+export function useAdminUser(id: string | null) {
+  return useQuery({
+    queryKey: keys.adminUser(id ?? ""),
+    queryFn: () => unwrap(api.GET("/admin/users/{user_id}", { params: { path: { user_id: id! } } })),
+    enabled: Boolean(id),
+  });
+}
+
+/** Role, suspension and sign-out-everywhere: each needs a reason and is audited by the API. */
+export function useAdminUserAction(id: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (action: AdminUserAction) => {
+      const path = { params: { path: { user_id: id } } };
+      if (action.kind === "role") return unwrap(api.POST("/admin/users/{user_id}/role", { ...path, body: { role: action.role, reason: action.reason } }));
+      if (action.kind === "status") return unwrap(api.POST("/admin/users/{user_id}/status", { ...path, body: { active: action.active, reason: action.reason } }));
+      return unwrap(api.POST("/admin/users/{user_id}/sessions/revoke", { ...path, body: { reason: action.reason } }));
+    },
+    onSuccess: (detail) => {
+      client.setQueryData(keys.adminUser(id), detail);
+      void client.invalidateQueries({ queryKey: ["admin", "users"] });
+      void client.invalidateQueries({ queryKey: keys.adminOverview });
+      void client.invalidateQueries({ queryKey: ["admin", "activity"] });
+    },
+  });
+}
+
+/** The audit log, newest first, fifty at a time. */
+export function useAdminActivity(filters: { action?: string; targetType?: string }) {
+  return useInfiniteQuery({
+    queryKey: keys.adminActivity(filters),
+    initialPageParam: undefined as number | undefined,
+    queryFn: ({ pageParam }) =>
+      unwrap(api.GET("/admin/audit", { params: { query: { action: filters.action || undefined, target_type: filters.targetType || undefined, limit: 50, before_id: pageParam } } })),
+    getNextPageParam: (last) => (last.length === 50 ? last[last.length - 1]!.id : undefined),
+    staleTime: 15_000,
+  });
+}
+
