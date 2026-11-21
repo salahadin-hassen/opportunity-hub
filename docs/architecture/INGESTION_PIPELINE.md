@@ -21,7 +21,7 @@ approved source ─► discovery (connector) ─► candidates ─► fetch (saf
                                                                 curator "Check & publish" ─► publication checks ─► published
 ```
 
-- **Nothing is published automatically.** Approval creates a *draft*. Publishing is the existing curator action (`POST /curate/opportunities/{id}/publish`, "Check & publish" in the UI), with its own checks. Pipeline code never modifies an existing opportunity.
+- **Nothing is published automatically unless an admin opts a source in** (see *Automatic review* below). By default approval creates a *draft*, and publishing is the curator action (`POST /curate/opportunities/{id}/publish`, "Check & publish" in the UI), with its own checks. Pipeline code never modifies an existing opportunity.
 - **Nothing is invented.** Every extracted field has a status:
   - `explicit`: stated on the page;
   - `inferred`: derived from wording, e.g. the category from the title;
@@ -194,7 +194,7 @@ The curator workspace in `frontend/src/routes/Curate.tsx` includes an interactiv
 
 ### E. Approve and Publish
 1. **Curator Approval:**
-   Approving a candidate creates a **DRAFT** record in `opportunities` containing the source snapshot, verbatim quotes, and ISO-3166-1 alpha-2 country codes. The ingestion pipeline **never publishes automatically**.
+   Approving a candidate creates a **DRAFT** record in `opportunities` containing the source snapshot, verbatim quotes, and ISO-3166-1 alpha-2 country codes. The pipeline publishes on its own only for sources an admin has raised to `full` automation (below).
 2. **Curator Publication:**
    Publishing is performed via the curator opportunity editor ("Check & publish" button) or `POST /curate/opportunities/{id}/publish`.
    - Strict publication checks verify complete title, valid future deadline or rolling status, and syntax-valid requirement rules.
@@ -295,3 +295,36 @@ The curator workspace in `frontend/src/routes/Curate.tsx` includes an interactiv
 - **Worker Concurrency Isolation:** Candidate leasing uses PostgreSQL `FOR UPDATE SKIP LOCKED`. Multiple ingestion workers can operate in parallel without double-processing or deadlock contention.
 - **Structured Geographic Integrity:** `Opportunity.countries` is preserved through `ApprovalInput`, `ReviewRequest`, `pipeline.approve_candidate`, and `OpportunityCreate`. Country codes conform strictly to ISO-3166-1 alpha-2 standards.
 - **Eligibility Engine Safety:** Unparsed requirements and ambiguous rules are strictly assigned outcome `needs_review` / `unknown`. Under no circumstance can an unparsed rule evaluate to `eligible`, completely eliminating false-positive matches for students.
+
+
+## Automatic review (`app/intelligence/autonomy.py`, `app/intelligence/ai_review.py`)
+
+Each approved source has a `publish_mode`. An admin raises it one step at a time, and only for official sources. Anyone can drop it back to `off`, and it falls to `off` by itself when the source leaves `approved`.
+
+| Mode | What happens to a `needs_review` candidate from this source |
+|---|---|
+| `off` | Waits for a person (default). |
+| `shadow` | Every check runs and the verdict is stored in `validation.autonomy`. Nothing is drafted or published. |
+| `listing_only` | A candidate that passes every check becomes a draft. A person publishes it. |
+| `full` | A candidate that passes every check is drafted and published (`opportunity.auto_published` audit). |
+
+A candidate fails and is **held for a person** if any of these is not true:
+- the source is approved, official and its terms are acceptable;
+- validation has no problems;
+- the page isn't a possible new cycle;
+- the page has a specific title;
+- the page has an opportunity type;
+- there is one future deadline that the rules (and the AI, when on) agree on, or an explicit rolling/no-deadline statement;
+- at least 2 eligibility rules are quoted verbatim.
+
+With AI review on, the AI must also say this is one open opportunity page, with confidence ≥ 0.7. Without AI, the candidate also needs a quality score ≥ 60 and a deadline found by the rules.
+
+A candidate is decided once per content hash, mode and policy version. Each pipeline run also expires stale candidates and closes published listings whose deadline has passed (`opportunity.auto_closed`).
+
+**AI review (optional).** Set `GROQ_API_KEY` (and optionally `GROQ_MODEL`, default `openai/gpt-oss-120b`) to turn it on.
+- The model reads the stored page text with a strict JSON schema, and every field must come with a verbatim quote.
+- Quotes are checked against the page; anything not on the page is dropped and recorded.
+- The AI can only veto or confirm; it never publishes on its own say-so.
+- Calls are throttled under Groq's free-tier token limit.
+- A failed call means "no AI opinion", and the rule-only path then applies.
+- Only public programme-page text is sent.

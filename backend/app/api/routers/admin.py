@@ -152,7 +152,10 @@ def overview(db: DbSession = Depends(get_db, scope="function"), _: User = Depend
         revision = db.scalar(text("SELECT version_num FROM alembic_version"))
     except Exception:  # pragma: no cover - only when migrations were never run
         revision = None
-    system = SystemOverview(environment=settings.APP_ENV, schema_revision=revision, database_time=db.scalar(select(func.now())))
+    system = SystemOverview(
+        environment=settings.APP_ENV, schema_revision=revision, database_time=db.scalar(select(func.now())),
+        ai_review=bool(settings.GROQ_API_KEY), ai_model=settings.GROQ_MODEL if settings.GROQ_API_KEY else None,
+    )
     return AdminOverview(generated_at=now, users=users, activity=activity, engagement=engagement, catalogue=catalogue, email=email, system=system)
 
 

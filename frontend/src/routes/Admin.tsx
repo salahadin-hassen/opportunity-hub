@@ -821,6 +821,7 @@ function SystemTab() {
           </Fact>
           <Fact label="Database clock">{Math.abs(skew) < 60 ? "In sync with your device" : `${skew > 0 ? "+" : ""}${skew} s from your device`}</Fact>
           <Fact label="Open sessions">{o.activity.open_sessions}</Fact>
+          <Fact label="AI review">{o.system.ai_review ? `On (${o.system.ai_model})` : "Off: no GROQ_API_KEY set"}</Fact>
         </dl>
       </Panel>
       <Panel title="Email delivery" aside={failedEmail ? <span className="text-[13px] font-semibold text-ineligible-ink">● {failedEmail} failed</span> : <span className="text-[13px] text-eligible-ink">✓ No failures</span>}>

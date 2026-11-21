@@ -650,6 +650,11 @@ export function useIngestionActions() {
         unwrap(api.POST("/curate/sources/{source_id}/terms-review", { params: { path: { source_id: input.sourceId } }, body: { status: input.status, notes: input.notes } })),
       onSuccess,
     }),
+    setPublishMode: useMutation({
+      mutationFn: (input: { sourceId: string; mode: "off" | "shadow" | "listing_only" | "full"; reason: string }) =>
+        unwrap(api.POST("/curate/sources/{source_id}/publish-mode", { params: { path: { source_id: input.sourceId } }, body: { mode: input.mode, reason: input.reason } })),
+      onSuccess,
+    }),
     changeStatus: useMutation({
       mutationFn: (input: { sourceId: string; status: "approved" | "paused" | "testing"; reason?: string }) =>
         unwrap(api.POST("/curate/sources/{source_id}/status", { params: { path: { source_id: input.sourceId } }, body: { status: input.status, reason: input.reason ?? null } })),

@@ -3253,6 +3253,13 @@ export interface components {
              * Format: date-time
              */
             database_time: string;
+            /**
+             * Ai Review
+             * @default false
+             */
+            ai_review: boolean;
+            /** Ai Model */
+            ai_model?: string | null;
         };
         /** TermsReview */
         TermsReview: {

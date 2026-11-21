@@ -23,6 +23,7 @@ import {
   useUserAccount,
 } from "../api/queries";
 import { PageHeader } from "../components/layout/AppShell";
+import { AutomationVerdict } from "../components/curate/AutomationVerdict";
 import { SourcesPanel } from "../components/curate/SourcesPanel";
 import { Content, Page } from "../components/layout/Page";
 import type { OpportunityType } from "../api/types";
@@ -646,6 +647,7 @@ export function Curate() {
                       )}
 
                       {/* What was fetched, and what the pipeline could and could not support with a quote */}
+                      <AutomationVerdict validation={candidateDetail.data?.validation} />
                       <CandidateEvidence candidate={candidateDetail.data} />
 
                       {/* Extracted Fields */}

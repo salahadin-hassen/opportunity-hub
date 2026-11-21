@@ -45,6 +45,12 @@ class Settings(BaseSettings):
     CORS_ORIGINS: str = ""
     #: Comma-separated Host header values to accept. Empty accepts any host.
     ALLOWED_HOSTS: str = ""
+    #: Optional AI review of ingestion candidates through Groq's OpenAI-compatible API. Unset means
+    #: no AI: the pipeline runs on its rule-based extractor only and automation is stricter. Only
+    #: public programme-page text is ever sent; never user data.
+    GROQ_API_KEY: str | None = None
+    #: A Groq model that supports strict structured outputs (see console.groq.com/docs/structured-outputs).
+    GROQ_MODEL: str = "openai/gpt-oss-120b"
     #: Credential attempts (login, registration, password-reset requests) allowed per minute,
     #: per account email and, when the client-IP strategy yields an identity, per client address.
     #: Defaults to 10. Must be an integer from 1 to 1000. The literal ``disabled`` turns the

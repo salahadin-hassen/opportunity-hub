@@ -37,7 +37,7 @@ from sqlalchemy.orm import Session
 from app.api.deps import require_permission
 from app.core.permissions import Permission
 from app.db.session import SessionLocal, get_db
-from app.intelligence import pipeline, registry
+from app.intelligence import ai_review, autonomy, pipeline, registry
 from app.intelligence.definitions import SourceDefinition
 from app.models import AcquisitionSource, User
 from app.models.enums import SourceStatus
@@ -131,12 +131,23 @@ def _pipeline_work(source_id: uuid.UUID | None, limit: int) -> Callable[[Session
             report = pipeline.run_discovery(db, source)
             discovered.append({"source": source.name, "new": report.new, "seen_again": report.seen_again, "rejected": len(report.rejected), "error": report.error})
         processed = pipeline.process_candidates(db, limit=limit, source_id=source_id)
+        # Autonomy: decide reviewable candidates of sources above "off" (see app.intelligence.autonomy),
+        # then retire what has passed its deadline.
+        today = datetime.now(timezone.utc).date()
+        automatic = autonomy.run(db, today=today, limit=limit)
+        expired = pipeline.expire_candidates(db, today=today)
+        db.commit()
+        closed = autonomy.close_past_deadline(db)
         return {
             "sources": len(sources),
             "new_leads": sum(item["new"] for item in discovered),
             "discovery": discovered,
             "processed": processed.processed,
             "by_state": processed.by_state,
+            "automatic": automatic,
+            "ai_review": ai_review.enabled(),
+            "expired_candidates": expired,
+            "closed_opportunities": closed,
             "errors": processed.errors[:10],
         }
 

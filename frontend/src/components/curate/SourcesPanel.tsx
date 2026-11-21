@@ -66,6 +66,14 @@ function JobSummary({ job, onOpenQueue }: { job: Job; onOpenQueue: () => void })
         <CheckCircle2 size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
         {job.label}: {plural(Number(s.sources ?? 0), "source")} checked, {plural(Number(s.new_leads ?? 0), "new page")} found, {plural(Number(s.processed ?? 0), "candidate")} processed.
       </p>
+      {s.automatic ? (
+        <p className="mt-1 pl-6 text-[13px] text-ink-soft">
+          Automatic review{s.ai_review ? " (with AI)" : " (rule-based only: no AI key set)"}:{" "}
+          {(["published", "drafted", "shadow", "held"] as const)
+            .map((key) => `${(s.automatic as Record<string, number>)[key] ?? 0} ${key === "shadow" ? "recorded in shadow" : key}`)
+            .join(" · ")}
+        </p>
+      ) : null}
       {Object.keys(byState).length > 0 && (
         <p className="mt-1 pl-6 text-[13px] text-ink-soft">
           {Object.entries(byState)
@@ -276,8 +284,60 @@ function SourceRow({
         </div>
       </div>
       {isAdmin && source.status === "testing" && !approvable && <p className="mt-2 text-[12.5px] text-muted">To approve, this source needs {missing.join(", ")}.</p>}
+      {source.status === "approved" && <AutomationControl source={source} isAdmin={isAdmin} actions={actions} />}
       {reviewing && <TermsForm source={source} actions={actions} onDone={onReview} />}
     </li>
+  );
+}
+
+const MODES = ["off", "shadow", "listing_only", "full"] as const;
+const MODE_TEXT: Record<(typeof MODES)[number], [string, string]> = {
+  off: ["Off", "Every candidate waits for a person."],
+  shadow: ["Shadow", "Checks run and the verdict is recorded on each candidate; nothing is drafted or published."],
+  listing_only: ["Drafts automatically", "Candidates that pass every check become drafts; a person publishes."],
+  full: ["Publishes automatically", "Candidates that pass every check are drafted and published; the rest wait for a person."],
+};
+
+/** The source's automation level: raised one step at a time by an admin, turned off at once. */
+function AutomationControl({ source, isAdmin, actions }: { source: Source; isAdmin: boolean; actions: ReturnType<typeof useIngestionActions> }) {
+  const mode = (MODES as readonly string[]).includes(source.publish_mode) ? (source.publish_mode as (typeof MODES)[number]) : "off";
+  const index = MODES.indexOf(mode);
+  const next = MODES[index + 1];
+  const official = source.authority_level === "official";
+  const error = errorText(actions.setPublishMode.error);
+  return (
+    <div className="mt-3 rounded-[10px] border border-rule bg-cream/30 px-3 py-2.5">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-[13px] text-ink">
+          <span className="font-semibold">Automation: {MODE_TEXT[mode][0]}.</span> <span className="text-ink-soft">{MODE_TEXT[mode][1]}</span>
+        </p>
+        {isAdmin && (
+          <div className="flex gap-2">
+            {next && official && (
+              <button
+                type="button"
+                className="btn btn-sm btn-quiet"
+                disabled={actions.setPublishMode.isPending}
+                onClick={() => actions.setPublishMode.mutate({ sourceId: source.id, mode: next, reason: `Raised to ${next} in the curator workspace` })}
+              >
+                Raise to “{MODE_TEXT[next][0]}”
+              </button>
+            )}
+            {mode !== "off" && (
+              <button type="button" className="btn btn-sm btn-ghost" disabled={actions.setPublishMode.isPending} onClick={() => actions.setPublishMode.mutate({ sourceId: source.id, mode: "off", reason: "Turned off in the curator workspace" })}>
+                Turn off
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+      {!official && <p className="mt-1 text-[12px] text-muted">Only official sources can be automated.</p>}
+      {error && (
+        <p role="alert" className="mt-1 text-[12.5px] text-ineligible-ink">
+          {error}
+        </p>
+      )}
+    </div>
   );
 }
 

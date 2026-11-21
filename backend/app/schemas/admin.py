@@ -81,6 +81,9 @@ class SystemOverview(BaseModel):
     environment: str
     schema_revision: str | None
     database_time: datetime
+    #: Whether candidates get an AI review (a GROQ_API_KEY is set), and with which model.
+    ai_review: bool = False
+    ai_model: str | None = None
 
 
 class AdminOverview(BaseModel):
