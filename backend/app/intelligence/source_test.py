@@ -160,6 +160,10 @@ def run_source_test(
         (report.problems if curated else report.warnings).append(summary)
 
     leads = discovery.accepted if curated else discovery.accepted[: max(1, sample)]
+    if len(leads) > 20:
+        # A long fetch loop must not hold a database connection: hosted Postgres closes idle ones. Nothing
+        # is pending here (discovery ran as a dry run), so release it; the result is recorded afterwards.
+        db.commit()
     for url in leads:
         report.checks.append(check_lead(reader, url))
     report.fetched_ok = sum(1 for check in report.checks if check.ok)

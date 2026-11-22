@@ -869,8 +869,7 @@
         "https://www.ukri.org/opportunity/page/11/",
         "https://www.ukri.org/opportunity/page/12/",
         "https://www.ukri.org/opportunity/page/13/",
-        "https://www.ukri.org/opportunity/page/14/",
-        "https://www.ukri.org/opportunity/page/15/"
+        "https://www.ukri.org/opportunity/page/14/"
       ],
       "link_patterns": [
         "^https://www\\.ukri\\.org/opportunity/(?!page/|feed/)[a-z0-9-]+/$"
