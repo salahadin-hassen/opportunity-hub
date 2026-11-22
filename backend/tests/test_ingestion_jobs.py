@@ -107,6 +107,31 @@ async def test_starter_import_proposes_the_shipped_list_once_and_is_audited(clie
     assert db_session.scalar(select(AuditLog).where(AuditLog.action == "ingestion.starter_imported", AuditLog.actor_user_id == users["admin"].id))
 
 
+async def test_starter_import_updates_an_existing_source_by_host_and_sends_it_back_to_testing(client, db_session, users, monkeypatch, tmp_path):
+    import json
+
+    from app.intelligence.definitions import SourceDefinition
+
+    raw = json.loads(jobs.STARTER_SOURCES.read_text())[0]
+    old = dict(raw, name="An older name", connector_config={"urls": raw["connector_config"]["urls"][:1]})
+    source = registry.create_source(db_session, SourceDefinition.model_validate(old), actor_id=users["admin"].id)
+    registry.change_status(db_session, source, SourceStatus.TESTING, actor_id=users["admin"].id)
+    registry.record_test_run(db_session, source, passed=True, robots_status=RobotsStatus.ALLOWED)
+    registry.record_terms_review(db_session, source, status="acceptable", reviewer_id=users["admin"].id, notes="Reviewed")
+    registry.change_status(db_session, source, SourceStatus.APPROVED, actor_id=users["admin"].id, reason="Test")
+    db_session.flush()
+    listed = tmp_path / "list.json"
+    listed.write_text(json.dumps([raw]))
+    monkeypatch.setattr(jobs, "STARTER_SOURCES", listed)
+    result = (await client.post("/curate/ingestion/jobs/starter-sources", headers=as_(users["admin"]))).json()
+    assert result == {"created": [], "skipped": [], "updated": [raw["name"]]}
+    db_session.refresh(source)
+    assert source.name == raw["name"] and source.connector_config["urls"] == raw["connector_config"]["urls"]
+    assert source.status == SourceStatus.TESTING
+    again = (await client.post("/curate/ingestion/jobs/starter-sources", headers=as_(users["admin"]))).json()
+    assert again == {"created": [], "skipped": [raw["name"]], "updated": []}
+
+
 async def test_a_run_needs_an_approved_source(client, db_session, users):
     for source in db_session.scalars(select(AcquisitionSource).where(AcquisitionSource.status == SourceStatus.APPROVED)):
         source.status = SourceStatus.PAUSED

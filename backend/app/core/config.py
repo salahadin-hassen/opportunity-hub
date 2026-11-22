@@ -51,6 +51,9 @@ class Settings(BaseSettings):
     GROQ_API_KEY: str | None = None
     #: A Groq model that supports strict structured outputs (see console.groq.com/docs/structured-outputs).
     GROQ_MODEL: str = "openai/gpt-oss-120b"
+    #: Tried in order when GROQ_MODEL has hit its daily free-tier cap (Groq limits each model separately).
+    #: Comma-separated; empty to disable.
+    GROQ_FALLBACK_MODELS: str = "openai/gpt-oss-20b,qwen/qwen3.8-27b"
     #: Credential attempts (login, registration, password-reset requests) allowed per minute,
     #: per account email and, when the client-IP strategy yields an identity, per client address.
     #: Defaults to 10. Must be an integer from 1 to 1000. The literal ``disabled`` turns the

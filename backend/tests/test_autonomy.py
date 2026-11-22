@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 import uuid
-from datetime import date, timedelta
+from datetime import date, timedelta, timezone
 
 import httpx
 import pytest
@@ -82,6 +82,12 @@ def test_a_deadline_needs_its_year_in_the_quote():
     assert review.deadline is None
 
 
+@pytest.fixture(autouse=True)
+def no_budget_wait(monkeypatch):
+    """The free-tier token pacing is real time; these tests don't wait for it."""
+    monkeypatch.setattr(ai_review, "_wait_for_budget", lambda tokens, model="": None)
+
+
 def test_no_key_means_no_request(monkeypatch):
     monkeypatch.setattr(settings, "GROQ_API_KEY", None)
     called = []
@@ -108,6 +114,28 @@ def test_the_call_uses_strict_json_schema_and_retries_once_on_rate_limit(monkeyp
     review = ai_review.review_page(PAGE, today=TODAY, client=httpx.Client(transport=httpx.MockTransport(handler)))
     assert review is not None and review.title == "Example Research Fellowship"
     assert len(seen) == 2
+
+
+def test_a_spent_daily_cap_falls_back_to_the_second_model_and_skips_the_first_until_reset(monkeypatch):
+    monkeypatch.setattr(settings, "GROQ_API_KEY", "test-key")
+    monkeypatch.setattr(settings, "GROQ_MODEL", "big")
+    monkeypatch.setattr(settings, "GROQ_FALLBACK_MODELS", "small")
+    monkeypatch.setattr(ai_review, "_exhausted", {})
+    monkeypatch.setattr(ai_review.time, "sleep", lambda seconds: None)
+    models = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        model = json.loads(request.content)["model"]
+        models.append(model)
+        if model == "big":
+            return httpx.Response(429, headers={"retry-after": "3600"})
+        return httpx.Response(200, json={"choices": [{"message": {"content": json.dumps(raw())}}]})
+
+    client = httpx.Client(transport=httpx.MockTransport(handler))
+    first = ai_review.review_page(PAGE, today=TODAY, client=client)
+    second = ai_review.review_page(PAGE, today=TODAY, client=client)
+    assert first is not None and first.model == "small" and second is not None
+    assert models == ["big", "small", "small"]
 
 
 def test_a_failed_call_is_no_opinion_not_a_crash(monkeypatch):
@@ -305,3 +333,79 @@ def test_a_possible_new_cycle_is_always_a_person_s_call(db_session, admin):
     validation = {"problems": [], "irrelevant": False, "expired": False, "warnings": ["possible new cycle of existing opportunity 'X'"]}
     decision = autonomy.decide(make_candidate(db_session, source, validation=validation), source, today=TODAY, ai=ai_review.verify(raw(), PAGE, "m", TODAY), use_ai=True)
     assert decision.outcome == "hold"
+
+
+def test_the_ai_may_fill_a_missing_deadline_and_its_quote_becomes_the_evidence(db_session, admin, monkeypatch):
+    monkeypatch.setattr(settings, "GROQ_API_KEY", "test-key")
+    monkeypatch.setattr(Session, "commit", Session.flush)
+    monkeypatch.setattr(ai_review, "review_page", lambda page, today: ai_review.verify(raw(), page, "m", today))
+    source = make_source(db_session, admin, PublishMode.FULL)
+    candidate = make_candidate(
+        db_session, source, ex=extraction(deadline=None),
+        validation={"problems": ["no deadline or rolling/no-deadline statement found"], "warnings": [], "irrelevant": False, "expired": False},
+    )
+    assert autonomy.run(db_session, today=TODAY)["published"] == 1
+    db_session.refresh(candidate)
+    opportunity = db_session.get(Opportunity, candidate.opportunity_id)
+    assert opportunity.deadline_at.astimezone(timezone.utc).date() == date(2027, 3, 15)
+    assert candidate.extraction["deadline"]["evidence"][0]["quote"] in PAGE
+
+
+def test_a_real_validation_problem_still_holds_and_the_ai_is_not_asked(db_session, admin, monkeypatch):
+    monkeypatch.setattr(settings, "GROQ_API_KEY", "test-key")
+    asked = []
+    monkeypatch.setattr(ai_review, "review_page", lambda page, today: asked.append(1))
+    source = make_source(db_session, admin, PublishMode.FULL)
+    candidate = make_candidate(db_session, source, validation={"problems": ["title: extracted evidence does not appear on the page"], "irrelevant": False, "expired": False})
+    asked_flag = autonomy._cheap_gates_pass(candidate, source)
+    decision = autonomy.decide(candidate, source, today=TODAY, ai=None, use_ai=True, ai_asked=asked_flag)
+    assert decision.outcome == "hold" and not asked_flag
+    assert any("title: extracted evidence" in r for r in decision.held_because)
+    assert any("Not asked" in r for r in decision.held_because)
+
+
+def test_a_rolling_deadline_needs_the_ai_to_agree(db_session, admin):
+    source = make_source(db_session, admin, PublishMode.FULL)
+    ex = extraction(deadline=None)
+    ex["deadline_type"] = {"status": "explicit", "value": "rolling", "evidence": [{"quote": "Funding covers travel", "location": "text"}]}
+    candidate = make_candidate(db_session, source, ex=ex)
+    unsure = ai_review.verify(raw(deadline={"kind": "unknown", "date": None, "quote": None}), PAGE, "m", TODAY)
+    decision = autonomy.decide(candidate, source, today=TODAY, ai=unsure, use_ai=True)
+    assert decision.outcome == "hold" and any("did not confirm" in r for r in decision.held_because)
+
+
+def test_a_candidate_held_only_for_lack_of_ai_is_decided_again(db_session, admin, monkeypatch):
+    monkeypatch.setattr(settings, "GROQ_API_KEY", "test-key")
+    monkeypatch.setattr(Session, "commit", Session.flush)
+    answers = iter([None, "ok"])
+    monkeypatch.setattr(ai_review, "review_page", lambda page, today: None if next(answers) is None else ai_review.verify(raw(), page, "m", today))
+    source = make_source(db_session, admin, PublishMode.FULL)
+    make_candidate(db_session, source)
+    assert autonomy.run(db_session, today=TODAY)["held"] == 1
+    assert autonomy.run(db_session, today=TODAY)["published"] == 1
+
+
+def test_the_limit_counts_decisions_not_skipped_candidates(db_session, admin, no_ai):
+    source = make_source(db_session, admin, PublishMode.SHADOW)
+    for _ in range(3):
+        make_candidate(db_session, source)
+    assert autonomy.run(db_session, today=TODAY, limit=2)["shadow"] == 2
+    second = autonomy.run(db_session, today=TODAY, limit=2)
+    assert second["shadow"] == 1 and second["skipped"] == 2
+
+
+def test_cli_raises_automation_one_audited_step_at_a_time_and_lowers_at_once(db_session, admin, monkeypatch, capsys):
+    import argparse
+
+    from app import ingest_cli
+
+    monkeypatch.setattr(Session, "commit", Session.flush)
+    source = make_source(db_session, admin, PublishMode.OFF)
+
+    def automation(mode: str) -> int:
+        return ingest_cli.run(db_session, argparse.Namespace(command="ingest-source-automation", name=source.name, mode=mode, actor=admin.email, reason="Test"))
+
+    assert automation("full") == 0 and source.publish_mode == PublishMode.FULL
+    steps = db_session.scalars(select(AuditLog.changes).where(AuditLog.target_id == str(source.id), AuditLog.action.like("%publish_mode%"))).all()
+    assert len(steps) >= 3
+    assert automation("off") == 0 and source.publish_mode == PublishMode.OFF

@@ -75,6 +75,17 @@ def add_commands(commands: argparse._SubParsersAction) -> None:
     status.add_argument("--actor", required=True)
     status.add_argument("--reason")
     commands.add_parser("ingest-sources", help="list acquisition sources")
+    sync = commands.add_parser("ingest-starter-sync", help="create or update sources from the shipped starter list")
+    sync.add_argument("--actor", required=True)
+    automation = commands.add_parser("ingest-source-automation", help="set a source's automation level (raised one step at a time)")
+    automation.add_argument("name")
+    automation.add_argument("mode", choices=["off", "shadow", "listing_only", "full"])
+    automation.add_argument("--actor", required=True)
+    automation.add_argument("--reason", required=True)
+    autopilot = commands.add_parser("ingest-autopilot", help="run discovery, processing and automatic review in a loop")
+    autopilot.add_argument("--hours", type=float, default=1.0, help="stop after this long")
+    autopilot.add_argument("--batch", type=int, default=50, help="candidates processed and decided per round")
+    autopilot.add_argument("--pause-minutes", type=float, default=10.0, help="wait between rounds that found nothing to do")
     em = commands.add_parser("ingest-em-review",
                              help="apply the Erasmus Mundus evidence standard (rule-based review with spot-checks)")
     em.add_argument("sources", type=Path, help="the Erasmus Mundus source definitions JSON (with catalogue titles)")
@@ -136,6 +147,27 @@ def add_commands(commands: argparse._SubParsersAction) -> None:
     runs = commands.add_parser("ingest-runs", help="recent discovery and processing runs")
     runs.add_argument("--limit", type=int, default=20)
     commands.add_parser("ingest-stats", help="candidate counts by state, and opportunity counts")
+
+
+def _autopilot(db: Session, *, hours: float, batch: int, pause_minutes: float) -> int:
+    """Rounds of the site's "Run" job until time is up. A round that decided nothing new waits before the next."""
+    import time as _time
+
+    from app.api.routers.ingestion_jobs import _pipeline_work
+
+    stop = _time.monotonic() + hours * 3600
+    rounds = 0
+    while _time.monotonic() < stop:
+        rounds += 1
+        summary = _pipeline_work(None, batch)(db)
+        auto = summary["automatic"]
+        print(f"[{datetime.now(timezone.utc):%Y-%m-%d %H:%M}] round {rounds}: new leads {summary['new_leads']}, processed {summary['processed']}, "
+              f"published {auto['published']}, drafted {auto['drafted']}, shadow {auto['shadow']}, held {auto['held']}, "
+              f"already decided {auto['skipped']}, closed {summary['closed_opportunities']}", flush=True)
+        busy = summary["processed"] or auto["published"] or auto["drafted"] or auto["shadow"] or auto["held"]
+        if not busy:
+            _time.sleep(max(0.0, min(pause_minutes * 60, stop - _time.monotonic())))
+    return 0
 
 
 def _source(db: Session, name: str):
@@ -255,6 +287,31 @@ def run(db: Session, args: argparse.Namespace) -> int:
             registry.change_status(db, source, SourceStatus(args.status), actor_id=actor.id, reason=args.reason)
             db.commit()
             print(f"{source.name}: {source.status}")
+        elif command == "ingest-starter-sync":
+            from app.api.routers.ingestion_jobs import sync_starter_sources
+
+            actor = _actor(db, args.actor, Permission.SOURCE_APPROVE)
+            created, updated, skipped = sync_starter_sources(db, actor_id=actor.id)
+            db.commit()
+            print(f"created {len(created)}, updated {len(updated)} (back to testing), unchanged {len(skipped)}")
+            for name in updated:
+                print(f"  updated: {name}")
+        elif command == "ingest-source-automation":
+            from app.intelligence.lifecycle import PUBLISH_ORDER
+            from app.models.enums import PublishMode
+
+            source = _source(db, args.name)
+            actor = _actor(db, args.actor, Permission.SOURCE_PUBLISH_RAISE)
+            target = PublishMode(args.mode)
+            order = list(PUBLISH_ORDER)
+            while order.index(PublishMode(source.publish_mode)) < order.index(target):
+                registry.set_publish_mode(db, source, order[order.index(PublishMode(source.publish_mode)) + 1], actor_id=actor.id, reason=args.reason)
+            if order.index(PublishMode(source.publish_mode)) > order.index(target):
+                registry.set_publish_mode(db, source, target, actor_id=actor.id, reason=args.reason)
+            db.commit()
+            print(f"{source.name}: automation {source.publish_mode}")
+        elif command == "ingest-autopilot":
+            return _autopilot(db, hours=args.hours, batch=args.batch, pause_minutes=args.pause_minutes)
         elif command == "ingest-sources":
             for source in db.scalars(select(AcquisitionSource).order_by(AcquisitionSource.name)):
                 print(f"{source.name}\t{source.status}\t{source.connector_key}\trobots={source.robots_status}\t"

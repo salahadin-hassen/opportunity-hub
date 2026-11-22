@@ -39,7 +39,7 @@ from app.core.permissions import Permission
 from app.db.session import SessionLocal, get_db
 from app.intelligence import ai_review, autonomy, pipeline, registry
 from app.intelligence.definitions import SourceDefinition
-from app.models import AcquisitionSource, User
+from app.models import AcquisitionSource, AcquisitionSourceHost, User
 from app.models.enums import SourceStatus
 from app.services import audit
 
@@ -210,6 +210,8 @@ class PipelineRunRequest(BaseModel):
 class StarterImport(BaseModel):
     created: list[str]
     skipped: list[str]
+    #: Existing sources whose declaration changed (more pages, a new name). They go back to testing.
+    updated: list[str] = Field(default_factory=list)
 
 
 def _read(job: Job | None) -> JobRead | None:
@@ -267,22 +269,47 @@ def import_starter_sources(
     db: Session = Depends(get_db, scope="function"),
     admin: User = Depends(require_permission(Permission.SOURCE_APPROVE)),
 ) -> StarterImport:
-    """Propose the reviewed starter list that ships with the code. Existing names are skipped; nothing is fetched."""
+    """Propose the reviewed starter list that ships with the code. Nothing is fetched.
+
+    A source that already exists (same name, or one of the same hosts) is updated when the list declares it
+    differently, which sends an approved source back to testing; an unchanged or retired one is skipped."""
     if not STARTER_SOURCES.exists():
         raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="The starter source list isn’t available on this server.")
+    created, updated, skipped = sync_starter_sources(db, actor_id=admin.id)
+    audit.record(db, action="ingestion.starter_imported", target_type="ingestion", target_id="starter-sources", actor_id=admin.id,
+                 changes={"created": len(created), "updated": len(updated), "skipped": len(skipped)})
+    return StarterImport(created=created, skipped=skipped, updated=updated)
+
+
+def sync_starter_sources(db: Session, *, actor_id: uuid.UUID | None) -> tuple[list[str], list[str], list[str]]:
+    """Create or update sources from the shipped list (see ``import_starter_sources``); returns created, updated, skipped."""
     definitions = json.loads(STARTER_SOURCES.read_text())
     created: list[str] = []
     skipped: list[str] = []
+    updated: list[str] = []
     for raw in definitions:
         definition = SourceDefinition.model_validate(raw)
-        if db.scalar(select(AcquisitionSource.id).where(AcquisitionSource.name == definition.name)):
+        existing = db.scalar(select(AcquisitionSource).where(AcquisitionSource.name == definition.name)) or db.scalar(
+            select(AcquisitionSource).join(AcquisitionSourceHost).where(AcquisitionSourceHost.host.in_(definition.allowed_hosts))
+        )
+        if existing is None:
+            registry.create_source(db, definition, actor_id=actor_id)
+            created.append(definition.name)
+        elif existing.status != SourceStatus.RETIRED and _declared(existing) != _declared(definition):
+            registry.update_definition(db, existing, definition, actor_id=actor_id)
+            updated.append(definition.name)
+        else:
             skipped.append(definition.name)
-            continue
-        registry.create_source(db, definition, actor_id=admin.id)
-        created.append(definition.name)
-    audit.record(db, action="ingestion.starter_imported", target_type="ingestion", target_id="starter-sources", actor_id=admin.id,
-                 changes={"created": len(created), "skipped": len(skipped)})
-    return StarterImport(created=created, skipped=skipped)
+    return created, updated, skipped
+
+
+def _declared(item: AcquisitionSource | SourceDefinition) -> tuple[Any, ...]:
+    """What the starter list controls about a source, comparable between a row and a definition."""
+    if isinstance(item, SourceDefinition):
+        return (item.name, sorted(item.allowed_hosts), item.provider.name, str(item.category), item.connector_key,
+                item.connector_config, item.crawl_policy.model_dump(mode="json"))
+    return (item.name, sorted(registry.allowed_hosts(item)), item.provider_name, str(item.category), item.connector_key,
+            item.connector_config, item.crawl_policy)
 
 
 __all__ = ["router"]

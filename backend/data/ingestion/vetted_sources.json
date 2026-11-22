@@ -1,362 +1,1323 @@
 [
- {
-  "name": "Amgen Scholars Program",
-  "base_domain": "amgenscholars.com",
-  "allowed_hosts": [
-   "amgenscholars.com"
-  ],
-  "category": "foundation",
-  "authority_level": "official",
-  "provider": {
-   "name": "Amgen Foundation"
+  {
+    "name": "Commonwealth Scholarship Commission in the UK",
+    "base_domain": "fcdo.gov.uk",
+    "allowed_hosts": [
+      "cscuk.fcdo.gov.uk"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Commonwealth Scholarship Commission in the UK"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-phd-scholarships-for-least-developed-countries-and-vulnerable-states/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-shared-scholarships-applications/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-fellowships-information-for-candidates/",
+        "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-startup-fellowship-information-for-candidates/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
   },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://amgenscholars.com/"
-   ]
+  {
+    "name": "Mitacs programs",
+    "base_domain": "mitacs.ca",
+    "allowed_hosts": [
+      "www.mitacs.ca"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Mitacs"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.mitacs.ca/our-programs/globalink-research-internship-students/",
+        "https://www.mitacs.ca/our-programs/globalink-graduate-fellowship/",
+        "https://www.mitacs.ca/our-programs/globalink-research-award/",
+        "https://www.mitacs.ca/our-programs/rise-globalink-research-internship/",
+        "https://www.mitacs.ca/our-programs/accelerate-fellowship/",
+        "https://www.mitacs.ca/our-programs/accelerate-international-students-postdocs/",
+        "https://www.mitacs.ca/our-programs/elevate/",
+        "https://www.mitacs.ca/our-programs/business-strategy-internship/",
+        "https://www.mitacs.ca/our-programs/canadian-science-policy-fellowship/",
+        "https://www.mitacs.ca/our-programs/mitacs-entrepreneur-international/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
   },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
+  {
+    "name": "Manaaki New Zealand Scholarships",
+    "base_domain": "nzscholarships.govt.nz",
+    "allowed_hosts": [
+      "www.nzscholarships.govt.nz"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "New Zealand Ministry of Foreign Affairs and Trade"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.nzscholarships.govt.nz/check-eligibility-criteria/",
+        "https://www.nzscholarships.govt.nz/international-tertiary-students/",
+        "https://www.nzscholarships.govt.nz/thematic-short-term-training-scholarships/",
+        "https://www.nzscholarships.govt.nz/vocational-short-term-scholarships/",
+        "https://www.nzscholarships.govt.nz/english-language-training-for-officials-scholarships/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Study in Japan: government scholarships",
+    "base_domain": "go.jp",
+    "allowed_hosts": [
+      "www.studyinjapan.go.jp"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Ministry of Education, Culture, Sports, Science and Technology (Japan)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.studyinjapan.go.jp/en/planning/scholarships/mext-scholarships/",
+        "https://www.studyinjapan.go.jp/en/planning/scholarships/jasso-scholarships/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Türkiye Scholarships",
+    "base_domain": "turkiyeburslari.gov.tr",
+    "allowed_hosts": [
+      "www.turkiyeburslari.gov.tr"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Presidency for Turks Abroad and Related Communities (YTB)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.turkiyeburslari.gov.tr/scholarshipsprograms",
+        "https://www.turkiyeburslari.gov.tr/fulltimeprograms",
+        "https://www.turkiyeburslari.gov.tr/shorttermprograms",
+        "https://www.turkiyeburslari.gov.tr/partneredprograms"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Chevening Scholarships",
+    "base_domain": "chevening.org",
+    "allowed_hosts": [
+      "www.chevening.org"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Chevening (UK Foreign, Commonwealth & Development Office)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.chevening.org/scholarships/application-timeline/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Joint Japan/World Bank Graduate Scholarship Program",
+    "base_domain": "worldbank.org",
+    "allowed_hosts": [
+      "www.worldbank.org"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "World Bank Group"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.worldbank.org/en/programs/scholarships/brief/countries-eligible-for-jjwbgsp-scholarship"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "MIT Summer Research Program (MSRP)",
+    "base_domain": "mit.edu",
+    "allowed_hosts": [
+      "oge.mit.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Massachusetts Institute of Technology"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://oge.mit.edu/msrp/application/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Outreachy internships",
+    "base_domain": "outreachy.org",
+    "allowed_hosts": [
+      "www.outreachy.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Outreachy (Software Freedom Conservancy)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.outreachy.org/docs/applicant/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Rhodes Scholarship",
+    "base_domain": "rhodeshouse.ox.ac.uk",
+    "allowed_hosts": [
+      "www.rhodeshouse.ox.ac.uk"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Rhodes Trust"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.rhodeshouse.ox.ac.uk/scholarships/selection-criteria/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Stipendium Hungaricum",
+    "base_domain": "stipendiumhungaricum.hu",
+    "allowed_hosts": [
+      "stipendiumhungaricum.hu"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Tempus Public Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://stipendiumhungaricum.hu/apply/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "CERN student and graduate programmes",
+    "base_domain": "careers.cern",
+    "allowed_hosts": [
+      "careers.cern"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "CERN"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://careers.cern/programmes/summer-studentship/",
+        "https://careers.cern/programmes/technical-studentship/",
+        "https://careers.cern/programmes/administrative-studentship/",
+        "https://careers.cern/programmes/doctoral-studentship/",
+        "https://careers.cern/programmes/short-term-internship/",
+        "https://careers.cern/programmes/project-graduates/",
+        "https://careers.cern/programmes/entry-level-university-graduates/",
+        "https://careers.cern/programmes/research-fellowship/",
+        "https://careers.cern/programmes/marie-curie-fellowship/",
+        "https://careers.cern/programmes/post-career-break-fellowship/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "JSPS fellowships for international researchers",
+    "base_domain": "jsps.go.jp",
+    "allowed_hosts": [
+      "www.jsps.go.jp"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Japan Society for the Promotion of Science"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.jsps.go.jp/english/e-fellow/e-ippan/index.html",
+        "https://www.jsps.go.jp/english/e-fellow/e-oubei-s/index.html",
+        "https://www.jsps.go.jp/english/e-fellow/e-summer/index.html",
+        "https://www.jsps.go.jp/english/e-fellow/e-asean-africa-s/index.html",
+        "https://www.jsps.go.jp/english/e-inv/",
+        "https://www.jsps.go.jp/english/e-ronpaku/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "DAAD RISE research internships",
+    "base_domain": "daad.de",
+    "allowed_hosts": [
+      "www.daad.de"
+    ],
+    "category": "scholarship_provider",
+    "authority_level": "official",
+    "provider": {
+      "name": "German Academic Exchange Service (DAAD)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.daad.de/rise/en/rise-germany/",
+        "https://www.daad.de/rise/en/rise-professional/",
+        "https://www.daad.de/rise/en/rise-worldwide/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Marie Skłodowska-Curie Actions",
+    "base_domain": "ec.europa.eu",
+    "allowed_hosts": [
+      "marie-sklodowska-curie-actions.ec.europa.eu"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Commission"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://marie-sklodowska-curie-actions.ec.europa.eu/actions/postdoctoral-fellowships",
+        "https://marie-sklodowska-curie-actions.ec.europa.eu/actions/doctoral-networks"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "European Central Bank traineeships and graduate programme",
+    "base_domain": "ecb.europa.eu",
+    "allowed_hosts": [
+      "www.ecb.europa.eu"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Central Bank"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.ecb.europa.eu/careers/what-we-offer/traineeship/html/index.en.html",
+        "https://www.ecb.europa.eu/careers/what-we-offer/graduate/html/index.en.html"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Swedish Institute scholarships",
+    "base_domain": "si.se",
+    "allowed_hosts": [
+      "si.se"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Swedish Institute"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://si.se/en/apply/scholarships/swedish-institute-scholarships-for-global-professionals/",
+        "https://si.se/en/apply/scholarships/pioneeringwomeninstem/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "France Excellence Eiffel Scholarship",
+    "base_domain": "campusfrance.org",
+    "allowed_hosts": [
+      "www.campusfrance.org"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Campus France"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.campusfrance.org/en/france-excellence-eiffel-scholarship-program"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "NL Scholarship",
+    "base_domain": "studyinnl.org",
+    "allowed_hosts": [
+      "www.studyinnl.org"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Nuffic / Study in NL"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.studyinnl.org/finances/nl-scholarship"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Government of Ireland International Education Scholarships",
+    "base_domain": "hea.ie",
+    "allowed_hosts": [
+      "hea.ie"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Higher Education Authority (Ireland)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://hea.ie/policy/internationalisation/goi-ies/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Gates Cambridge Scholarship",
+    "base_domain": "gatescambridge.org",
+    "allowed_hosts": [
+      "www.gatescambridge.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Gates Cambridge Trust"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.gatescambridge.org/apply/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Marshall Scholarship",
+    "base_domain": "marshallscholarship.org",
+    "allowed_hosts": [
+      "www.marshallscholarship.org"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Marshall Aid Commemoration Commission"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.marshallscholarship.org/apply/eligibility/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Hertz Fellowship",
+    "base_domain": "hertzfoundation.org",
+    "allowed_hosts": [
+      "www.hertzfoundation.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Fannie and John Hertz Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.hertzfoundation.org/the-fellowship/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Google PhD Fellowship",
+    "base_domain": "research.google",
+    "allowed_hosts": [
+      "research.google"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Google Research"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://research.google/programs-and-events/phd-fellowship/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Google Summer of Code",
+    "base_domain": "withgoogle.com",
+    "allowed_hosts": [
+      "summerofcode.withgoogle.com"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Google"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://summerofcode.withgoogle.com/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "WHO internship programme",
+    "base_domain": "who.int",
+    "allowed_hosts": [
+      "www.who.int"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "World Health Organization"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.who.int/careers/internship-programme"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "EMBL International PhD Programme",
+    "base_domain": "embl.org",
+    "allowed_hosts": [
+      "www.embl.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Molecular Biology Laboratory"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.embl.org/about/info/embl-international-phd-programme/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 20,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Marine Biological Laboratory advanced research training courses",
+    "base_domain": "mbl.edu",
+    "allowed_hosts": [
+      "www.mbl.edu"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Marine Biological Laboratory"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/aimbl-machine-learning-microscopy-image-analysis",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/analytical-and-quantitative-light-microscopy",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/biology-aging",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/biology-hearing-and-balance-experimental-and-analytical-approaches",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/biology-parasitism-modern-approaches",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/brains-minds-and-machines",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/comparative-developmental-biology",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/embryology-concepts-and-techniques-modern-developmental-biology",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/endocrine-disrupting-chemicals-hazards-and-opportunities",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/frontiers-reproduction",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/frontiers-stem-cells-regeneration",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/gene-regulatory-networks-development",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/immunohistochemistry-and-immunofluorescence-ihcif",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/mbl-light-microscopy-bootcamp",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/methods-computational-neuroscience",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/microbial-diversity",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/molecular-and-cell-biology-symbiosis",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/molecular-mycology-current-approaches-fungal-pathogenesis",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/neural-systems-behavior",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/neurobiology-mechanisms-advanced-approaches",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/optical-microscopy-imaging-biomedical-sciences",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/organoid-biology-concept-practice",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/physiology-modern-cell-biology-using-microscopic-biochemical-and-computational-approaches",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/strategies-and-techniques-analyzing-microbial-population-structures",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/summer-program-neuroscience-excellence-and-success",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/visual-neuroscience",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/volume-microscopy-array-tomography-pfib-sem",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/workshop-molecular-evolution",
+        "https://www.mbl.edu/education/advanced-research-training-courses/course-offerings/zebrafish-development-and-genetics"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 30,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "NAWA scholarships for international students",
+    "base_domain": "nawa.gov.pl",
+    "allowed_hosts": [
+      "nawa.gov.pl"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Polish National Agency for Academic Exchange (NAWA)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://nawa.gov.pl/en/students/foreign-students/the-banach-scholarship-programme/call-for-proposals",
+        "https://nawa.gov.pl/en/students/foreign-students/poland-my-first-choice-programme/call-for-proposals",
+        "https://nawa.gov.pl/en/students/foreign-students/scholarships-for-the-polish-diaspora/master-studies/call-for-proposals",
+        "https://nawa.gov.pl/en/students/foreign-students/scholarships-for-the-polish-diaspora/bachelor-studies/call-for-proposals"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 30,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "DOE Office of Science workforce programmes (SULI, CCI, SCGSR, Einstein)",
+    "base_domain": "osti.gov",
+    "allowed_hosts": [
+      "science.osti.gov"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "U.S. Department of Energy, Office of Science"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://science.osti.gov/wdts/suli",
+        "https://science.osti.gov/wdts/cci",
+        "https://science.osti.gov/wdts/scgsr",
+        "https://science.osti.gov/wdts/einstein"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 30,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "WIPO internship program",
+    "base_domain": "wipo.int",
+    "allowed_hosts": [
+      "www.wipo.int"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "World Intellectual Property Organization"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.wipo.int/en/web/working-at-wipo/internship-program"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 30,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Hong Kong PhD Fellowship Scheme",
+    "base_domain": "ugc.edu.hk",
+    "allowed_hosts": [
+      "cerg1.ugc.edu.hk"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Research Grants Council of Hong Kong"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://cerg1.ugc.edu.hk/hkpfs/index.html"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 30,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "UKRI funding finder",
+    "base_domain": "ukri.org",
+    "allowed_hosts": [
+      "www.ukri.org"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "UK Research and Innovation"
+    },
+    "discovery_method": "html_index",
+    "connector_key": "html_index",
+    "connector_config": {
+      "index_urls": [
+        "https://www.ukri.org/opportunity/",
+        "https://www.ukri.org/opportunity/page/2/",
+        "https://www.ukri.org/opportunity/page/3/",
+        "https://www.ukri.org/opportunity/page/4/",
+        "https://www.ukri.org/opportunity/page/5/",
+        "https://www.ukri.org/opportunity/page/6/",
+        "https://www.ukri.org/opportunity/page/7/",
+        "https://www.ukri.org/opportunity/page/8/",
+        "https://www.ukri.org/opportunity/page/9/",
+        "https://www.ukri.org/opportunity/page/10/",
+        "https://www.ukri.org/opportunity/page/11/",
+        "https://www.ukri.org/opportunity/page/12/",
+        "https://www.ukri.org/opportunity/page/13/",
+        "https://www.ukri.org/opportunity/page/14/",
+        "https://www.ukri.org/opportunity/page/15/"
+      ],
+      "link_patterns": [
+        "^https://www\\.ukri\\.org/opportunity/(?!page/|feed/)[a-z0-9-]+/$"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 200,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "NWO calls for proposals",
+    "base_domain": "nwo.nl",
+    "allowed_hosts": [
+      "www.nwo.nl"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Dutch Research Council (NWO)"
+    },
+    "discovery_method": "html_index",
+    "connector_key": "html_index",
+    "connector_config": {
+      "index_urls": [
+        "https://www.nwo.nl/en/calls",
+        "https://www.nwo.nl/en/calls?page=1",
+        "https://www.nwo.nl/en/calls?page=2",
+        "https://www.nwo.nl/en/calls?page=3",
+        "https://www.nwo.nl/en/calls?page=4",
+        "https://www.nwo.nl/en/calls?page=5",
+        "https://www.nwo.nl/en/calls?page=6",
+        "https://www.nwo.nl/en/calls?page=7",
+        "https://www.nwo.nl/en/calls?page=8",
+        "https://www.nwo.nl/en/calls?page=9"
+      ],
+      "link_patterns": [
+        "^https://www\\.nwo\\.nl/en/calls/[a-z0-9-]+(/[0-9-]+)?$"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 200,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "DFG individual funding programmes",
+    "base_domain": "dfg.de",
+    "allowed_hosts": [
+      "www.dfg.de"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Deutsche Forschungsgemeinschaft (DFG)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/emmy-noether",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/heisenberg",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/research-fellowships",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/walter-benjamin",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/reinhart-koselleck-projects",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/workshops-early-career-investigators",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/research-grants",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/scientific-networks",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/clinical-trials",
+        "https://www.dfg.de/en/research-funding/funding-opportunities/programmes/individual/project-academy"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 30,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Research Ireland funding programmes",
+    "base_domain": "research.ie",
+    "allowed_hosts": [
+      "www.research.ie"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Research Ireland"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.research.ie/funding/advanced-ircla/",
+        "https://www.research.ie/funding/coalesce/",
+        "https://www.research.ie/funding/dorothy-cofund-programme/",
+        "https://www.research.ie/funding/ebp/",
+        "https://www.research.ie/funding/eps-postdoc/",
+        "https://www.research.ie/funding/eps-postgrad/",
+        "https://www.research.ie/funding/goipd/",
+        "https://www.research.ie/funding/goipg/",
+        "https://www.research.ie/funding/irc-eso-studentship-programme/",
+        "https://www.research.ie/funding/ircla/",
+        "https://www.research.ie/funding/lindau/",
+        "https://www.research.ie/funding/new-foundations/",
+        "https://www.research.ie/funding/sfi-irc-pathway-programme/",
+        "https://www.research.ie/funding/ulysses/",
+        "https://www.research.ie/funding/hera/",
+        "https://www.research.ie/funding/chist-era/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 30,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "NSF funding opportunities",
+    "base_domain": "nsf.gov",
+    "allowed_hosts": [
+      "www.nsf.gov"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "U.S. National Science Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.nsf.gov/funding/opportunities/crcns-collaborative-research-computational-neuroscience",
+        "https://www.nsf.gov/funding/opportunities/s-stem-nsf-scholarships-science-technology-engineering-mathematics",
+        "https://www.nsf.gov/funding/opportunities/mri-major-research-instrumentation-program",
+        "https://www.nsf.gov/funding/opportunities/research-science-technology-enterprise-indicators-statistics",
+        "https://www.nsf.gov/funding/opportunities/aapf-nsf-astronomy-astrophysics-postdoctoral-fellowships",
+        "https://www.nsf.gov/funding/opportunities/mrsec-materials-research-science-engineering-centers",
+        "https://www.nsf.gov/funding/opportunities/nsf-nih-research-interface-biological-mathematical-sciences",
+        "https://www.nsf.gov/funding/opportunities/msprf-mathematical-sciences-postdoctoral-research-fellowships",
+        "https://www.nsf.gov/funding/opportunities/mathematical-sciences-research-institutes",
+        "https://www.nsf.gov/funding/opportunities/pfc-physics-frontiers-centers",
+        "https://www.nsf.gov/funding/opportunities/hrrbaa-high-risk-research-biological-anthropology-archaeology",
+        "https://www.nsf.gov/funding/opportunities/national-facilities",
+        "https://www.nsf.gov/funding/opportunities/sociology",
+        "https://www.nsf.gov/funding/opportunities/computational-mathematics",
+        "https://www.nsf.gov/funding/opportunities/linguistics",
+        "https://www.nsf.gov/funding/opportunities/mms-methodology-measurement-statistics",
+        "https://www.nsf.gov/funding/opportunities/algebra-number-theory",
+        "https://www.nsf.gov/funding/opportunities/analysis",
+        "https://www.nsf.gov/funding/opportunities/capacity-infrastructure-capacity-biological-research",
+        "https://www.nsf.gov/funding/opportunities/fsml-capacity-biological-field-stations-marine-laboratories",
+        "https://www.nsf.gov/funding/opportunities/ate-advanced-technological-education",
+        "https://www.nsf.gov/funding/opportunities/hbcu-historically-black-colleges-universities-undergraduate",
+        "https://www.nsf.gov/funding/opportunities/tcup-tribal-colleges-universities-program",
+        "https://www.nsf.gov/funding/opportunities/reu-research-experiences-undergraduates",
+        "https://www.nsf.gov/funding/opportunities/rui-roa-pui-facilitating-research-predominantly-undergraduate",
+        "https://www.nsf.gov/funding/opportunities/foundations",
+        "https://www.nsf.gov/funding/opportunities/geometric-analysis",
+        "https://www.nsf.gov/funding/opportunities/topology",
+        "https://www.nsf.gov/funding/opportunities/probability",
+        "https://www.nsf.gov/funding/opportunities/statistics",
+        "https://www.nsf.gov/funding/opportunities/esp-education-special-programs-astronomical-sciences",
+        "https://www.nsf.gov/funding/opportunities/crif-chemistry-research-instrumentation-facilities",
+        "https://www.nsf.gov/funding/opportunities/international-gemini-observatory",
+        "https://www.nsf.gov/funding/opportunities/nsf-arecibo-observatory-historic-district",
+        "https://www.nsf.gov/funding/opportunities/nrao-national-radio-astronomy-observatory",
+        "https://www.nsf.gov/funding/opportunities/esm-electromagnetic-spectrum-management",
+        "https://www.nsf.gov/funding/opportunities/nso-national-solar-observatory",
+        "https://www.nsf.gov/funding/opportunities/applied-mathematics",
+        "https://www.nsf.gov/funding/opportunities/pac-perception-action-cognition",
+        "https://www.nsf.gov/funding/opportunities/mathematical-biology",
+        "https://www.nsf.gov/funding/opportunities/social-psychology",
+        "https://www.nsf.gov/funding/opportunities/grfp-nsf-graduate-research-fellowship-program",
+        "https://www.nsf.gov/funding/opportunities/mathinf-mathematical-sciences-infrastructure-program",
+        "https://www.nsf.gov/funding/opportunities/ags-prf-atmospheric-geospace-sciences-postdoctoral-research",
+        "https://www.nsf.gov/funding/opportunities/ncar-national-center-atmospheric-research",
+        "https://www.nsf.gov/funding/opportunities/circ-community-infrastructure-research-computer-information",
+        "https://www.nsf.gov/funding/opportunities/education-workforce-program",
+        "https://www.nsf.gov/funding/opportunities/national-ecological-observatory-network",
+        "https://www.nsf.gov/funding/opportunities/research-resources-cluster",
+        "https://www.nsf.gov/funding/opportunities/current-activities-no-longer-receiving-proposals-ef",
+        "https://www.nsf.gov/funding/opportunities/od-operations-design",
+        "https://www.nsf.gov/funding/opportunities/other-activities-supported-cmii",
+        "https://www.nsf.gov/funding/opportunities/odp-ocean-drilling-program",
+        "https://www.nsf.gov/funding/opportunities/centers-networks",
+        "https://www.nsf.gov/funding/opportunities/mechanics-engineering-materials",
+        "https://www.nsf.gov/funding/opportunities/professional-formation-engineers",
+        "https://www.nsf.gov/funding/opportunities/ltreb-long-term-research-environmental-biology",
+        "https://www.nsf.gov/funding/opportunities/mps-astro-mps-astronomical-sciences-research-programs",
+        "https://www.nsf.gov/funding/opportunities/cci-centers-chemical-innovation",
+        "https://www.nsf.gov/funding/opportunities/national-laboratories-user-facilities",
+        "https://www.nsf.gov/funding/opportunities/rahss-research-assistantships-high-school-students",
+        "https://www.nsf.gov/funding/opportunities/efma-emerging-frontiers-multidisciplinary-activities",
+        "https://www.nsf.gov/funding/opportunities/nsf-che-global-community",
+        "https://www.nsf.gov/funding/opportunities/advanced-computing-systems-services-adapting-rapid-evolution",
+        "https://www.nsf.gov/funding/opportunities/expeditions-expeditions-computing",
+        "https://www.nsf.gov/funding/opportunities/che-reu-sites-chemistry-research-experiences-undergraduates-sites",
+        "https://www.nsf.gov/funding/opportunities/career-faculty-early-career-development-program",
+        "https://www.nsf.gov/funding/opportunities/workforce-program-mathematical-sciences",
+        "https://www.nsf.gov/funding/opportunities/cfari-bio-centers-facilities-additional-research-infrastructure",
+        "https://www.nsf.gov/funding/opportunities/plasma-physics",
+        "https://www.nsf.gov/funding/opportunities/nheri-natural-hazards-engineering-research-infrastructure",
+        "https://www.nsf.gov/funding/opportunities/af-algorithmic-foundations",
+        "https://www.nsf.gov/funding/opportunities/cif-communications-information-foundations",
+        "https://www.nsf.gov/funding/opportunities/shf-software-hardware-foundations",
+        "https://www.nsf.gov/funding/opportunities/iii-information-integration-informatics",
+        "https://www.nsf.gov/funding/opportunities/ri-robust-intelligence",
+        "https://www.nsf.gov/funding/opportunities/csr-computer-systems-research",
+        "https://www.nsf.gov/funding/opportunities/nets-networking-technology-systems",
+        "https://www.nsf.gov/funding/opportunities/additional-funding-opportunities-iis-community",
+        "https://www.nsf.gov/funding/opportunities/additional-funding-opportunities-ccf-community",
+        "https://www.nsf.gov/funding/opportunities/additional-funding-opportunities-cns-community",
+        "https://www.nsf.gov/funding/opportunities/research-infrastructure-program",
+        "https://www.nsf.gov/funding/opportunities/gi-geoinformatics",
+        "https://www.nsf.gov/funding/opportunities/shw-smart-health-wellbeing",
+        "https://www.nsf.gov/funding/opportunities/combinatorics",
+        "https://www.nsf.gov/funding/opportunities/pfe-rief-pfe-research-initiation-engineering-formation",
+        "https://www.nsf.gov/funding/opportunities/sbe-reu-sites-sbe-research-experiences-undergraduates-sites",
+        "https://www.nsf.gov/funding/opportunities/ret-research-experiences-teachers-supplement-opportunity",
+        "https://www.nsf.gov/funding/opportunities/es-ecosystem-science",
+        "https://www.nsf.gov/funding/opportunities/ep-evolutionary-processes",
+        "https://www.nsf.gov/funding/opportunities/pce-population-community-ecology",
+        "https://www.nsf.gov/funding/opportunities/sbs-systematics-biodiversity-science",
+        "https://www.nsf.gov/funding/opportunities/nsf-national-innovation-corps-teams-nsf-national-i-corps-tm",
+        "https://www.nsf.gov/funding/opportunities/behavioral-systems",
+        "https://www.nsf.gov/funding/opportunities/developmental-systems",
+        "https://www.nsf.gov/funding/opportunities/neural-systems",
+        "https://www.nsf.gov/funding/opportunities/pss-physiological-structural-systems",
+        "https://www.nsf.gov/funding/opportunities/soo-science-organizations",
+        "https://www.nsf.gov/funding/opportunities/nsf-satc-us-national-science-foundation-security-privacy-trust",
+        "https://www.nsf.gov/funding/opportunities/sch-smart-health-biomedical-research-era-artificial-intelligence",
+        "https://www.nsf.gov/funding/opportunities/cc-campus-cyberinfrastructure",
+        "https://www.nsf.gov/funding/opportunities/sprf-sbe-postdoctoral-research-fellowships",
+        "https://www.nsf.gov/funding/opportunities/pulse-partnership-undergraduate-life-science-education",
+        "https://www.nsf.gov/funding/opportunities/oceanographic-facilities-equipment-support",
+        "https://www.nsf.gov/funding/opportunities/molecular-biophysics",
+        "https://www.nsf.gov/funding/opportunities/cellular-dynamics-function",
+        "https://www.nsf.gov/funding/opportunities/genetic-mechanisms",
+        "https://www.nsf.gov/funding/opportunities/systems-synthetic-biology",
+        "https://www.nsf.gov/funding/opportunities/ecrcore-edu-core-research",
+        "https://www.nsf.gov/funding/opportunities/oac-office-advanced-cyberinfrastructure-programs",
+        "https://www.nsf.gov/funding/opportunities/erasynbio-nsf-participation-era-net-synthetic-biology",
+        "https://www.nsf.gov/funding/opportunities/hcc-human-centered-computing",
+        "https://www.nsf.gov/funding/opportunities/ritel-research-innovative-technologies-enhanced-learning",
+        "https://www.nsf.gov/funding/opportunities/us-national-science-foundation-research-traineeship-program",
+        "https://www.nsf.gov/funding/opportunities/mps-physics-mps-physics-research-programs",
+        "https://www.nsf.gov/funding/opportunities/dmref-designing-materials-revolutionize-engineer-our-future",
+        "https://www.nsf.gov/funding/opportunities/iuse-edu-improving-undergraduate-stem-education-directorate-stem",
+        "https://www.nsf.gov/funding/opportunities/iusepfe-red-iuseprofessional-formation-engineers-revolutionizing",
+        "https://www.nsf.gov/funding/opportunities/cici-cybersecurity-innovation-cyberinfrastructure",
+        "https://www.nsf.gov/funding/opportunities/research-experiences-teachers-engineering-computer-science",
+        "https://www.nsf.gov/funding/opportunities/epscor-research-infrastructure-improvement-program-focused",
+        "https://www.nsf.gov/funding/opportunities/plant-biotic-interactions",
+        "https://www.nsf.gov/funding/opportunities/cqis-connections-quantum-information-science",
+        "https://www.nsf.gov/funding/opportunities/amps-algorithms-modern-power-systems",
+        "https://www.nsf.gov/funding/opportunities/training-based-workforce-development-advanced",
+        "https://www.nsf.gov/funding/opportunities/xc-crosscutting-activities-materials-research",
+        "https://www.nsf.gov/funding/opportunities/gbo-green-bank-observatory",
+        "https://www.nsf.gov/funding/opportunities/pols-physics-living-systems",
+        "https://www.nsf.gov/funding/opportunities/amo-t-atomic-molecular-optical-physics-theory",
+        "https://www.nsf.gov/funding/opportunities/pif-physics-information-frontier",
+        "https://www.nsf.gov/funding/opportunities/epp-e-elementary-particle-physics-experiment",
+        "https://www.nsf.gov/funding/opportunities/amo-e-atomic-molecular-optical-physics-experiment",
+        "https://www.nsf.gov/funding/opportunities/epp-t-elementary-particle-physics-astrophysics-cosmology-theory",
+        "https://www.nsf.gov/funding/opportunities/iap-integrative-activities-physics",
+        "https://www.nsf.gov/funding/opportunities/np-e-nuclear-physics-experiment",
+        "https://www.nsf.gov/funding/opportunities/particle-astrophysics-experiment",
+        "https://www.nsf.gov/funding/opportunities/ligo-research-support",
+        "https://www.nsf.gov/funding/opportunities/qis-quantum-information-science",
+        "https://www.nsf.gov/funding/opportunities/innovation-innovative-infrastructure-biological-research",
+        "https://www.nsf.gov/funding/opportunities/bmat-biomaterials",
+        "https://www.nsf.gov/funding/opportunities/polymers",
+        "https://www.nsf.gov/funding/opportunities/condensed-matter-physics",
+        "https://www.nsf.gov/funding/opportunities/mmn-metals-metallic-nanostructures",
+        "https://www.nsf.gov/funding/opportunities/solid-state-materials-chemistry",
+        "https://www.nsf.gov/funding/opportunities/electronic-photonic-materials",
+        "https://www.nsf.gov/funding/opportunities/innovations-graduate-education-program",
+        "https://www.nsf.gov/funding/opportunities/chemical-process-systems-cluster",
+        "https://www.nsf.gov/funding/opportunities/engineering-biology-health-cluster",
+        "https://www.nsf.gov/funding/opportunities/environmental-engineering-sustainability-cluster",
+        "https://www.nsf.gov/funding/opportunities/transport-phenomena-cluster",
+        "https://www.nsf.gov/funding/opportunities/cssi-cyberinfrastructure-systems-scientific-innovation",
+        "https://www.nsf.gov/funding/opportunities/ca-sr-cultural-anthropology-program-senior-research-awards",
+        "https://www.nsf.gov/funding/opportunities/nsf-mathematical-sciences-graduate-internship",
+        "https://www.nsf.gov/funding/opportunities/capacity-cyberinfrastructure",
+        "https://www.nsf.gov/funding/opportunities/capacity-biological-collections",
+        "https://www.nsf.gov/funding/opportunities/syn-chemical-synthesis",
+        "https://www.nsf.gov/funding/opportunities/cmi-chemical-measurement-imaging",
+        "https://www.nsf.gov/funding/opportunities/ctmc-chemical-theory-models-computational-methods",
+        "https://www.nsf.gov/funding/opportunities/clp-chemistry-life-processes",
+        "https://www.nsf.gov/funding/opportunities/cat-chemical-catalysis",
+        "https://www.nsf.gov/funding/opportunities/csd-chemical-structure-dynamics",
+        "https://www.nsf.gov/funding/opportunities/cmfp-chemical-mechanism-function-properties",
+        "https://www.nsf.gov/funding/opportunities/css-chemical-systems-solutions",
+        "https://www.nsf.gov/funding/opportunities/msn-macromolecular-supramolecular-nanochemistry",
+        "https://www.nsf.gov/funding/opportunities/dcc-dynamics-control-cognition",
+        "https://www.nsf.gov/funding/opportunities/fet-foundations-emerging-technologies",
+        "https://www.nsf.gov/funding/opportunities/mid-scale-ri-1-mid-scale-research-infrastructure-1",
+        "https://www.nsf.gov/funding/opportunities/sosbio-science-science-approach-analyzing-innovating-biomedical",
+        "https://www.nsf.gov/funding/opportunities/gcr-growing-convergence-research",
+        "https://www.nsf.gov/funding/opportunities/oce-reu-sites-oce-research-experiences-undergraduates-sites",
+        "https://www.nsf.gov/funding/opportunities/future-core-computer-information-science-engineering-future-computing",
+        "https://www.nsf.gov/funding/opportunities/cas-critical-aspects-sustainability",
+        "https://www.nsf.gov/funding/opportunities/ast-reu-sites-astronomy-research-experiences-undergraduates-sites",
+        "https://www.nsf.gov/funding/opportunities/national-artificial-intelligence-research-institutes",
+        "https://www.nsf.gov/funding/opportunities/bio-reu-sites-bio-research-experience-undergraduates-sites",
+        "https://www.nsf.gov/funding/opportunities/sts-science-technology-studies",
+        "https://www.nsf.gov/funding/opportunities/hnds-human-networks-data-science",
+        "https://www.nsf.gov/funding/opportunities/ls-law-science",
+        "https://www.nsf.gov/funding/opportunities/dli-del-nsf-dynamic-language-infrastructure-neh-documenting",
+        "https://www.nsf.gov/funding/opportunities/sap-security-preparedness",
+        "https://www.nsf.gov/funding/opportunities/aib-accountable-institutions-behavior",
+        "https://www.nsf.gov/funding/opportunities/sosdci-science-science-discovery-communication-impact",
+        "https://www.nsf.gov/funding/opportunities/sl-science-learning-augmented-intelligence",
+        "https://www.nsf.gov/funding/opportunities/fm-future-manufacturing",
+        "https://www.nsf.gov/funding/opportunities/ddrig-arctic-doctoral-dissertation-research-improvement-grants",
+        "https://www.nsf.gov/funding/opportunities/hegs-human-environment-geographical-sciences-program",
+        "https://www.nsf.gov/funding/opportunities/mca-mid-career-advancement",
+        "https://www.nsf.gov/funding/opportunities/hbcu-eir-historically-black-colleges-universities-excellence-research",
+        "https://www.nsf.gov/funding/opportunities/cope-coastlines-people-hubs-research-broadening-participation",
+        "https://www.nsf.gov/funding/opportunities/nsf-dfg-lead-agency-opportunity-chemistry-chemical-process",
+        "https://www.nsf.gov/funding/opportunities/noirlab-nsfs-national-optical-infrared-astronomy-research-laboratory",
+        "https://www.nsf.gov/funding/opportunities/vera-c-rubin-observatory",
+        "https://www.nsf.gov/funding/opportunities/cer-ceramics",
+        "https://www.nsf.gov/funding/opportunities/dkist-daniel-k-inouye-solar-telescope",
+        "https://www.nsf.gov/funding/opportunities/innovation-bioinformatics",
+        "https://www.nsf.gov/funding/opportunities/innovation-instrumentation",
+        "https://www.nsf.gov/funding/opportunities/innovation-research-methods",
+        "https://www.nsf.gov/funding/opportunities/t-ap-trans-atlantic-platform",
+        "https://www.nsf.gov/funding/opportunities/mps-materials-mps-materials-research-programs",
+        "https://www.nsf.gov/funding/opportunities/cise-reu-sites-cise-research-experiences-undergraduates-sites",
+        "https://www.nsf.gov/funding/opportunities/eclipse-ecosystem-leading-innovation-plasma-science-engineering",
+        "https://www.nsf.gov/funding/opportunities/centers-innovation-community-engagement-solid-earth",
+        "https://www.nsf.gov/funding/opportunities/fairos-findable-accessible-interoperable-reusable-open-science",
+        "https://www.nsf.gov/funding/opportunities/nsf-nist-interaction-basic-applied-scientific-research",
+        "https://www.nsf.gov/funding/opportunities/dms-reu-sites-mathematical-sciences-research-experiences-undergraduates",
+        "https://www.nsf.gov/funding/opportunities/np-t-nuclear-physics-theory",
+        "https://www.nsf.gov/funding/opportunities/ba-sr-biological-anthropology-program-senior-research-awards",
+        "https://www.nsf.gov/funding/opportunities/exlent-experiential-learning-emerging-novel-technologies",
+        "https://www.nsf.gov/funding/opportunities/antarctic-research-requiring-us-antarctic-program-support",
+        "https://www.nsf.gov/funding/opportunities/antarctic-research-not-requiring-us-antarctic-program-field",
+        "https://www.nsf.gov/funding/opportunities/geo-ose-geosciences-open-science-ecosystem",
+        "https://www.nsf.gov/funding/opportunities/epscor-research-infrastructure-improvement-epscor-research",
+        "https://www.nsf.gov/funding/opportunities/art-accelerating-research-translation",
+        "https://www.nsf.gov/funding/opportunities/gc-global-centers",
+        "https://www.nsf.gov/funding/opportunities/granted-growing-research-access-nationally-transformative-economic",
+        "https://www.nsf.gov/funding/opportunities/crest-rise-centers-research-excellence-science-technology-research",
+        "https://www.nsf.gov/funding/opportunities/arch-sr-archaeology-program-senior-research-awards",
+        "https://www.nsf.gov/funding/opportunities/arctic-research-opportunities",
+        "https://www.nsf.gov/funding/opportunities/amtry-archaeometry",
+        "https://www.nsf.gov/funding/opportunities/ityc-iuse-innovation-two-year-college-stem-education",
+        "https://www.nsf.gov/funding/opportunities/robert-noyce-teacher-scholarship-program",
+        "https://www.nsf.gov/funding/opportunities/drms-decision-risk-management-sciences",
+        "https://www.nsf.gov/funding/opportunities/e-rise-epscor-research-infrastructure-improvement-program-epscor",
+        "https://www.nsf.gov/funding/opportunities/e-core-epscor-research-infrastructure-improvement-program-epscor",
+        "https://www.nsf.gov/funding/opportunities/economics",
+        "https://www.nsf.gov/funding/opportunities/crest-centers-research-excellence-science-technology",
+        "https://www.nsf.gov/funding/opportunities/cdse-computational-data-enabled-science-engineering",
+        "https://www.nsf.gov/funding/opportunities/embrace-empowering-broader-academic-capacity-education",
+        "https://www.nsf.gov/funding/opportunities/drms-ddrig-decision-risk-management-sciences-doctoral-dissertation",
+        "https://www.nsf.gov/funding/opportunities/rfe-research-formation-engineers",
+        "https://www.nsf.gov/funding/opportunities/risbs-research-infrastructure-social-behavioral-sciences",
+        "https://www.nsf.gov/funding/opportunities/cogneuro-cognitive-neuroscience",
+        "https://www.nsf.gov/funding/opportunities/itest-innovative-technology-experiences-students-teachers",
+        "https://www.nsf.gov/funding/opportunities/caig-collaborations-artificial-intelligence-geosciences",
+        "https://www.nsf.gov/funding/opportunities/ds-developmental-sciences",
+        "https://www.nsf.gov/funding/opportunities/fdt-biotech-foundations-digital-twins-catalyzers-biomedical",
+        "https://www.nsf.gov/funding/opportunities/nsf-engines-nsf-regional-innovation-engines",
+        "https://www.nsf.gov/funding/opportunities/national-science-foundation-research-traineeship",
+        "https://www.nsf.gov/funding/opportunities/mfai-mathematical-foundations-artificial-intelligence",
+        "https://www.nsf.gov/funding/opportunities/cs2-correctness-scientific-computing-systems",
+        "https://www.nsf.gov/funding/opportunities/nqvl-nsf-national-quantum-virtual-laboratory-quantum-testbeds",
+        "https://www.nsf.gov/funding/opportunities/egfp-nsf-epscor-graduate-fellowship-program",
+        "https://www.nsf.gov/funding/opportunities/eri-engineering-research-initiation",
+        "https://www.nsf.gov/funding/opportunities/multiplex-multilateral-partnerships-leveraging-excellence",
+        "https://www.nsf.gov/funding/opportunities/nsfcasis-transport-phenomena-research-international-space",
+        "https://www.nsf.gov/funding/opportunities/fire-fire-science-innovations-through-research-education",
+        "https://www.nsf.gov/funding/opportunities/rors-research-research-security-program",
+        "https://www.nsf.gov/funding/opportunities/nsf-ttp-national-science-foundation-translation-practice",
+        "https://www.nsf.gov/funding/opportunities/pcl-test-bed-test-bed-toward-network-programmable-cloud-laboratories",
+        "https://www.nsf.gov/funding/opportunities/computing-education-research",
+        "https://www.nsf.gov/funding/opportunities/cps-cyber-physical-system-foundations-connected-communities",
+        "https://www.nsf.gov/funding/opportunities/idss-integrated-data-systems-services",
+        "https://www.nsf.gov/funding/opportunities/stem-k-12-nsf-stem-k-12",
+        "https://www.nsf.gov/funding/opportunities/edge-enabling-discovery-through-genomics",
+        "https://www.nsf.gov/funding/opportunities/collaboratory-advance-mathematics-education-learning-k-12",
+        "https://www.nsf.gov/funding/opportunities/trailblazer-nsf-trailblazer-engineering-impact-award",
+        "https://www.nsf.gov/funding/opportunities/designer-cells-designing-synthetic-cells-cellular-components",
+        "https://www.nsf.gov/funding/opportunities/life-leveraging-innovations-evolution",
+        "https://www.nsf.gov/funding/opportunities/pgrp-plant-genome-research",
+        "https://www.nsf.gov/funding/opportunities/tools4cells-tool-development-molecular-cell-biology",
+        "https://www.nsf.gov/funding/opportunities/cyberai-sfs-cyberaicorps-scholarship-service",
+        "https://www.nsf.gov/funding/opportunities/prfb-postdoctoral-research-fellowships-biology",
+        "https://www.nsf.gov/funding/opportunities/nqni-national-quantum-nanotechnology-infrastructure",
+        "https://www.nsf.gov/funding/opportunities/pesose-pathways-enable-secure-open-source-ecosystems",
+        "https://www.nsf.gov/funding/opportunities/nsf-finders-foundry-national-science-foundation-fostering-interdisciplinary",
+        "https://www.nsf.gov/funding/opportunities/techaccess-ai-ready-america",
+        "https://www.nsf.gov/funding/opportunities/cscs-circuits-systems-communications-sensing",
+        "https://www.nsf.gov/funding/opportunities/epcl-energy-power-control-learning",
+        "https://www.nsf.gov/funding/opportunities/ebe-engineering-built-environment",
+        "https://www.nsf.gov/funding/opportunities/iids-intelligent-interactive-dynamic-systems",
+        "https://www.nsf.gov/funding/opportunities/pfe-professional-formation-engineers",
+        "https://www.nsf.gov/funding/opportunities/engineeroc-organizational-change-professional-formation-engineers",
+        "https://www.nsf.gov/funding/opportunities/epmqd-electronic-photonic-magnetic-quantum-devices",
+        "https://www.nsf.gov/funding/opportunities/chemical-process-systems",
+        "https://www.nsf.gov/funding/opportunities/engineering-biological-biomedical-systems",
+        "https://www.nsf.gov/funding/opportunities/transport-phenomena",
+        "https://www.nsf.gov/funding/opportunities/amdo-advanced-manufacturing-design-operations",
+        "https://www.nsf.gov/funding/opportunities/energy-water-resource-engineering",
+        "https://www.nsf.gov/funding/opportunities/mams-mechanics-advanced-materials-systems",
+        "https://www.nsf.gov/funding/opportunities/api-advanced-physics-instrumentation",
+        "https://www.nsf.gov/funding/opportunities/frhtp-focused-research-hubs-theoretical-physics",
+        "https://www.nsf.gov/funding/opportunities/gp-gravitational-physics",
+        "https://www.nsf.gov/funding/opportunities/small-business-innovation-research-small-business-technology",
+        "https://www.nsf.gov/funding/opportunities/small-business-innovation-research-small-business-technology-0",
+        "https://www.nsf.gov/funding/opportunities/ai-datasets-unlocking-dataset-value-ai-enabled-scientific-discovery",
+        "https://www.nsf.gov/funding/opportunities/us-national-science-foundation-state-regional-artificial",
+        "https://www.nsf.gov/funding/opportunities/ags-atmospheric-geospace-sciences-program",
+        "https://www.nsf.gov/funding/opportunities/earth-sciences-program",
+        "https://www.nsf.gov/funding/opportunities/ocean-sciences-program",
+        "https://www.nsf.gov/funding/opportunities/engineering-eng-civil-mechanical-manufacturing-innovation",
+        "https://www.nsf.gov/funding/opportunities/geo-core-geosciences-core-research-atmospheric-geospace-earth-ocean",
+        "https://www.nsf.gov/funding/opportunities/eccs-engineering-electrical-communications-computing-systems",
+        "https://www.nsf.gov/funding/opportunities/mps-mathsci-mps-mathematical-sciences-research-programs",
+        "https://www.nsf.gov/funding/opportunities/engineering-eng-chemical-bioengineering-energy-transport",
+        "https://www.nsf.gov/funding/opportunities/bio-core-core-research-biological-sciences",
+        "https://www.nsf.gov/funding/opportunities/mps-chem-mps-chemistry-research-programs",
+        "https://www.nsf.gov/funding/opportunities/efri-wbc-emerging-frontiers-research-innovation-efri-wave-based",
+        "https://www.nsf.gov/funding/opportunities/fl-foundations-life",
+        "https://www.nsf.gov/funding/opportunities/ls-living-systems",
+        "https://www.nsf.gov/funding/opportunities/bi-bioinnovation-infrastructure",
+        "https://www.nsf.gov/funding/opportunities/ms-rtg-mathematical-sciences-research-training-groups",
+        "https://www.nsf.gov/funding/opportunities/ms-frg-mathematical-sciences-focused-research-groups",
+        "https://www.nsf.gov/funding/opportunities/cmmt-condensed-matter-materials-theory",
+        "https://www.nsf.gov/funding/opportunities/astro-core-astronomical-sciences-core-research",
+        "https://www.nsf.gov/funding/opportunities/ati-astronomical-sciences-technology-instrumentation",
+        "https://www.nsf.gov/funding/opportunities/astro-innovations-astronomical-sciences-innovations",
+        "https://www.nsf.gov/funding/opportunities/frr-foundational-research-robotics"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 400,
+      "min_delay_seconds": 5.0
+    }
   }
- },
- {
-  "name": "Chevening Scholarships",
-  "base_domain": "chevening.org",
-  "allowed_hosts": [
-   "www.chevening.org"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "Chevening (UK Foreign, Commonwealth & Development Office)"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.chevening.org/scholarships/application-timeline/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Commonwealth Master's Scholarships",
-  "base_domain": "fcdo.gov.uk",
-  "allowed_hosts": [
-   "cscuk.fcdo.gov.uk"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "Commonwealth Scholarship Commission in the UK"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://cscuk.fcdo.gov.uk/scholarships/commonwealth-masters-scholarships/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Fulbright Foreign Language Teaching Assistant (FLTA) Program",
-  "base_domain": "fulbrightonline.org",
-  "allowed_hosts": [
-   "foreign.fulbrightonline.org"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "Fulbright Program (U.S. Department of State)"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://foreign.fulbrightonline.org/host-institutions/flta-program/flta-thinking-of-applying"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Joint Japan/World Bank Graduate Scholarship Program",
-  "base_domain": "worldbank.org",
-  "allowed_hosts": [
-   "www.worldbank.org"
-  ],
-  "category": "international_organization",
-  "authority_level": "official",
-  "provider": {
-   "name": "World Bank Group"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.worldbank.org/en/programs/scholarships/brief/countries-eligible-for-jjwbgsp-scholarship"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Knight-Hennessy Scholars",
-  "base_domain": "stanford.edu",
-  "allowed_hosts": [
-   "knight-hennessy.stanford.edu"
-  ],
-  "category": "university",
-  "authority_level": "official",
-  "provider": {
-   "name": "Knight-Hennessy Scholars, Stanford University"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://knight-hennessy.stanford.edu/admission/before-you-apply/eligibility"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "MEXT Japanese Government Scholarship",
-  "base_domain": "go.jp",
-  "allowed_hosts": [
-   "www.studyinjapan.go.jp"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "Ministry of Education, Culture, Sports, Science and Technology (Japan)"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.studyinjapan.go.jp/en/planning/scholarships/mext-scholarships/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "MIT Summer Research Program (MSRP)",
-  "base_domain": "mit.edu",
-  "allowed_hosts": [
-   "oge.mit.edu"
-  ],
-  "category": "university",
-  "authority_level": "official",
-  "provider": {
-   "name": "Massachusetts Institute of Technology"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://oge.mit.edu/msrp/application/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Manaaki New Zealand Scholarships",
-  "base_domain": "nzscholarships.govt.nz",
-  "allowed_hosts": [
-   "www.nzscholarships.govt.nz"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "New Zealand Ministry of Foreign Affairs and Trade"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.nzscholarships.govt.nz/check-eligibility-criteria/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Mitacs Globalink Research Internship",
-  "base_domain": "mitacs.ca",
-  "allowed_hosts": [
-   "www.mitacs.ca"
-  ],
-  "category": "research_institution",
-  "authority_level": "official",
-  "provider": {
-   "name": "Mitacs"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.mitacs.ca/our-programs/globalink-research-internship-students/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Outreachy internships",
-  "base_domain": "outreachy.org",
-  "allowed_hosts": [
-   "www.outreachy.org"
-  ],
-  "category": "foundation",
-  "authority_level": "official",
-  "provider": {
-   "name": "Outreachy (Software Freedom Conservancy)"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.outreachy.org/docs/applicant/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Rhodes Scholarship",
-  "base_domain": "rhodeshouse.ox.ac.uk",
-  "allowed_hosts": [
-   "www.rhodeshouse.ox.ac.uk"
-  ],
-  "category": "foundation",
-  "authority_level": "official",
-  "provider": {
-   "name": "Rhodes Trust"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.rhodeshouse.ox.ac.uk/scholarships/selection-criteria/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Stipendium Hungaricum",
-  "base_domain": "stipendiumhungaricum.hu",
-  "allowed_hosts": [
-   "stipendiumhungaricum.hu"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "Tempus Public Foundation"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://stipendiumhungaricum.hu/apply/"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Swiss Government Excellence Scholarships",
-  "base_domain": "sbfi.admin.ch",
-  "allowed_hosts": [
-   "www.sbfi.admin.ch"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "State Secretariat for Education, Research and Innovation (SERI)"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.sbfi.admin.ch/sbfi/en/home/education/scholarships-and-grants/swiss-government-excellence-scholarships.html"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- },
- {
-  "name": "Türkiye Scholarships",
-  "base_domain": "turkiyeburslari.gov.tr",
-  "allowed_hosts": [
-   "www.turkiyeburslari.gov.tr"
-  ],
-  "category": "government",
-  "authority_level": "official",
-  "provider": {
-   "name": "Presidency for Turks Abroad and Related Communities (YTB)"
-  },
-  "discovery_method": "url_list",
-  "connector_key": "url_list",
-  "connector_config": {
-   "urls": [
-    "https://www.turkiyeburslari.gov.tr/scholarshipsprograms"
-   ]
-  },
-  "crawl_policy": {
-   "discovery_interval_hours": 168,
-   "max_pages_per_run": 10,
-   "min_delay_seconds": 5.0
-  }
- }
 ]

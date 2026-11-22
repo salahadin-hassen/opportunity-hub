@@ -319,12 +319,35 @@ A candidate fails and is **held for a person** if any of these is not true:
 
 With AI review on, the AI must also say this is one open opportunity page, with confidence ≥ 0.7. Without AI, the candidate also needs a quality score ≥ 60 and a deadline found by the rules.
 
-A candidate is decided once per content hash, mode and policy version. Each pipeline run also expires stale candidates and closes published listings whose deadline has passed (`opportunity.auto_closed`).
+A validation problem that only says the rule-based reader found nothing (no deadline, no eligibility statement)
+does not block on its own: the AI may fill the gap, and the deadline and quoted-rules checks still demand
+verified quotes. A deadline the AI supplies is stored with its verified quote as the evidence. A rolling or
+"no deadline" reading needs the AI to agree independently. Any other validation problem holds the candidate
+without calling the AI.
 
-**AI review (optional).** Set `GROQ_API_KEY` (and optionally `GROQ_MODEL`, default `openai/gpt-oss-120b`) to turn it on.
+A candidate is decided once per content hash, mode and policy version; one held only because the AI was out
+of quota or failed is decided again on the next run. Each pipeline run also expires stale candidates and closes published listings whose deadline has passed (`opportunity.auto_closed`).
+
+**AI review (optional).** Set `GROQ_API_KEY` to turn it on. `GROQ_MODEL` (default `openai/gpt-oss-120b`) is tried first; when its free daily cap is spent, `GROQ_FALLBACK_MODELS` (default `openai/gpt-oss-20b,qwen/qwen3.8-27b`) are tried in order. Groq limits each model separately.
+- Navigation menus are stripped from the text sent; quotes are still verified against the full stored page.
 - The model reads the stored page text with a strict JSON schema, and every field must come with a verbatim quote.
 - Quotes are checked against the page; anything not on the page is dropped and recorded.
 - The AI can only veto or confirm; it never publishes on its own say-so.
 - Calls are throttled under Groq's free-tier token limit.
 - A failed call means "no AI opinion", and the rule-only path then applies.
 - Only public programme-page text is sent.
+
+### Running it unattended
+
+```
+python -m app.cli ingest-starter-sync --actor ADMIN_EMAIL           # create/update sources from the shipped list
+python -m app.cli ingest-source-test NAME                           # live test (robots, fetch)
+python -m app.cli ingest-source-terms NAME acceptable --actor ADMIN_EMAIL --notes "..."
+python -m app.cli ingest-source-status NAME approved --actor ADMIN_EMAIL
+python -m app.cli ingest-source-automation NAME full --actor ADMIN_EMAIL --reason "..."
+python -m app.cli ingest-autopilot --hours 24 --batch 50            # rounds of the site's Run job
+```
+
+`ingest-autopilot` runs discovery, processing, automatic review, expiry and closing in rounds, the same work
+as "Run" in the curator workspace, and waits between rounds that find nothing to do. On the free Groq tier
+it reviews roughly 100–150 pages a day across the models, so a large source list fills in over several days.

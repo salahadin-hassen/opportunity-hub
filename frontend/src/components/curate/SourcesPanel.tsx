@@ -145,7 +145,8 @@ export function SourcesPanel({ role, onOpenQueue }: { role?: string; onOpenQueue
       {actions.importStarter.data && (
         <p role="status" className="text-[13.5px] text-ink-soft">
           Starter list: {plural(actions.importStarter.data.created.length, "source")} added as proposed
-          {actions.importStarter.data.skipped.length > 0 ? `, ${actions.importStarter.data.skipped.length} already here` : ""}.
+          {(actions.importStarter.data.updated?.length ?? 0) > 0 ? `, ${plural(actions.importStarter.data.updated!.length, "source")} updated (test and approve again)` : ""}
+          {actions.importStarter.data.skipped.length > 0 ? `, ${actions.importStarter.data.skipped.length} already up to date` : ""}.
         </p>
       )}
       {startError && (

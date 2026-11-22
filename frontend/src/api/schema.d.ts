@@ -699,7 +699,10 @@ export interface paths {
         put?: never;
         /**
          * Import Starter Sources
-         * @description Propose the reviewed starter list that ships with the code. Existing names are skipped; nothing is fetched.
+         * @description Propose the reviewed starter list that ships with the code. Nothing is fetched.
+         *
+         *     A source that already exists (same name, or one of the same hosts) is updated when the list declares it
+         *     differently, which sends an approved source back to testing; an unchanged or retired one is skipped.
          */
         post: operations["import_starter_sources_curate_ingestion_jobs_starter_sources_post"];
         delete?: never;
@@ -3235,6 +3238,8 @@ export interface components {
             created: string[];
             /** Skipped */
             skipped: string[];
+            /** Updated */
+            updated?: string[];
         };
         /** StatusChange */
         StatusChange: {

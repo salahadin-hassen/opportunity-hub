@@ -38,7 +38,12 @@ from app.services import audit
 
 logger = logging.getLogger(__name__)
 
-POLICY_VERSION = "autonomy-1"
+POLICY_VERSION = "autonomy-3"
+#: Validation problems that only say the rule-based reader found nothing. The AI may fill these gaps, and
+#: the deadline and quoted-rules checks below still demand verified evidence; any other problem holds.
+FILLABLE_PROBLEM = re.compile(
+    r"^no deadline|^deadline is ambiguous|^no eligibility statement|^deadline(_type)?: extracted evidence does not appear", re.IGNORECASE
+)
 MIN_STATEMENTS = 2
 MIN_QUALITY_WITHOUT_AI = 60
 MIN_AI_CONFIDENCE = 0.7
@@ -88,6 +93,8 @@ class Decision:
             "deadline_type": self.deadline_type,
             "statements": self.statements,
             "ai": self.ai,
+            # Held only because the AI was out of quota or failed: decide again on the next run.
+            "retry": any(check.name == "AI review" and not check.passed and "unavailable" in check.detail for check in self.checks),
         }
 
 
@@ -96,7 +103,13 @@ def _field(extraction: Extraction, name: str):
     return item.value if item.status in ("explicit", "inferred") else None
 
 
-def decide(candidate: IngestionCandidate, source: AcquisitionSource, *, today: date, ai: ai_review.AIReview | None, use_ai: bool) -> Decision:
+def _hard_problems(validation: dict[str, Any]) -> list[str]:
+    return [str(p) for p in validation.get("problems") or [] if not FILLABLE_PROBLEM.search(str(p))]
+
+
+def decide(
+    candidate: IngestionCandidate, source: AcquisitionSource, *, today: date, ai: ai_review.AIReview | None, use_ai: bool, ai_asked: bool = True
+) -> Decision:
     """Pure decision (no writes): which checks pass, and what an automatic action would use."""
     mode = str(source.publish_mode)
     decision = Decision(outcome="hold", mode=mode, ai=ai.as_dict() if ai else None)
@@ -107,8 +120,10 @@ def decide(candidate: IngestionCandidate, source: AcquisitionSource, *, today: d
 
     trusted = source.status == SourceStatus.APPROVED and source.authority_level == AuthorityLevel.OFFICIAL and source.terms_status == TermsStatus.ACCEPTABLE
     checks.append(Check("trusted source", trusted, "The source must be approved, official, with acceptable terms."))
-    clean = not validation.get("problems") and not validation.get("irrelevant") and not validation.get("expired") and not candidate.duplicate_of_candidate_id and not candidate.duplicate_of_opportunity_id
-    checks.append(Check("clean validation", clean, "Validation found problems, or the page is irrelevant, expired or a duplicate."))
+    hard = _hard_problems(validation)
+    clean = not hard and not validation.get("irrelevant") and not validation.get("expired") and not candidate.duplicate_of_candidate_id and not candidate.duplicate_of_opportunity_id
+    detail = f"Validation found problems: {'; '.join(hard[:3])}" if hard else "The page is irrelevant, expired or a duplicate."
+    checks.append(Check("clean validation", clean, detail))
     warnings = [str(w).lower() for w in validation.get("warnings") or []]
     new_cycle = any("possible new cycle" in w for w in warnings)
     checks.append(Check("not a new cycle", not new_cycle, "This may be a new cycle of an existing opportunity; a person links it to the earlier record."))
@@ -150,9 +165,12 @@ def decide(candidate: IngestionCandidate, source: AcquisitionSource, *, today: d
             future = deadline > today
             checks.append(Check("deadline", future, f"The deadline {deadline} has passed."))
             decision.deadline, decision.deadline_type = deadline, "fixed"
-        elif rule_rolling or ai_rolling:
+        elif (rule_rolling or ai_rolling) and (not use_ai or ai_rolling):
+            # "No deadline" is a strong claim: with AI on, the model must read it independently too.
             checks.append(Check("deadline", True, "Rolling or no deadline, as the page states."))
             decision.deadline_type = (extraction.deadline_type.value if rule_rolling else ai.deadline_kind) if (rule_rolling or ai) else None
+        elif rule_rolling:
+            checks.append(Check("deadline", False, "Only the rule-based reader saw a rolling deadline; the AI did not confirm it."))
         else:
             checks.append(Check("deadline", False, "No deadline with a year (and no explicit rolling deadline) was found."))
 
@@ -165,7 +183,9 @@ def decide(candidate: IngestionCandidate, source: AcquisitionSource, *, today: d
     checks.append(Check("quoted rules", len(decision.statements) >= MIN_STATEMENTS, f"Fewer than {MIN_STATEMENTS} eligibility rules were quoted from the page."))
 
     if use_ai:
-        if ai is None:
+        if ai is None and not ai_asked:
+            checks.append(Check("AI review", False, "Not asked: the checks above already fail."))
+        elif ai is None:
             checks.append(Check("AI review", False, "The AI review was unavailable (rate limit or error); held for a person."))
         else:
             checks.append(Check("AI: opportunity page", ai.is_opportunity_page and ai.single_opportunity, "The AI read this as not one single opportunity."))
@@ -189,7 +209,7 @@ def _cheap_gates_pass(candidate: IngestionCandidate, source: AcquisitionSource) 
         source.status == SourceStatus.APPROVED
         and source.authority_level == AuthorityLevel.OFFICIAL
         and source.terms_status == TermsStatus.ACCEPTABLE
-        and not validation.get("problems")
+        and not _hard_problems(validation)
         and not validation.get("irrelevant")
         and not validation.get("expired")
         and not candidate.duplicate_of_candidate_id
@@ -210,15 +230,19 @@ def run(db: Session, *, today: date | None = None, limit: int = 50) -> dict[str,
         .join(AcquisitionSource, AcquisitionSource.id == IngestionCandidate.source_id)
         .where(IngestionCandidate.state == CandidateState.NEEDS_REVIEW, AcquisitionSource.publish_mode != PublishMode.OFF)
         .order_by(IngestionCandidate.quality_score.desc().nulls_last())
-        .limit(limit)
     ).all()
+    decided = 0
     for candidate, source in rows:
+        if decided >= limit:  # the limit counts decisions, not already-decided candidates skipped on the way
+            break
         previous = (candidate.validation or {}).get("autonomy") or {}
-        if previous.get("content_hash") == candidate.content_hash and previous.get("mode") == source.publish_mode and previous.get("policy") == POLICY_VERSION:
+        if (previous.get("content_hash") == candidate.content_hash and previous.get("mode") == source.publish_mode
+                and previous.get("policy") == POLICY_VERSION and not previous.get("retry")):
             counts["skipped"] += 1  # already decided for this content and mode
             continue
-        ai = ai_review.review_page(candidate.page_text or "", today=today) if use_ai and _cheap_gates_pass(candidate, source) else None
-        decision = decide(candidate, source, today=today, ai=ai, use_ai=use_ai)
+        asked = use_ai and _cheap_gates_pass(candidate, source)
+        ai = ai_review.review_page(candidate.page_text or "", today=today) if asked else None
+        decision = decide(candidate, source, today=today, ai=ai, use_ai=use_ai, ai_asked=asked)
         acted = "held"
         if decision.outcome != "hold" and source.publish_mode == PublishMode.SHADOW:
             acted = "would " + decision.outcome
@@ -226,6 +250,10 @@ def run(db: Session, *, today: date | None = None, limit: int = 50) -> dict[str,
             # Put the verified statements where approval reads them, then approve exactly as a curator would.
             extraction = dict(candidate.extraction or {})
             extraction["eligibility"] = {"status": "explicit", "value": decision.statements, "evidence": [{"quote": s, "location": "text"} for s in decision.statements], "note": "Verified quotes (rule-based and AI)."}
+            if ai and ai.deadline_quote and (extraction.get("deadline") or {}).get("status") != "explicit":
+                # The deadline came from the AI: keep its verified quote as the evidence, as the rule-based reader would.
+                extraction["deadline"] = {"status": "explicit", "value": decision.deadline.isoformat() if decision.deadline else None,
+                                          "evidence": [{"quote": ai.deadline_quote, "location": "text"}], "note": f"Read by {ai.model}; quote verified on the page."}
             candidate.extraction = extraction
             db.flush()
             try:
@@ -254,6 +282,7 @@ def run(db: Session, *, today: date | None = None, limit: int = 50) -> dict[str,
         db.commit()
         key = {"published": "published", "drafted": "drafted", "held": "held"}.get(acted, "shadow")
         counts[key] += 1
+        decided += 1
     return counts
 
 
