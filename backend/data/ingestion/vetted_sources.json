@@ -1319,5 +1319,1903 @@
       "max_pages_per_run": 400,
       "min_delay_seconds": 5.0
     }
+  },
+  {
+    "name": "NASA (www.nasa.gov)",
+    "base_domain": "nasa.gov",
+    "allowed_hosts": [
+      "www.nasa.gov"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "NASA"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.nasa.gov/learning-resources/internship-programs/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Korea Advanced Institute of Science and Technology (admission.kaist.ac.kr)",
+    "base_domain": "admission.kaist.ac.kr",
+    "allowed_hosts": [
+      "admission.kaist.ac.kr"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Korea Advanced Institute of Science and Technology"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://admission.kaist.ac.kr/intl-graduate/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "European Commission (erasmus-plus.ec.europa.eu)",
+    "base_domain": "erasmus-plus.ec.europa.eu",
+    "allowed_hosts": [
+      "erasmus-plus.ec.europa.eu"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Commission"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://erasmus-plus.ec.europa.eu/opportunities/opportunities-for-individuals/students/erasmus-mundus-joint-masters"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Zonta International (www.zonta.org)",
+    "base_domain": "zonta.org",
+    "allowed_hosts": [
+      "www.zonta.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Zonta International"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.zonta.org/Web/Programs/Education/Amelia_Earhart_Fellowship"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Brooke Owens Fellowship (www.brookeowensfellowship.org)",
+    "base_domain": "brookeowensfellowship.org",
+    "allowed_hosts": [
+      "www.brookeowensfellowship.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Brooke Owens Fellowship"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.brookeowensfellowship.org/apply"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Google (developers.google.com)",
+    "base_domain": "developers.google.com",
+    "allowed_hosts": [
+      "developers.google.com"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Google"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://developers.google.com/community/gdsc-solution-challenge",
+        "https://developers.google.com/open-source/gsoc/faq"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "King Abdullah University of Science and Technology (admissions.kaust.edu.sa)",
+    "base_domain": "admissions.kaust.edu.sa",
+    "allowed_hosts": [
+      "admissions.kaust.edu.sa"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "King Abdullah University of Science and Technology"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://admissions.kaust.edu.sa/study/master's-degree"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "King Abdullah University of Science and Technology (www.kaust.edu.sa)",
+    "base_domain": "kaust.edu.sa",
+    "allowed_hosts": [
+      "www.kaust.edu.sa"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "King Abdullah University of Science and Technology"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.kaust.edu.sa/en/study/admissions/kaust-fellowship"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "P.E.O. International (www.peointernational.org)",
+    "base_domain": "peointernational.org",
+    "allowed_hosts": [
+      "www.peointernational.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "P.E.O. International"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.peointernational.org/about-peo-international-peace-scholarship-ips"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "McCall MacBain Foundation & McGill University (mccallmacbainscholars.org)",
+    "base_domain": "mccallmacbainscholars.org",
+    "allowed_hosts": [
+      "mccallmacbainscholars.org"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "McCall MacBain Foundation & McGill University"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://mccallmacbainscholars.org/apply/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Cambridge Trust (www.cambridgetrust.org)",
+    "base_domain": "cambridgetrust.org",
+    "allowed_hosts": [
+      "www.cambridgetrust.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Cambridge Trust"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.cambridgetrust.org/scholarships/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "University of Toronto (future.utoronto.ca)",
+    "base_domain": "future.utoronto.ca",
+    "allowed_hosts": [
+      "future.utoronto.ca"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "University of Toronto"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://future.utoronto.ca/pearson/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Government of Canada (vanier.gc.ca)",
+    "base_domain": "vanier.gc.ca",
+    "allowed_hosts": [
+      "vanier.gc.ca"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Government of Canada"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://vanier.gc.ca/en/home-accueil.html"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "King Fahd University of Petroleum & Minerals (cgis.kfupm.edu.sa)",
+    "base_domain": "cgis.kfupm.edu.sa",
+    "allowed_hosts": [
+      "cgis.kfupm.edu.sa"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "King Fahd University of Petroleum & Minerals"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://cgis.kfupm.edu.sa/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "The Beit Trust (beittrust.org.uk)",
+    "base_domain": "beittrust.org.uk",
+    "allowed_hosts": [
+      "beittrust.org.uk"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "The Beit Trust"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://beittrust.org.uk/beit-trust-scholarships"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "The Mandela Rhodes Foundation (www.mandelarhodes.org)",
+    "base_domain": "mandelarhodes.org",
+    "allowed_hosts": [
+      "www.mandelarhodes.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "The Mandela Rhodes Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.mandelarhodes.org/scholarship/apply/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Fundación Carolina (www.fundacioncarolina.es)",
+    "base_domain": "fundacioncarolina.es",
+    "allowed_hosts": [
+      "www.fundacioncarolina.es"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Fundación Carolina"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.fundacioncarolina.es/formacion/presentacion/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Programa Nacional de Becas y Crédito Educativo (PRONABEC) (www.gob.pe)",
+    "base_domain": "gob.pe",
+    "allowed_hosts": [
+      "www.gob.pe"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Programa Nacional de Becas y Crédito Educativo (PRONABEC)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.gob.pe/pronabec"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Friedrich-Ebert-Stiftung (www.fes.de)",
+    "base_domain": "fes.de",
+    "allowed_hosts": [
+      "www.fes.de"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Friedrich-Ebert-Stiftung"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.fes.de/studienfoerderung/bewerbung"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "POSCO TJ Park Foundation (www.postf.org)",
+    "base_domain": "postf.org",
+    "allowed_hosts": [
+      "www.postf.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "POSCO TJ Park Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.postf.org/en/program/fellowship/asia.do"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Said Foundation (saidfoundation.org)",
+    "base_domain": "saidfoundation.org",
+    "allowed_hosts": [
+      "saidfoundation.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Said Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://saidfoundation.org/scholarships/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "African University of Science and Technology (AUST) (aust.edu.ng)",
+    "base_domain": "aust.edu.ng",
+    "allowed_hosts": [
+      "aust.edu.ng"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "African University of Science and Technology (AUST)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://aust.edu.ng/admissions"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "University of Oslo (www.uio.no)",
+    "base_domain": "uio.no",
+    "allowed_hosts": [
+      "www.uio.no"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "University of Oslo"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.uio.no/english/studies/admission/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "University of Groningen (www.rug.nl)",
+    "base_domain": "rug.nl",
+    "allowed_hosts": [
+      "www.rug.nl"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "University of Groningen"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.rug.nl/education/scholarships/eric-bleumink-fund"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Aalto University (www.aalto.fi)",
+    "base_domain": "aalto.fi",
+    "allowed_hosts": [
+      "www.aalto.fi"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Aalto University"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.aalto.fi/en/admission-services/scholarships-and-tuition-fees"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Sciences Po Paris (www.sciencespo.fr)",
+    "base_domain": "sciencespo.fr",
+    "allowed_hosts": [
+      "www.sciencespo.fr"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Sciences Po Paris"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.sciencespo.fr/summer/en/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "United Nations Youth Office (www.un.org)",
+    "base_domain": "un.org",
+    "allowed_hosts": [
+      "www.un.org"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "United Nations Youth Office"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.un.org/youthenvoy/internship/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Mo Ibrahim Foundation (mo.ibrahim.foundation)",
+    "base_domain": "mo.ibrahim.foundation",
+    "allowed_hosts": [
+      "mo.ibrahim.foundation"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Mo Ibrahim Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://mo.ibrahim.foundation/fellowships"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Human Rights Watch (www.hrw.org)",
+    "base_domain": "hrw.org",
+    "allowed_hosts": [
+      "www.hrw.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Human Rights Watch"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.hrw.org/about/internships"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Microsoft (careers.microsoft.com)",
+    "base_domain": "careers.microsoft.com",
+    "allowed_hosts": [
+      "careers.microsoft.com"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Microsoft"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://careers.microsoft.com/students/us/en/job/explore-intern"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Jane Street Capital (www.janestreet.com)",
+    "base_domain": "janestreet.com",
+    "allowed_hosts": [
+      "www.janestreet.com"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Jane Street Capital"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.janestreet.com/join-jane-street/internships/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Santa Fe Institute (www.santafe.edu)",
+    "base_domain": "santafe.edu",
+    "allowed_hosts": [
+      "www.santafe.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Santa Fe Institute"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.santafe.edu/engage/learn/programs/undergraduate-complexity-research"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Schmidt Sciences & Rhodes Trust (schmidtsciencefellows.org)",
+    "base_domain": "schmidtsciencefellows.org",
+    "allowed_hosts": [
+      "schmidtsciencefellows.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Schmidt Sciences & Rhodes Trust"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://schmidtsciencefellows.org/selection/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Apple Inc. (www.apple.com)",
+    "base_domain": "apple.com",
+    "allowed_hosts": [
+      "www.apple.com"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Apple Inc."
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.apple.com/careers/us/students.html"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Amazon (www.amazon.jobs)",
+    "base_domain": "amazon.jobs",
+    "allowed_hosts": [
+      "www.amazon.jobs"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Amazon"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.amazon.jobs/en/business_categories/student-programs"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Adobe Inc. (research.adobe.com)",
+    "base_domain": "research.adobe.com",
+    "allowed_hosts": [
+      "research.adobe.com"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Adobe Inc."
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://research.adobe.com/careers/internships/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Bloomberg LP (www.bloomberg.com)",
+    "base_domain": "bloomberg.com",
+    "allowed_hosts": [
+      "www.bloomberg.com"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Bloomberg LP"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.bloomberg.com/company/careers/early-career/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Google DeepMind (deepmind.google)",
+    "base_domain": "deepmind.google",
+    "allowed_hosts": [
+      "deepmind.google"
+    ],
+    "category": "employer",
+    "authority_level": "official",
+    "provider": {
+      "name": "Google DeepMind"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://deepmind.google/about/careers/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "OpenAI (openai.com)",
+    "base_domain": "openai.com",
+    "allowed_hosts": [
+      "openai.com"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "OpenAI"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://openai.com/careers/internships"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Anthropic (www.anthropic.com)",
+    "base_domain": "anthropic.com",
+    "allowed_hosts": [
+      "www.anthropic.com"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Anthropic"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.anthropic.com/careers"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "European Research Council (erc.europa.eu)",
+    "base_domain": "erc.europa.eu",
+    "allowed_hosts": [
+      "erc.europa.eu"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Research Council"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://erc.europa.eu/apply-grant/starting-grant"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Wellcome Trust (wellcome.org)",
+    "base_domain": "wellcome.org",
+    "allowed_hosts": [
+      "wellcome.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Wellcome Trust"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://wellcome.org/grant-funding/schemes/discovery-awards",
+        "https://wellcome.org/grant-funding/schemes/early-career-awards"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Balliol College, University of Oxford (www.balliol.ox.ac.uk)",
+    "base_domain": "balliol.ox.ac.uk",
+    "allowed_hosts": [
+      "www.balliol.ox.ac.uk"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Balliol College, University of Oxford"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.balliol.ox.ac.uk/vacancies/academic-vacancies"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Trinity College, University of Cambridge (www.trin.cam.ac.uk)",
+    "base_domain": "trin.cam.ac.uk",
+    "allowed_hosts": [
+      "www.trin.cam.ac.uk"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Trinity College, University of Cambridge"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.trin.cam.ac.uk/vacancies/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Howard Hughes Medical Institute (www.hhmi.org)",
+    "base_domain": "hhmi.org",
+    "allowed_hosts": [
+      "www.hhmi.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Howard Hughes Medical Institute"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.hhmi.org/programs/hanna-h-gray-fellows-program"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Echoing Green (echoinggreen.org)",
+    "base_domain": "echoinggreen.org",
+    "allowed_hosts": [
+      "echoinggreen.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Echoing Green"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://echoinggreen.org/fellowship/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "London School of Economics and Political Science (www.lse.ac.uk)",
+    "base_domain": "lse.ac.uk",
+    "allowed_hosts": [
+      "www.lse.ac.uk"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "London School of Economics and Political Science"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.lse.ac.uk/study-at-lse/summer-schools/summer-school"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Cornell University (societyhumanities.as.cornell.edu)",
+    "base_domain": "societyhumanities.as.cornell.edu",
+    "allowed_hosts": [
+      "societyhumanities.as.cornell.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Cornell University"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://societyhumanities.as.cornell.edu/fellowships"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "University of California, Berkeley (miller.berkeley.edu)",
+    "base_domain": "miller.berkeley.edu",
+    "allowed_hosts": [
+      "miller.berkeley.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "University of California, Berkeley"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://miller.berkeley.edu/fellowship"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Alfred P. Sloan Foundation (sloan.org)",
+    "base_domain": "sloan.org",
+    "allowed_hosts": [
+      "sloan.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Alfred P. Sloan Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://sloan.org/fellowships"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Fulbright Foreign Scholarship Board (fulbrightscholars.org)",
+    "base_domain": "fulbrightscholars.org",
+    "allowed_hosts": [
+      "fulbrightscholars.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Fulbright Foreign Scholarship Board"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://fulbrightscholars.org/sir"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Max Planck Society (photonics.maxplanckschools.org)",
+    "base_domain": "photonics.maxplanckschools.org",
+    "allowed_hosts": [
+      "photonics.maxplanckschools.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Max Planck Society"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://photonics.maxplanckschools.org/application"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Lawrence Berkeley National Laboratory (education.lbl.gov)",
+    "base_domain": "education.lbl.gov",
+    "allowed_hosts": [
+      "education.lbl.gov"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Lawrence Berkeley National Laboratory"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://education.lbl.gov/internships/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Brookhaven National Laboratory (www.bnl.gov)",
+    "base_domain": "bnl.gov",
+    "allowed_hosts": [
+      "www.bnl.gov"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "Brookhaven National Laboratory"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.bnl.gov/education/programs/program.php?q=116"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "European Southern Observatory (www.eso.org)",
+    "base_domain": "eso.org",
+    "allowed_hosts": [
+      "www.eso.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Southern Observatory"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.eso.org/sci/activities/feap/eso-studentship.html"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Institut Pasteur (www.pasteur.fr)",
+    "base_domain": "pasteur.fr",
+    "allowed_hosts": [
+      "www.pasteur.fr"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Institut Pasteur"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.pasteur.fr/en/education/ppu"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "RIKEN Center for Brain Science (cbs.riken.jp)",
+    "base_domain": "cbs.riken.jp",
+    "allowed_hosts": [
+      "cbs.riken.jp"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "RIKEN Center for Brain Science"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://cbs.riken.jp/en/summer/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Cold Spring Harbor Laboratory (www.cshl.edu)",
+    "base_domain": "cshl.edu",
+    "allowed_hosts": [
+      "www.cshl.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Cold Spring Harbor Laboratory"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.cshl.edu/education/undergraduate-research-program/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "National Institute for Materials Science (NIMS) (www.nims.go.jp)",
+    "base_domain": "nims.go.jp",
+    "allowed_hosts": [
+      "www.nims.go.jp"
+    ],
+    "category": "government",
+    "authority_level": "official",
+    "provider": {
+      "name": "National Institute for Materials Science (NIMS)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.nims.go.jp/eng/hr-development/internship.html"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Utrecht Network (utrecht-network.org)",
+    "base_domain": "utrecht-network.org",
+    "allowed_hosts": [
+      "utrecht-network.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Utrecht Network"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://utrecht-network.org/activities/young-researchers-grant/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Massachusetts Institute of Technology (urop.mit.edu)",
+    "base_domain": "urop.mit.edu",
+    "allowed_hosts": [
+      "urop.mit.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Massachusetts Institute of Technology"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://urop.mit.edu/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Mayo Clinic College of Medicine and Science (college.mayo.edu)",
+    "base_domain": "college.mayo.edu",
+    "allowed_hosts": [
+      "college.mayo.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Mayo Clinic College of Medicine and Science"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://college.mayo.edu/academics/biomedical-research-training/summer-undergraduate-research-fellowship-surf/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Broad Institute of MIT and Harvard (www.broadinstitute.org)",
+    "base_domain": "broadinstitute.org",
+    "allowed_hosts": [
+      "www.broadinstitute.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Broad Institute of MIT and Harvard"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.broadinstitute.org/bsrp/broad-summer-research-program-bsrp"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Y Combinator (www.ycombinator.com)",
+    "base_domain": "ycombinator.com",
+    "allowed_hosts": [
+      "www.ycombinator.com"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Y Combinator"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.ycombinator.com/apply"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Falling Walls Foundation (falling-walls.com)",
+    "base_domain": "falling-walls.com",
+    "allowed_hosts": [
+      "falling-walls.com"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Falling Walls Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://falling-walls.com/female-science-talents/intensive-track"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "The Thiel Foundation (thielfellowship.org)",
+    "base_domain": "thielfellowship.org",
+    "allowed_hosts": [
+      "thielfellowship.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "The Thiel Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://thielfellowship.org/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "D-Prize (d-prize.org)",
+    "base_domain": "d-prize.org",
+    "allowed_hosts": [
+      "d-prize.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "D-Prize"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://d-prize.org/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "International Olympiad in Informatics (ioinformatics.org)",
+    "base_domain": "ioinformatics.org",
+    "allowed_hosts": [
+      "ioinformatics.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "International Olympiad in Informatics"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://ioinformatics.org/page/rules"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "EIT Climate-KIC (www.climate-kic.org)",
+    "base_domain": "climate-kic.org",
+    "allowed_hosts": [
+      "www.climate-kic.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "EIT Climate-KIC"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.climate-kic.org/programmes/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "EIT Health (eithealth.eu)",
+    "base_domain": "eithealth.eu",
+    "allowed_hosts": [
+      "eithealth.eu"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "EIT Health"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://eithealth.eu/programmes/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "European Organization for Nuclear Research (CERN) (home.cern)",
+    "base_domain": "home.cern",
+    "allowed_hosts": [
+      "home.cern"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Organization for Nuclear Research (CERN)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://home.cern/summer-student-programme"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Hult Prize Foundation (www.hultprize.org)",
+    "base_domain": "hultprize.org",
+    "allowed_hosts": [
+      "www.hultprize.org"
+    ],
+    "category": "foundation",
+    "authority_level": "official",
+    "provider": {
+      "name": "Hult Prize Foundation"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.hultprize.org/challenge/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Massachusetts Institute of Technology (cep.mit.edu)",
+    "base_domain": "cep.mit.edu",
+    "allowed_hosts": [
+      "cep.mit.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Massachusetts Institute of Technology"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://cep.mit.edu/apply"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "European Organization for Nuclear Research (CERN) (beamlineforschools.cern)",
+    "base_domain": "beamlineforschools.cern",
+    "allowed_hosts": [
+      "beamlineforschools.cern"
+    ],
+    "category": "international_organization",
+    "authority_level": "official",
+    "provider": {
+      "name": "European Organization for Nuclear Research (CERN)"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://beamlineforschools.cern/about"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Lindau Nobel Laureate Meetings Council (www.lindau-nobel.org)",
+    "base_domain": "lindau-nobel.org",
+    "allowed_hosts": [
+      "www.lindau-nobel.org"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Lindau Nobel Laureate Meetings Council"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.lindau-nobel.org/young-scientists/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Harvard Summer School (summer.harvard.edu)",
+    "base_domain": "summer.harvard.edu",
+    "allowed_hosts": [
+      "summer.harvard.edu"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Harvard Summer School"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://summer.harvard.edu/adult-college-students/visiting-college-students/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Utrecht University (utrechtsummerschool.nl)",
+    "base_domain": "utrechtsummerschool.nl",
+    "allowed_hosts": [
+      "utrechtsummerschool.nl"
+    ],
+    "category": "university",
+    "authority_level": "official",
+    "provider": {
+      "name": "Utrecht University"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://utrechtsummerschool.nl/"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Max Planck Institute for Legal History and Legal Theory (www.lhlt.mpg.de)",
+    "base_domain": "lhlt.mpg.de",
+    "allowed_hosts": [
+      "www.lhlt.mpg.de"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Max Planck Institute for Legal History and Legal Theory"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.lhlt.mpg.de/summer-academy"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
+  },
+  {
+    "name": "Bucerius Law School (www.law-school.de)",
+    "base_domain": "law-school.de",
+    "allowed_hosts": [
+      "www.law-school.de"
+    ],
+    "category": "research_institution",
+    "authority_level": "official",
+    "provider": {
+      "name": "Bucerius Law School"
+    },
+    "discovery_method": "url_list",
+    "connector_key": "url_list",
+    "connector_config": {
+      "urls": [
+        "https://www.law-school.de/international/summer-programs"
+      ]
+    },
+    "crawl_policy": {
+      "discovery_interval_hours": 168,
+      "max_pages_per_run": 10,
+      "min_delay_seconds": 5.0
+    }
   }
 ]

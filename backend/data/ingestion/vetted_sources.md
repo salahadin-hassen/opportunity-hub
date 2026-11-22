@@ -6,7 +6,7 @@ Every page was found through the organisation's own site and probed live with th
 (robots.txt, status, server-rendered text) before it was kept. Nothing on these pages is guessed: the
 pipeline publishes only fields it can quote from the page.
 
-Last checked: 2026-11-22. 37 sources.
+Last checked: 2026-11-22. 116 sources.
 
 `ingest-starter-sync` (or "Import starter sources" in the curator workspace) creates new sources and updates
 existing ones whose declaration changed; an updated source goes back to testing and must be approved again.
@@ -52,6 +52,97 @@ existing ones whose declaration changed; an updated source goes back to testing 
 | DFG individual funding programmes | government | 10 |
 | Research Ireland funding programmes | government | 16 |
 | NSF funding opportunities | government | 307 |
+
+### Batch 2: single programme pages (79 sources)
+
+These official URLs came from the local development dataset, whose listing **content was not used**: a check
+on 2026-11-22 found none of its quoted rules on the official pages (0 of 30 sampled) and 76 of its URLs
+returning 404. Only the URLs were kept, and only where the page exists (HTTP 200 on the same host), robots.txt
+allows our agent, and the page has server-rendered text. 261 sites were probed: 104 usable, 24 excluded on
+terms (automated scan, deliberately conservative), 1 unreadable. The pipeline reads each page itself and
+publishes only what it can quote.
+
+| Source | Category | Pages |
+|---|---|---|
+| NASA (www.nasa.gov) | government | 1 |
+| Korea Advanced Institute of Science and Technology (admission.kaist.ac.kr) | university | 1 |
+| European Commission (erasmus-plus.ec.europa.eu) | government | 1 |
+| Zonta International (www.zonta.org) | research institution | 1 |
+| Brooke Owens Fellowship (www.brookeowensfellowship.org) | research institution | 1 |
+| Google (developers.google.com) | employer | 2 |
+| King Abdullah University of Science and Technology (admissions.kaust.edu.sa) | university | 1 |
+| King Abdullah University of Science and Technology (www.kaust.edu.sa) | university | 1 |
+| P.E.O. International (www.peointernational.org) | research institution | 1 |
+| McCall MacBain Foundation & McGill University (mccallmacbainscholars.org) | university | 1 |
+| Cambridge Trust (www.cambridgetrust.org) | foundation | 1 |
+| University of Toronto (future.utoronto.ca) | university | 1 |
+| Government of Canada (vanier.gc.ca) | government | 1 |
+| King Fahd University of Petroleum & Minerals (cgis.kfupm.edu.sa) | university | 1 |
+| The Beit Trust (beittrust.org.uk) | foundation | 1 |
+| The Mandela Rhodes Foundation (www.mandelarhodes.org) | foundation | 1 |
+| Fundación Carolina (www.fundacioncarolina.es) | foundation | 1 |
+| Programa Nacional de Becas y Crédito Educativo (PRONABEC) (www.gob.pe) | government | 1 |
+| Friedrich-Ebert-Stiftung (www.fes.de) | foundation | 1 |
+| POSCO TJ Park Foundation (www.postf.org) | foundation | 1 |
+| Said Foundation (saidfoundation.org) | foundation | 1 |
+| African University of Science and Technology (AUST) (aust.edu.ng) | university | 1 |
+| University of Oslo (www.uio.no) | university | 1 |
+| University of Groningen (www.rug.nl) | university | 1 |
+| Aalto University (www.aalto.fi) | university | 1 |
+| Sciences Po Paris (www.sciencespo.fr) | research institution | 1 |
+| United Nations Youth Office (www.un.org) | international organization | 1 |
+| Mo Ibrahim Foundation (mo.ibrahim.foundation) | foundation | 1 |
+| Human Rights Watch (www.hrw.org) | research institution | 1 |
+| Microsoft (careers.microsoft.com) | employer | 1 |
+| Jane Street Capital (www.janestreet.com) | employer | 1 |
+| Santa Fe Institute (www.santafe.edu) | university | 1 |
+| Schmidt Sciences & Rhodes Trust (schmidtsciencefellows.org) | foundation | 1 |
+| Apple Inc. (www.apple.com) | employer | 1 |
+| Amazon (www.amazon.jobs) | employer | 1 |
+| Adobe Inc. (research.adobe.com) | employer | 1 |
+| Bloomberg LP (www.bloomberg.com) | research institution | 1 |
+| Google DeepMind (deepmind.google) | employer | 1 |
+| OpenAI (openai.com) | research institution | 1 |
+| Anthropic (www.anthropic.com) | research institution | 1 |
+| European Research Council (erc.europa.eu) | government | 1 |
+| Wellcome Trust (wellcome.org) | foundation | 2 |
+| Balliol College, University of Oxford (www.balliol.ox.ac.uk) | university | 1 |
+| Trinity College, University of Cambridge (www.trin.cam.ac.uk) | university | 1 |
+| Howard Hughes Medical Institute (www.hhmi.org) | research institution | 1 |
+| Echoing Green (echoinggreen.org) | research institution | 1 |
+| London School of Economics and Political Science (www.lse.ac.uk) | university | 1 |
+| Cornell University (societyhumanities.as.cornell.edu) | university | 1 |
+| University of California, Berkeley (miller.berkeley.edu) | university | 1 |
+| Alfred P. Sloan Foundation (sloan.org) | foundation | 1 |
+| Fulbright Foreign Scholarship Board (fulbrightscholars.org) | research institution | 1 |
+| Max Planck Society (photonics.maxplanckschools.org) | research institution | 1 |
+| Lawrence Berkeley National Laboratory (education.lbl.gov) | government | 1 |
+| Brookhaven National Laboratory (www.bnl.gov) | government | 1 |
+| European Southern Observatory (www.eso.org) | research institution | 1 |
+| Institut Pasteur (www.pasteur.fr) | research institution | 1 |
+| RIKEN Center for Brain Science (cbs.riken.jp) | research institution | 1 |
+| Cold Spring Harbor Laboratory (www.cshl.edu) | university | 1 |
+| National Institute for Materials Science (NIMS) (www.nims.go.jp) | government | 1 |
+| Utrecht Network (utrecht-network.org) | research institution | 1 |
+| Massachusetts Institute of Technology (urop.mit.edu) | university | 1 |
+| Mayo Clinic College of Medicine and Science (college.mayo.edu) | university | 1 |
+| Broad Institute of MIT and Harvard (www.broadinstitute.org) | research institution | 1 |
+| Y Combinator (www.ycombinator.com) | research institution | 1 |
+| Falling Walls Foundation (falling-walls.com) | foundation | 1 |
+| The Thiel Foundation (thielfellowship.org) | foundation | 1 |
+| D-Prize (d-prize.org) | research institution | 1 |
+| International Olympiad in Informatics (ioinformatics.org) | research institution | 1 |
+| EIT Climate-KIC (www.climate-kic.org) | research institution | 1 |
+| EIT Health (eithealth.eu) | research institution | 1 |
+| European Organization for Nuclear Research (CERN) (home.cern) | international organization | 1 |
+| Hult Prize Foundation (www.hultprize.org) | foundation | 1 |
+| Massachusetts Institute of Technology (cep.mit.edu) | university | 1 |
+| European Organization for Nuclear Research (CERN) (beamlineforschools.cern) | international organization | 1 |
+| Lindau Nobel Laureate Meetings Council (www.lindau-nobel.org) | research institution | 1 |
+| Harvard Summer School (summer.harvard.edu) | university | 1 |
+| Utrecht University (utrechtsummerschool.nl) | university | 1 |
+| Max Planck Institute for Legal History and Legal Theory (www.lhlt.mpg.de) | research institution | 1 |
+| Bucerius Law School (www.law-school.de) | research institution | 1 |
 
 ## Removed, and why (add by hand in the curator workspace if wanted)
 
@@ -130,3 +221,27 @@ attributed and linked to the official page. Opportunity Hub is non-commercial (c
 | Schwarzman Scholars | schwarzmanscholars.org/terms-of-use: personal licence for internal use only |
 | UNICEF internships | unicef.org/legal: reproduction for wider dissemination needs prior written permission |
 | Royal Academy of Engineering programmes | raeng.org.uk/disclaimer: reproduction or storage in any other work is expressly prohibited |
+| GitHub Education (education.github.com) | Terms appear restrictive (automated scan, conservative): You may not assign or delegate any rights or obligations under the Terms of Service or Privacy Statement without our prior written consent, and any unauthorized assignment and dele |
+| ETH Zurich (ethz.ch) | Terms appear restrictive (automated scan, conservative): Without prior written consent from ETH Zurich it is not permissible for the documents and web pages and parts thereof to be either copied or stored on other servers, input into new |
+| Asian Development Bank (www.adb.org) | Terms appear restrictive (automated scan, conservative): You may not claim or imply that ADB endorses your use of project data, nor may you use ADB's logo in conjunction with such use, unless you have received prior written permission fr |
+| Islamic Development Bank (www.isdb.org) | Terms appear restrictive (automated scan, conservative): The use or misuse of these trademarks or any other materials, except as permitted herein, is expressly prohibited and may be in violation of copyright, trademark or other intellect |
+| OPEC Fund for International Development (opecfund.org) | Terms appear restrictive (automated scan, conservative): Our prior consent is required before they are permitted to transfer responsibility for processing personal data to a third party. |
+| Narotam Sekhsaria Foundation (pg.nsfoundation.co.in) | Terms appear restrictive (automated scan, conservative): Commercial use of any of the contents on the Site in any manner is prohibited, without prior written permission from an authorised NSF person. |
+| Abdulla Al Ghurair Foundation for Education (www.alghurairfoundation.org) | Terms appear restrictive (automated scan, conservative): Material contained on the Website may be downloaded, viewed and printed for personal use only and provided that no trademark, copyright or other proprietary notices contained in or |
+| Radboud University (www.ru.nl) | Terms appear restrictive (automated scan, conservative): This is possible only with the prior written consent of Radboud University. |
+| International Committee of the Red Cross (careers.icrc.org) | Terms appear restrictive (automated scan, conservative): using automated means to access content from any of our services in violation of the machine-readable instructions on our web pages (for example, robots.txt files that disallow cra |
+| ETH Zurich (inf.ethz.ch) | Terms appear restrictive (automated scan, conservative): Without prior written consent from ETH Zurich it is not permissible for the documents and web pages and parts thereof to be either copied or stored on other servers, input into new |
+| NVIDIA Corporation (www.nvidia.com) | Terms appear restrictive (automated scan, conservative): You may not use NVIDIA's trademarks without NVIDIA’s prior written permission, and nothing in these Terms will be construed as granting such permission. |
+| Two Sigma Investments (www.twosigma.com) | Terms appear restrictive (automated scan, conservative): You may not use any data mining, robots or similar data gathering and extraction programs or methods, whether automated or manual, to access, acquire, copy or monitor any portion o |
+| National Academies of Sciences, Engineering, and Medicine (www.nationalacademies.org) | Terms appear restrictive (automated scan, conservative): Therefore, reproduction, modification, storage in a retrieval system or retransmission, in any form or by any means, electronic, mechanical, or otherwise, for reasons other than pe |
+| Open Society Foundations (www.opensocietyfoundations.org) | Terms appear restrictive (automated scan, conservative): Other than as specifically described in the preceding paragraph, you may not copy, reproduce, distribute, modify, display, republish, transmit, repost, or otherwise use the content |
+| Stanford University (stanfordsciencefellows.stanford.edu) | Terms appear restrictive (automated scan, conservative): User may download material from the Sites only for User’s own personal, non-commercial use. |
+| The University of Tokyo (www.u-tokyo.ac.jp) | Terms appear restrictive (automated scan, conservative): Content may not be copied, reproduced or altered without permission. |
+| National Geographic Society (www.nationalgeographic.org) | Terms appear restrictive (automated scan, conservative): 3.1 Prohibition on Data Scraping​ |
+| Microsoft (imaginecup.microsoft.com) | Terms appear restrictive (automated scan, conservative): Any reproduction or redistribution of the Software not in accordance with the License Agreement is expressly prohibited by law, and may result in severe civil and criminal penaltie |
+| XPRIZE Foundation (www.xprize.org) | Terms appear restrictive (automated scan, conservative): These Terms of Use permit you to use the Website for personal, non-commercial use only. |
+| Institution of Mechanical Engineers (IMechE) (www.imeche.org) | Terms appear restrictive (automated scan, conservative): 2.5 No text or data mining, or web scraping |
+| Breakthrough Prize Foundation (breakthroughjuniorchallenge.org) | Terms appear restrictive (automated scan, conservative): No such Content can be copied, publicly displayed, modified, sold, licensed or distributed in any way by You without such owner's prior written consent. |
+| Red Dot GmbH & Co. KG (www.red-dot.org) | Terms appear restrictive (automated scan, conservative): Any duplication or reproduction of them in whole or in part is subject to the prior written permission of Red Dot GmbH & Co. |
+| University of California, Berkeley (summer.berkeley.edu) | Terms appear restrictive (automated scan, conservative): These records are confidential, and in most circumstances, may be released to third parties only with your prior consent. |
+| King's College London (www.kcl.ac.uk) | Terms appear restrictive (automated scan, conservative): The content of this website may be viewed, printed or downloaded for personal, non-commercial use only. |
