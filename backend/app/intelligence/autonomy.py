@@ -38,7 +38,7 @@ from app.services import audit
 
 logger = logging.getLogger(__name__)
 
-POLICY_VERSION = "autonomy-3"
+POLICY_VERSION = "autonomy-4"
 #: Validation problems that only say the rule-based reader found nothing. The AI may fill these gaps, and
 #: the deadline and quoted-rules checks below still demand verified evidence; any other problem holds.
 FILLABLE_PROBLEM = re.compile(
@@ -71,6 +71,7 @@ class Decision:
     opportunity_type: str | None = None
     deadline: date | None = None
     deadline_type: str | None = None
+    deadline_unannounced: bool = False
     statements: list[str] = field(default_factory=list)
     ai: dict[str, Any] | None = None
 
@@ -91,6 +92,7 @@ class Decision:
             "opportunity_type": self.opportunity_type,
             "deadline": self.deadline.isoformat() if self.deadline else None,
             "deadline_type": self.deadline_type,
+            "deadline_unannounced": self.deadline_unannounced,
             "statements": self.statements,
             "ai": self.ai,
             # Held only because the AI was out of quota or failed: decide again on the next run.
@@ -171,6 +173,11 @@ def decide(
             decision.deadline_type = (extraction.deadline_type.value if rule_rolling else ai.deadline_kind) if (rule_rolling or ai) else None
         elif rule_rolling:
             checks.append(Check("deadline", False, "Only the rule-based reader saw a rolling deadline; the AI did not confirm it."))
+        elif use_ai and ai is not None and ai.applications in ("open", "upcoming") and ai.deadline_kind == "unknown":
+            # The page gives no date for this cycle but the AI reads it as open or upcoming: list it as
+            # "deadline not announced, check the official page" (never an invented date).
+            checks.append(Check("deadline", True, "No date announced on the page; listed as “check the official page”."))
+            decision.deadline_type, decision.deadline_unannounced = "fixed", True
         else:
             checks.append(Check("deadline", False, "No deadline with a year (and no explicit rolling deadline) was found."))
 
@@ -261,7 +268,8 @@ def run(db: Session, *, today: date | None = None, limit: int = 50) -> dict[str,
                     db, candidate.id, actor_id=None,  # type: ignore[arg-type]  # a system action
                     decision=pipeline.ApprovalInput(
                         title=decision.title, opportunity_type=decision.opportunity_type, deadline=decision.deadline,
-                        deadline_type=decision.deadline_type, notes="Automatic approval: every autonomy check passed.",
+                        deadline_type=decision.deadline_type, deadline_unannounced=decision.deadline_unannounced,
+                        notes="Automatic approval: every autonomy check passed.",
                     ),
                 )
                 acted = "drafted"

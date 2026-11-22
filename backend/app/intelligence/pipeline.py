@@ -561,6 +561,8 @@ class ApprovalInput:
     notes: str | None = None
     #: Required to approve a candidate the pipeline marked expired or duplicate.
     force: bool = False
+    #: A fixed-deadline programme whose page announces no date yet: listed as "check the official page".
+    deadline_unannounced: bool = False
 
 
 _MANDATORY = re.compile(r"\b(must|required|requires|only|eligible|open to|not eligible|ineligible|need to|may not|cannot|must not)\b", re.IGNORECASE)
@@ -627,7 +629,7 @@ def approve_candidate(db: Session, candidate_id: uuid.UUID, *, actor_id: uuid.UU
         deadline_type = DeadlineType.FIXED.value
     if deadline_type not in {item.value for item in DeadlineType}:
         raise PipelineError("Confirm the deadline: give a date, or a deadline type of rolling or none.")
-    if deadline_type == DeadlineType.FIXED and deadline_value is None:
+    if deadline_type == DeadlineType.FIXED and deadline_value is None and not decision.deadline_unannounced:
         raise PipelineError("A fixed deadline needs a date.")
 
     statements: list[str] = list(extraction.eligibility.value or []) if extraction.eligibility.status == "explicit" else []

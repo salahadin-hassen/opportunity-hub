@@ -409,3 +409,25 @@ def test_cli_raises_automation_one_audited_step_at_a_time_and_lowers_at_once(db_
     steps = db_session.scalars(select(AuditLog.changes).where(AuditLog.target_id == str(source.id), AuditLog.action.like("%publish_mode%"))).all()
     assert len(steps) >= 3
     assert automation("off") == 0 and source.publish_mode == PublishMode.OFF
+
+
+def test_an_open_programme_with_no_announced_date_publishes_without_inventing_one(db_session, admin, monkeypatch):
+    monkeypatch.setattr(settings, "GROQ_API_KEY", "test-key")
+    monkeypatch.setattr(Session, "commit", Session.flush)
+    no_date = raw(deadline={"kind": "unknown", "date": None, "quote": None}, applications="upcoming")
+    monkeypatch.setattr(ai_review, "review_page", lambda page, today: ai_review.verify(no_date, page, "m", today))
+    source = make_source(db_session, admin, PublishMode.FULL)
+    candidate = make_candidate(db_session, source, ex=extraction(deadline=None),
+                               validation={"problems": ["no deadline or rolling/no-deadline statement found"], "irrelevant": False, "expired": False})
+    assert autonomy.run(db_session, today=TODAY)["published"] == 1
+    db_session.refresh(candidate)
+    opportunity = db_session.get(Opportunity, candidate.opportunity_id)
+    assert opportunity.deadline_at is None and opportunity.deadline_type == "fixed"
+
+
+def test_no_date_and_applications_not_known_to_be_open_still_holds(db_session, admin):
+    source = make_source(db_session, admin, PublishMode.FULL)
+    candidate = make_candidate(db_session, source, ex=extraction(deadline=None))
+    unknown = ai_review.verify(raw(deadline={"kind": "unknown", "date": None, "quote": None}, applications="unknown"), PAGE, "m", TODAY)
+    decision = autonomy.decide(candidate, source, today=TODAY, ai=unknown, use_ai=True)
+    assert decision.outcome == "hold" and any("No deadline with a year" in r for r in decision.held_because)
