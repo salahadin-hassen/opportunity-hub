@@ -38,7 +38,7 @@ from app.services import audit
 
 logger = logging.getLogger(__name__)
 
-POLICY_VERSION = "autonomy-4"
+POLICY_VERSION = "autonomy-5"
 #: Validation problems that only say the rule-based reader found nothing. The AI may fill these gaps, and
 #: the deadline and quoted-rules checks below still demand verified evidence; any other problem holds.
 FILLABLE_PROBLEM = re.compile(
@@ -173,8 +173,8 @@ def decide(
             decision.deadline_type = (extraction.deadline_type.value if rule_rolling else ai.deadline_kind) if (rule_rolling or ai) else None
         elif rule_rolling:
             checks.append(Check("deadline", False, "Only the rule-based reader saw a rolling deadline; the AI did not confirm it."))
-        elif use_ai and ai is not None and ai.applications in ("open", "upcoming") and ai.deadline_kind == "unknown":
-            # The page gives no date for this cycle but the AI reads it as open or upcoming: list it as
+        elif use_ai and ai is not None and ai.applications != "closed" and ai.deadline_kind == "unknown" and not validation.get("expired"):
+            # The page gives no date for this cycle and doesn't say applications are closed: list it as
             # "deadline not announced, check the official page" (never an invented date).
             checks.append(Check("deadline", True, "No date announced on the page; listed as “check the official page”."))
             decision.deadline_type, decision.deadline_unannounced = "fixed", True
@@ -248,7 +248,9 @@ def run(db: Session, *, today: date | None = None, limit: int = 50) -> dict[str,
             counts["skipped"] += 1  # already decided for this content and mode
             continue
         asked = use_ai and _cheap_gates_pass(candidate, source)
-        ai = ai_review.review_page(candidate.page_text or "", today=today) if asked else None
+        # The page hasn't changed since the AI last read it: reuse that verified reading (saves the free quota).
+        stored = ai_review.from_dict(previous.get("ai")) if previous.get("content_hash") == candidate.content_hash else None
+        ai = (stored or ai_review.review_page(candidate.page_text or "", today=today)) if asked else None
         decision = decide(candidate, source, today=today, ai=ai, use_ai=use_ai, ai_asked=asked)
         acted = "held"
         if decision.outcome != "hold" and source.publish_mode == PublishMode.SHADOW:

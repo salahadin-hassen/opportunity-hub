@@ -425,9 +425,24 @@ def test_an_open_programme_with_no_announced_date_publishes_without_inventing_on
     assert opportunity.deadline_at is None and opportunity.deadline_type == "fixed"
 
 
-def test_no_date_and_applications_not_known_to_be_open_still_holds(db_session, admin):
+def test_no_date_and_applications_closed_still_holds(db_session, admin):
     source = make_source(db_session, admin, PublishMode.FULL)
     candidate = make_candidate(db_session, source, ex=extraction(deadline=None))
-    unknown = ai_review.verify(raw(deadline={"kind": "unknown", "date": None, "quote": None}, applications="unknown"), PAGE, "m", TODAY)
+    unknown = ai_review.verify(raw(deadline={"kind": "unknown", "date": None, "quote": None}, applications="closed"), PAGE, "m", TODAY)
     decision = autonomy.decide(candidate, source, today=TODAY, ai=unknown, use_ai=True)
     assert decision.outcome == "hold" and any("No deadline with a year" in r for r in decision.held_because)
+
+
+
+def test_a_stored_ai_reading_is_reused_when_the_page_is_unchanged(db_session, admin, monkeypatch):
+    monkeypatch.setattr(settings, "GROQ_API_KEY", "test-key")
+    monkeypatch.setattr(Session, "commit", Session.flush)
+    calls = []
+    monkeypatch.setattr(ai_review, "review_page", lambda page, today: calls.append(1) or ai_review.verify(raw(applications="closed"), page, "m", today))
+    source = make_source(db_session, admin, PublishMode.FULL)
+    candidate = make_candidate(db_session, source)
+    assert autonomy.run(db_session, today=TODAY)["held"] == 1
+    monkeypatch.setattr(autonomy, "POLICY_VERSION", "autonomy-next")  # a new policy re-decides the candidate
+    assert autonomy.run(db_session, today=TODAY)["held"] == 1
+    assert calls == [1]  # ... without asking the model again
+    assert ai_review.from_dict({"version": "old"}) is None

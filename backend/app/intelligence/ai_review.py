@@ -112,6 +112,18 @@ class AIReview:
         return data
 
 
+def from_dict(data: dict[str, Any] | None) -> AIReview | None:
+    """A stored, already-verified review (``AIReview.as_dict``) back as an object; None if absent or from another reviewer version."""
+    if not data or data.get("version") != REVIEWER_VERSION:
+        return None
+    fields = {name: data.get(name) for name in AIReview.__dataclass_fields__ if name in data}
+    try:
+        fields["deadline"] = date.fromisoformat(fields["deadline"]) if fields.get("deadline") else None
+        return AIReview(**fields)
+    except (TypeError, ValueError):
+        return None
+
+
 def enabled() -> bool:
     return bool(settings.GROQ_API_KEY)
 
