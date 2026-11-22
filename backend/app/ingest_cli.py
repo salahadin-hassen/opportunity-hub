@@ -159,7 +159,13 @@ def _autopilot(db: Session, *, hours: float, batch: int, pause_minutes: float) -
     rounds = 0
     while _time.monotonic() < stop:
         rounds += 1
-        summary = _pipeline_work(None, batch)(db)
+        try:
+            summary = _pipeline_work(None, batch)(db)
+        except Exception as error:  # a dropped connection or a flaky network must not end an unattended run
+            db.rollback()
+            print(f"[{datetime.now(timezone.utc):%Y-%m-%d %H:%M}] round {rounds} failed ({type(error).__name__}); retrying in 2 minutes", flush=True)
+            _time.sleep(120)
+            continue
         auto = summary["automatic"]
         print(f"[{datetime.now(timezone.utc):%Y-%m-%d %H:%M}] round {rounds}: new leads {summary['new_leads']}, processed {summary['processed']}, "
               f"published {auto['published']}, drafted {auto['drafted']}, shadow {auto['shadow']}, held {auto['held']}, "
